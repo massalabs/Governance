@@ -13,14 +13,16 @@ import {
 } from '@massalabs/massa-as-sdk';
 import {
   constructor,
-  recordedCycleKey,
   feedCycle,
   ownerAddress,
-  rollKey,
-  LAST_CYCLE_TAG,
   deleteCycle,
-} from '../contracts/rolls-oracle';
-import { RollEntry } from '../contracts/roll-entry';
+} from '../contracts/oracle/rolls-oracle';
+import { RollEntry } from '../contracts/serializable/roll-entry';
+import {
+  LAST_CYCLE_TAG,
+  recordedCycleKey,
+  rollKey,
+} from '../contracts/oracle/keys';
 
 export const contractAddress =
   'AS12BqZEQ6sByhRLyEuf0YbQmcF2PsDdkNNG1akBJu9XcjZA1eT';
