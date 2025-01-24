@@ -18,6 +18,7 @@ import {
   ownerAddress,
   rollKey,
   LAST_CYCLE_TAG,
+  deleteCycle,
 } from '../contracts/rolls-oracle';
 import { RollEntry } from '../contracts/roll-entry';
 
@@ -134,6 +135,42 @@ describe('Oracle Contract Tests', () => {
 
       const lastCycle2 = bytesToU32(Storage.get(LAST_CYCLE_TAG));
       expect(lastCycle2).toBe(cycles[2]);
+    });
+  });
+
+  describe('Delete Cycle Data', () => {
+    test('Delete cycle data successfully', () => {
+      const rollData: RollEntry[] = [
+        new RollEntry('address1', 10),
+        new RollEntry('address2', 15),
+      ];
+
+      const args = new Args()
+        .add<u32>(cycles[1])
+        .addSerializableObjectArray<RollEntry>(rollData);
+
+      feedCycle(args.serialize());
+
+      const deleteArgs = new Args().add<u32>(cycles[1]);
+      deleteCycle(deleteArgs.serialize());
+
+      for (let i = 0; i < rollData.length; i++) {
+        expect(
+          Storage.has(rollKey(cycles[1], rollData[i].address)),
+        ).toBeFalsy();
+      }
+    });
+
+    throws('Delete cycle fails if caller is not the owner', () => {
+      switchUser(nonOwner);
+
+      const deleteArgs = new Args().add<u32>(cycles[1]);
+      deleteCycle(deleteArgs.serialize());
+    });
+
+    throws('Delete cycle fails if cycle does not exist', () => {
+      const deleteArgs = new Args().add<u32>(cycles[1]);
+      deleteCycle(deleteArgs.serialize());
     });
   });
 });

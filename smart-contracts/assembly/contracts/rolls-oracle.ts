@@ -3,6 +3,7 @@ import {
   Storage,
   balance,
   generateEvent,
+  getKeys,
   setBytecode,
   transferCoins,
 } from '@massalabs/massa-as-sdk';
@@ -28,8 +29,12 @@ export function recordedCycleKey(cycle: u32): StaticArray<u8> {
   return RECORDED_CYCLES_TAG.concat(u32ToBytes(cycle));
 }
 
+export function rollKeyPrefix(cycle: u32): StaticArray<u8> {
+  return ROLLS_TAG.concat(u32ToBytes(cycle));
+}
+
 export function rollKey(cycle: u32, address: string): StaticArray<u8> {
-  return ROLLS_TAG.concat(u32ToBytes(cycle)).concat(stringToBytes(address));
+  return rollKeyPrefix(cycle).concat(stringToBytes(address));
 }
 
 export function validateAndSetCycle(cycle: u32): void {
@@ -63,7 +68,7 @@ export function constructor(_: StaticArray<u8>): void {
  */
 export function feedCycle(binaryArgs: StaticArray<u8>): void {
   _onlyOwner();
-  // TODO validate limit of entries
+  // TODO - Add a limit to no exceed the gas limit ?
   const args = new Args(binaryArgs);
   const cycle = args.next<u32>().expect('Invalid cycle number');
   validateAndSetCycle(cycle);
@@ -80,6 +85,27 @@ export function feedCycle(binaryArgs: StaticArray<u8>): void {
   }
 
   generateEvent(`Cycle ${cycle} data fed successfully`);
+}
+
+/**
+ * Delete a cycle from history.
+ * @param binaryArgs - Serialized arguments containing the cycle number.
+ */
+export function deleteCycle(binaryArgs: StaticArray<u8>): void {
+  _onlyOwner();
+  const args = new Args(binaryArgs);
+  const cycle = args.next<u32>().expect('Invalid cycle number');
+
+  assert(Storage.has(recordedCycleKey(cycle)), 'Cycle not found');
+
+  const rollKeys = getKeys(rollKeyPrefix(cycle));
+
+  // TODO - Add a limit to no exceed the gas limit ?
+  for (let i = 0; i < rollKeys.length; i++) {
+    Storage.del(rollKeys[i]);
+  }
+
+  generateEvent(`Cycle ${cycle} deleted successfully`);
 }
 
 /**
