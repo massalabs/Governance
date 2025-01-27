@@ -10,8 +10,8 @@ import {
   _onlyOwner,
   _setOwner,
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
-import { RollEntry } from '../serializable/roll-entry';
-import { _deleteCycle, _feedCycle } from './internals';
+import { RollEntry } from './serializable/roll-entry';
+import { _deleteCycle, _feedCycle } from './oracle-internals/internals';
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.
@@ -28,6 +28,8 @@ export function constructor(_: StaticArray<u8>): void {
  * @param binaryArgs - Serialized arguments containing the cycle number and roll data.
  */
 export function feedCycle(binaryArgs: StaticArray<u8>): void {
+  const balanceStart = balance();
+  generateEvent('balance start: ' + balanceStart.toString());
   _onlyOwner();
   // TODO - Add a limit to no exceed the gas limit ?
   const args = new Args(binaryArgs);
@@ -39,6 +41,8 @@ export function feedCycle(binaryArgs: StaticArray<u8>): void {
   _feedCycle(cycle, rollData);
 
   generateEvent(`Cycle ${cycle} data fed successfully`);
+  const balanceEnd = balance();
+  generateEvent('balance end: ' + balanceEnd.toString());
 }
 
 /**
@@ -46,7 +50,6 @@ export function feedCycle(binaryArgs: StaticArray<u8>): void {
  * @param binaryArgs - Serialized arguments containing the cycle number.
  */
 export function deleteCycle(binaryArgs: StaticArray<u8>): void {
-  // TODO - Add a limit to no exceed the gas limit ?
   _onlyOwner();
   const args = new Args(binaryArgs);
   const cycle = args.next<u32>().expect('Invalid cycle number');
@@ -75,9 +78,7 @@ export function withdrawCoins(): void {
 }
 
 /**
- * Upgrade the DNS smart contract bytecode
- * @param args - new bytecode
- * @returns void
+ * Upgrade the smart contract bytecode
  */
 export function upgradeSC(bytecode: StaticArray<u8>): void {
   _onlyOwner();

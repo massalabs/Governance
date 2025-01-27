@@ -16,13 +16,13 @@ import {
   feedCycle,
   ownerAddress,
   deleteCycle,
-} from '../contracts/oracle/rolls-oracle';
+} from '../contracts/rolls-oracle';
 import { RollEntry } from '../contracts/serializable/roll-entry';
 import {
   LAST_CYCLE_TAG,
   recordedCycleKey,
   rollKey,
-} from '../contracts/oracle/keys';
+} from '../contracts/oracle-internals/keys';
 
 export const contractAddress =
   'AS12BqZEQ6sByhRLyEuf0YbQmcF2PsDdkNNG1akBJu9XcjZA1eT';

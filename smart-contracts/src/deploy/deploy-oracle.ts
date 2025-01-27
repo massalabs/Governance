@@ -6,24 +6,18 @@ import {
   SmartContract,
   Web3Provider,
 } from '@massalabs/massa-web3';
-import { getScByteCode } from './utils';
+import { getScByteCode } from '../utils';
 
 const account = await Account.fromEnv();
 const provider = Web3Provider.buildnet(account);
 
 console.log('Deploying contract...');
 
-const byteCode = getScByteCode('build', 'main.wasm');
+const byteCode = getScByteCode('build', 'rolls-oracle.wasm');
 
-const name = 'Massa';
-const constructorArgs = new Args().addString(name);
-
-const contract = await SmartContract.deploy(
-  provider,
-  byteCode,
-  constructorArgs,
-  { coins: Mas.fromString('0.01') },
-);
+const contract = await SmartContract.deploy(provider, byteCode, new Args(), {
+  coins: Mas.fromString('30'),
+});
 
 console.log('Contract deployed at:', contract.address);
 

@@ -17,7 +17,7 @@ export class RollEntry implements Serializable {
     }
 
     const rolls = args.next<u64>();
-    if (rolls.error) {
+    if (rolls.isErr()) {
       return new Result(0, 'Error deserializing rolls.');
     }
 

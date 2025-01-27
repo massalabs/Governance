@@ -5,9 +5,10 @@
     "main": "index.js",
     "scripts": {
         "test": "asp --summary",
+        "test:e2e:oracle": "tsx src/test/e2e/oracle.ts",
         "build": "massa-as-compile",
         "clean": "rimraf build",
-        "deploy": "npm run build && tsx src/deploy.ts",
+        "deploy:oracle": "npm run build && tsx src/deploy/deploy-oracle.ts",
         "hello": "tsx src/hello.ts",
         "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check assembly",
         "prettier:fix": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
