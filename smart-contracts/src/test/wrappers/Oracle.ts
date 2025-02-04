@@ -4,7 +4,6 @@ import {
   SmartContract,
   Provider,
   PublicProvider,
-  checkNetwork,
   ReadSCOptions,
   Args,
   bytesToStr,
@@ -14,9 +13,10 @@ import {
 import { U32_t } from '@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u32';
 import { RollEntry } from '../serializable/RollEntry';
 
-export const MNS_CONTRACTS = {
+export const ORACLES_CONTRACTS = {
   mainnet: '',
-  buildnet: 'AS1zVWLkKGpjw6JdbZAWE9VQH28s1E51KjvqVuW2GBZQ1WKcGWKg',
+  buildnet: 'AS1nJ4UTHvrqWgqe6gycgUcpQUDZkiEUsX4eYtx64wg5tUk2V2t6',
+  local: 'AS1uYHPwXnQYTcY98BhfFnYg5gsp7oaHKD1orhm5zer1oegWUgQ',
 };
 
 export const ROLLS_TAG = strToBytes('ROLLS');
@@ -37,13 +37,15 @@ export function rollKey(cycle: U32_t, address: string): Uint8Array {
 
 export class Oracle extends SmartContract {
   static mainnet(provider: Provider | PublicProvider): Oracle {
-    checkNetwork(provider, true);
-    return new Oracle(provider, MNS_CONTRACTS.mainnet);
+    return new Oracle(provider, ORACLES_CONTRACTS.mainnet);
   }
 
   static buildnet(provider: Provider | PublicProvider): Oracle {
-    checkNetwork(provider, false);
-    return new Oracle(provider, MNS_CONTRACTS.buildnet);
+    return new Oracle(provider, ORACLES_CONTRACTS.buildnet);
+  }
+
+  static local(provider: Provider | PublicProvider): Oracle {
+    return new Oracle(provider, ORACLES_CONTRACTS.local);
   }
 
   async feedCycle(
@@ -58,8 +60,16 @@ export class Oracle extends SmartContract {
     );
   }
 
-  async deleteCycle(cycle: U32_t, options?: ReadSCOptions): Promise<Operation> {
-    return await this.call('deleteCycle', new Args().addU32(cycle), options);
+  async deleteCycle(
+    cycle: U32_t,
+    nbToDelete: U32_t,
+    options?: ReadSCOptions,
+  ): Promise<Operation> {
+    return await this.call(
+      'deleteCycle',
+      new Args().addU32(cycle).addU32(nbToDelete),
+      options,
+    );
   }
 
   async getNbRolls(cycle: U32_t, address: string): Promise<U32_t> {
@@ -130,5 +140,9 @@ export class Oracle extends SmartContract {
     ]);
 
     return U32.fromBytes(cycle[0]);
+  }
+
+  async upgradeSC(bytecode: Uint8Array): Promise<Operation> {
+    return await this.call('upgradeSC', new Args().addUint8Array(bytecode));
   }
 }

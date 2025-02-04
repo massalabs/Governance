@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "test": "asp --summary",
-        "test:e2e:oracle": "tsx src/test/e2e/oracle.ts",
+        "test:e2e:oracle": "tsx src/test/e2e/oracle.spec.ts",
         "build": "massa-as-compile",
         "clean": "rimraf build",
         "deploy:oracle": "npm run build && tsx src/deploy/deploy-oracle.ts",

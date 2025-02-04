@@ -11,7 +11,7 @@ import {
   _setOwner,
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
 import { RollEntry } from './serializable/roll-entry';
-import { _deleteCycle, _feedCycle } from './oracle-internals/internals';
+import { _deleteCycle, _feedCycle } from './oracle-internals';
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.
@@ -28,10 +28,8 @@ export function constructor(_: StaticArray<u8>): void {
  * @param binaryArgs - Serialized arguments containing the cycle number and roll data.
  */
 export function feedCycle(binaryArgs: StaticArray<u8>): void {
-  const balanceStart = balance();
-  generateEvent('balance start: ' + balanceStart.toString());
   _onlyOwner();
-  // TODO - Add a limit to no exceed the gas limit ?
+
   const args = new Args(binaryArgs);
   const cycle = args.next<u32>().expect('Invalid cycle number');
   const rollData = args
@@ -39,10 +37,6 @@ export function feedCycle(binaryArgs: StaticArray<u8>): void {
     .expect('Invalid roll data');
 
   _feedCycle(cycle, rollData);
-
-  generateEvent(`Cycle ${cycle} data fed successfully`);
-  const balanceEnd = balance();
-  generateEvent('balance end: ' + balanceEnd.toString());
 }
 
 /**
@@ -53,8 +47,11 @@ export function deleteCycle(binaryArgs: StaticArray<u8>): void {
   _onlyOwner();
   const args = new Args(binaryArgs);
   const cycle = args.next<u32>().expect('Invalid cycle number');
+  const nbToDelete = args
+    .next<u32>()
+    .expect('Invalid number of cycles to delete');
 
-  _deleteCycle(cycle);
+  _deleteCycle(cycle, nbToDelete);
 
   generateEvent(`Cycle ${cycle} deleted successfully`);
 }

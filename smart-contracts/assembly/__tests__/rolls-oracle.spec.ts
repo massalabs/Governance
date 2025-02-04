@@ -19,9 +19,11 @@ import {
 } from '../contracts/rolls-oracle';
 import { RollEntry } from '../contracts/serializable/roll-entry';
 import {
+  deletingCycleKey,
   LAST_CYCLE_TAG,
   recordedCycleKey,
   rollKey,
+  rollKeyPrefix,
 } from '../contracts/oracle-internals/keys';
 
 export const contractAddress =
@@ -145,6 +147,12 @@ describe('Oracle Contract Tests', () => {
       const rollData: RollEntry[] = [
         new RollEntry('address1', 10),
         new RollEntry('address2', 15),
+        new RollEntry('address3', 15),
+        new RollEntry('address4', 15),
+        new RollEntry('address5', 15),
+        new RollEntry('address6', 15),
+        new RollEntry('address7', 15),
+        new RollEntry('address8', 15),
       ];
 
       const args = new Args()
@@ -153,8 +161,22 @@ describe('Oracle Contract Tests', () => {
 
       feedCycle(args.serialize());
 
-      const deleteArgs = new Args().add<u32>(cycles[1]);
+      let cycle = getKeys(recordedCycleKey(cycles[1]));
+      let rollKeys = getKeys(rollKeyPrefix(cycles[1]));
+      expect(cycle.length).toBe(1);
+      expect(rollKeys.length).toBe(8);
+
+      let deleteArgs = new Args().add<u32>(cycles[1]).add<u32>(4);
       deleteCycle(deleteArgs.serialize());
+
+      cycle = getKeys(recordedCycleKey(cycles[1]));
+      expect(cycle.length).toBe(cycles[1]);
+
+      expect(Storage.has(deletingCycleKey(cycles[1]))).toBeTruthy();
+
+      deleteArgs = new Args().add<u32>(cycles[1]).add<u32>(20);
+      deleteCycle(deleteArgs.serialize());
+      expect(Storage.has(deletingCycleKey(cycles[1]))).toBeFalsy();
 
       for (let i = 0; i < rollData.length; i++) {
         expect(
@@ -166,12 +188,12 @@ describe('Oracle Contract Tests', () => {
     throws('Delete cycle fails if caller is not the owner', () => {
       switchUser(nonOwner);
 
-      const deleteArgs = new Args().add<u32>(cycles[1]);
+      const deleteArgs = new Args().add<u32>(cycles[1]).add<u32>(2);
       deleteCycle(deleteArgs.serialize());
     });
 
     throws('Delete cycle fails if cycle does not exist', () => {
-      const deleteArgs = new Args().add<u32>(cycles[1]);
+      const deleteArgs = new Args().add<u32>(cycles[1]).add<u32>(2);
       deleteCycle(deleteArgs.serialize());
     });
   });

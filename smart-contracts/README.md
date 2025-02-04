@@ -1,60 +1,92 @@
-# My Massa Smart-contract Project
+# Voting System
+
+### Specifications
+https://forum.massa.community/t/first-step-towards-decentralized-governance/160/13
+
+### Description
+
+1. **Roll Oracle**: This contract manages the recording and deletion of roll data for stakers.
+2. **Token Soulbond**: This contract will manage soulbound tokens, which are non-transferable tokens tied to a specific address. (Not yet developed)
+3. **Voting System**: This contract will manage a decentralized voting system. (Not yet developed)
 
 ## Build
 
-By default this will build all files in `assembly/contracts` directory.
+By default, this will build all files in the `assembly/contracts` directory.
 
 ```shell
 npm run build
 ```
 
-## Deploy a smart contract
+## Tests
 
-Prerequisites :
+- `assembly/__tests__`: Contains unit tests for individual smart contract functions.
+- `src/test`: Contains end-to-end tests that simulate real-world scenarios and interactions between contracts.
 
-- You must add a `.env` file at the root of the repository with the following keys set to valid values :
-  - WALLET_SECRET_KEY="wallet_secret_key"
-  - JSON_RPC_URL_PUBLIC=<https://test.massa.net/api/v2:33035>
-
-These keys will be the ones used by the deployer script to interact with the blockchain.
-
-The following command will build contracts in `assembly/contracts` directory and execute the deployment script
-`src/deploy.ts`. This script will deploy on the node specified in the `.env` file.
-
-```shell
-npm run deploy
-```
-
-You can modify `src/deploy.ts` to change the smart contract being deployed, and to pass arguments to the constructor
-function:
-
-- line 31: specify what contract you want to deploy
-- line 33: create the `Args` object to pass to the constructor of the contract you want to deploy
-
-When the deployment operation is executed on-chain, the
-[constructor](https://github.com/massalabs/massa-sc-toolkit/blob/main/packages/sc-project-initializer/commands/init/assembly/contracts/main.ts#L10)
-function of the smart contract being deployed will
-be called with the arguments provided in the deployment script.
-
-The deployment script uses [massa-sc-deployer library](https://www.npmjs.com/package/@massalabs/massa-sc-deployer)
-to deploy smart contracts.
-
-You can edit this script and use [massa-web3 library](https://www.npmjs.com/package/@massalabs/massa-web3)
-to create advanced deployment procedure.
-
-For more information, please visit our ReadTheDocs about
-[Massa smart-contract development](https://docs.massa.net/en/latest/web3-dev/smart-contracts.html).
-
-## Unit tests
-
-The test framework documentation is available here: [as-pect docs](https://as-pect.gitbook.io/as-pect)
+To run the tests, use the following command:
 
 ```shell
 npm run test
 ```
 
-## Format code
+## Format Code
+
+To format the code, use the following command:
 
 ```shell
 npm run fmt
 ```
+
+## Rolls Oracle
+
+The Rolls Oracle contract is a simple contract that allows users to store and delete roll data.
+
+### File Structure
+
+#### Contract
+- `assembly/contracts/rolls-oracle.ts`: Contains the exported functions
+- `assembly/contracts/oracle-internals/index.ts`: Contains the unit tests for the exported functions
+- `assembly/contracts/oracle-internals/keys.ts`: Contains the keys used to store the roll data
+- `assembly/contracts/serializable/roll-entry.ts`: Contains the RollEntry class
+
+#### Tests
+
+- `assembly/__tests__/rolls-oracle.spec.ts`: Contains the unit tests for the exported functions
+
+#### End-to-End Tests
+
+- `src/test/e2e/rolls-oracle.test.ts`: Contains the end-to-end tests for the contract
+- `src/test/serializable/RollEntry.ts`: Contains the RollEntry Serializable class 
+- `src/test/wrappers/Oracle.ts`: Contains the Oracle Wrapper class
+
+### Commands:
+
+Deploy the contract:
+
+```shell
+npm run deploy:oracle
+```
+
+Run the tests:
+
+```shell
+npm run test
+```
+
+Run end-to-end tests:
+
+```shell
+npm run test:e2e
+``` 
+
+### Limitations
+
+- The number of stakers is limited to `40000` (could be solved when key pagination will be released)
+- The number of RollEntries is limited to `5000` for each operations
+- THe number of entries that can be removed is limited to `5000` for each operations
+
+
+### TODO
+
+- [ ] Review what's been done
+- [ ] Improve end-to-end-tests
+- [ ] Code script to easily feed rolls data using node API to fetch stakers/rolls then feed the oracle
