@@ -1,4 +1,9 @@
-import { u32ToBytes, bytesToU32, u64ToBytes } from '@massalabs/as-types';
+import {
+  u32ToBytes,
+  bytesToU32,
+  u64ToBytes,
+  boolToByte,
+} from '@massalabs/as-types';
 import { getKeys, Storage } from '@massalabs/massa-as-sdk';
 import { RollEntry } from '../serializable/roll-entry';
 import {
@@ -51,7 +56,7 @@ export function _deleteCycle(cycle: u32, nbToDelete: u32): void {
   assert(Storage.has(recordedCycleKey(cycle)), 'Cycle not found');
 
   if (!Storage.has(deletingCycleKey(cycle))) {
-    Storage.set(deletingCycleKey(cycle), u32ToBytes(0));
+    Storage.set(deletingCycleKey(cycle), boolToByte(true));
   }
 
   const rollKeys = getKeys(rollKeyPrefix(cycle));
