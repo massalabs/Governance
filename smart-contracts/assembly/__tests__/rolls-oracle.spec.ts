@@ -197,4 +197,6 @@ describe('Oracle Contract Tests', () => {
       deleteCycle(deleteArgs.serialize());
     });
   });
+
+  // TODO - get nb rolls for an address
 });
