@@ -5,14 +5,16 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./smart-contract
+        working-directory: ./smart-contracts
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
           cache: "npm"
+          cache-dependency-path: ./smart-contracts/package-lock.json
 
       - name: Install
         run: npm ci
