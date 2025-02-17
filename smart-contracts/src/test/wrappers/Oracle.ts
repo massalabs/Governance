@@ -62,12 +62,12 @@ export class Oracle extends SmartContract {
 
   async deleteCycle(
     cycle: U32_t,
-    nbToDelete: U32_t,
+    nbToDelete: bigint,
     options?: ReadSCOptions,
   ): Promise<Operation> {
     return await this.call(
       'deleteCycle',
-      new Args().addU32(cycle).addU32(nbToDelete),
+      new Args().addU32(cycle).addI32(nbToDelete),
       options,
     );
   }

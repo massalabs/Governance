@@ -48,7 +48,7 @@ export function deleteCycle(binaryArgs: StaticArray<u8>): void {
   const args = new Args(binaryArgs);
   const cycle = args.next<u32>().expect('Invalid cycle number');
   const nbToDelete = args
-    .next<u32>()
+    .next<i32>()
     .expect('Invalid number of cycles to delete');
 
   _deleteCycle(cycle, nbToDelete);

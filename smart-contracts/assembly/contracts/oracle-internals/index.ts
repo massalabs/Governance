@@ -52,7 +52,7 @@ export function _feedCycle(cycle: u32, rollData: RollEntry[]): void {
  * @param cycle - The cycle to delete roll data for.
  * @param nbToDelete - The number of roll entries to delete.
  */
-export function _deleteCycle(cycle: u32, nbToDelete: u32): void {
+export function _deleteCycle(cycle: u32, nbToDelete: i32): void {
   assert(Storage.has(recordedCycleKey(cycle)), 'Cycle not found');
 
   if (!Storage.has(deletingCycleKey(cycle))) {
@@ -61,13 +61,15 @@ export function _deleteCycle(cycle: u32, nbToDelete: u32): void {
 
   const rollKeys = getKeys(rollKeyPrefix(cycle));
 
-  const slicedRollKeys = rollKeys.slice(0, nbToDelete);
-
-  for (let i = 0; i < slicedRollKeys.length; i++) {
-    Storage.del(slicedRollKeys[i]);
+  if (nbToDelete > rollKeys.length) {
+    nbToDelete = rollKeys.length;
   }
 
-  if (rollKeys.length === slicedRollKeys.length) {
+  for (let i = 0; i < nbToDelete; i++) {
+    Storage.del(rollKeys[i]);
+  }
+
+  if (rollKeys.length === nbToDelete) {
     Storage.del(recordedCycleKey(cycle));
     Storage.del(deletingCycleKey(cycle));
   }
