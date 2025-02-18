@@ -13,5 +13,12 @@ export function rollKeyPrefix(cycle: u64): StaticArray<u8> {
 }
 
 export function rollKey(cycle: u64, address: string): StaticArray<u8> {
-  return rollKeyPrefix(cycle).concat(stringToBytes(address));
+  return rollKeyBytes(cycle, stringToBytes(address));
+}
+
+export function rollKeyBytes(
+  cycle: u64,
+  addressBytes: StaticArray<u8>,
+): StaticArray<u8> {
+  return rollKeyPrefix(cycle).concat(addressBytes);
 }

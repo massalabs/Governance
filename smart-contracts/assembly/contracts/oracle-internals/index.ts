@@ -1,4 +1,4 @@
-import { u64ToBytes, bytesToU64, boolToByte } from '@massalabs/as-types';
+import { u64ToBytes, bytesToU64 } from '@massalabs/as-types';
 import { Context, getKeys, Storage } from '@massalabs/massa-as-sdk';
 import { RollEntry } from '../serializable/roll-entry';
 import {
@@ -22,7 +22,7 @@ function getCurrentCycle(): u64 {
  * @param cycle - The cycle to feed roll data for.
  * @param rollData - An array of RollEntry objects containing the roll data.
  */
-// TODO - Add and test melanism to tell cycle is not complete
+// TODO - Add and test mechanism to tell cycle is not complete
 export function _feedCycle(rollData: RollEntry[], isLastBatch: boolean): void {
   const cycle = getCurrentCycle();
 
@@ -31,7 +31,7 @@ export function _feedCycle(rollData: RollEntry[], isLastBatch: boolean): void {
 
   if (isLastBatch) {
     Storage.set(LAST_CYCLE_TAG, u64ToBytes(cycle));
-    Storage.set(recordedCycleKey(cycle), new StaticArray<u8>(0));
+    Storage.set(recordedCycleKey(cycle), []);
   }
 
   for (let i = 0; i < rollData.length; i++) {
