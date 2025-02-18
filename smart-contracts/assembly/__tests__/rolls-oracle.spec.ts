@@ -1,15 +1,11 @@
-import {
-  Args,
-  bytesToString,
-  bytesToU32,
-  bytesToU64,
-} from '@massalabs/as-types';
+import { Args, bytesToString, bytesToU64 } from '@massalabs/as-types';
 import {
   changeCallStack,
   getKeys,
   resetStorage,
   setDeployContext,
   Storage,
+  mockCurrentSlot,
 } from '@massalabs/massa-as-sdk';
 import {
   constructor,
@@ -19,7 +15,6 @@ import {
 } from '../contracts/rolls-oracle';
 import { RollEntry } from '../contracts/serializable/roll-entry';
 import {
-  deletingCycleKey,
   LAST_CYCLE_TAG,
   recordedCycleKey,
   rollKey,
@@ -35,6 +30,21 @@ export function switchUser(user: string): void {
 const owner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
 const nonOwner = 'AU1NonOwnerExampleAddress';
 const cycles = [0, 1, 2, 3, 4];
+const NB_PERIODS_IN_CYCLE = 128;
+
+function getRollsArgs(
+  rollData: RollEntry[],
+  isLastBatch: boolean,
+): StaticArray<u8> {
+  return new Args()
+    .addSerializableObjectArray<RollEntry>(rollData)
+    .add(isLastBatch)
+    .serialize();
+}
+
+function periodFromCycle(cycle: u64): u64 {
+  return cycle * NB_PERIODS_IN_CYCLE;
+}
 
 describe('Oracle Contract Tests', () => {
   beforeEach(() => {
@@ -52,39 +62,20 @@ describe('Oracle Contract Tests', () => {
   });
 
   describe('Feed Cycle Data', () => {
-    throws('Feed cycle fails if new cycle lower than last cycle', () => {
-      const rollData: RollEntry[] = [
-        new RollEntry('address1', 10),
-        new RollEntry('address2', 15),
-      ];
+    // TODO: Remove if solution accepted
+    // Not needed with current implementation
+    // throws('Feed cycle fails if new cycle lower than last cycle', () => {
+    //   const rollData: RollEntry[] = [
+    //     new RollEntry('address1', 10),
+    //     new RollEntry('address2', 15),
+    //   ];
 
-      const args = new Args()
-        .add<u32>(cycles[4])
-        .addSerializableObjectArray<RollEntry>(rollData);
+    //   mockCurrentSlot(periodFromCycle(cycles[4]), 8);
 
-      feedCycle(args.serialize());
+    //   feedCycle(getRollsArgs(rollData, true));
 
-      const args2 = new Args()
-        .add<u32>(cycles[1])
-        .addSerializableObjectArray<RollEntry>(rollData);
-
-      feedCycle(args2.serialize());
-    });
-
-    throws('Feed cycle fails if caller is not the owner', () => {
-      switchUser(nonOwner);
-
-      const rollData: RollEntry[] = [
-        new RollEntry('address1', 10),
-        new RollEntry('address2', 15),
-      ];
-
-      const args = new Args()
-        .add<u32>(cycles[1])
-        .addSerializableObjectArray<RollEntry>(rollData);
-
-      feedCycle(args.serialize());
-    });
+    //   feedCycle(getRollsArgs(rollData, true));
+    // });
 
     test('Feed cycle data successfully', () => {
       const rollData: RollEntry[] = [
@@ -92,13 +83,11 @@ describe('Oracle Contract Tests', () => {
         new RollEntry('address2', 15),
       ];
 
-      const args = new Args()
-        .add<u32>(cycles[1])
-        .addSerializableObjectArray<RollEntry>(rollData);
+      mockCurrentSlot(periodFromCycle(cycles[1]), 8);
 
-      feedCycle(args.serialize());
+      feedCycle(getRollsArgs(rollData, true));
 
-      const lastCycle = bytesToU32(Storage.get(LAST_CYCLE_TAG));
+      const lastCycle = bytesToU64(Storage.get(LAST_CYCLE_TAG));
       expect(lastCycle).toBe(cycles[1]);
 
       const cycle = getKeys(recordedCycleKey(cycles[1]));
@@ -122,23 +111,45 @@ describe('Oracle Contract Tests', () => {
         new RollEntry('address4', 25),
       ];
 
-      const args = new Args()
-        .add<u32>(cycles[1])
-        .addSerializableObjectArray<RollEntry>(rollData);
+      mockCurrentSlot(periodFromCycle(cycles[1]), 8);
 
-      feedCycle(args.serialize());
+      feedCycle(getRollsArgs(rollData, true));
 
-      const lastCycle = bytesToU32(Storage.get(LAST_CYCLE_TAG));
+      const lastCycle = bytesToU64(Storage.get(LAST_CYCLE_TAG));
       expect(lastCycle).toBe(cycles[1]);
 
-      const args2 = new Args()
-        .add<u32>(cycles[2])
-        .addSerializableObjectArray<RollEntry>(rollData);
+      mockCurrentSlot(periodFromCycle(cycles[2]), 8);
 
-      feedCycle(args2.serialize());
+      feedCycle(getRollsArgs(rollData, true));
 
-      const lastCycle2 = bytesToU32(Storage.get(LAST_CYCLE_TAG));
+      const lastCycle2 = bytesToU64(Storage.get(LAST_CYCLE_TAG));
       expect(lastCycle2).toBe(cycles[2]);
+    });
+
+    throws('Feed cycle fails if caller is not the owner', () => {
+      switchUser(nonOwner);
+
+      const rollData: RollEntry[] = [
+        new RollEntry('address1', 10),
+        new RollEntry('address2', 15),
+      ];
+
+      mockCurrentSlot(periodFromCycle(cycles[1]), 8);
+
+      feedCycle(getRollsArgs(rollData, true));
+    });
+
+    throws('Feed cycle fails if cycle already exists', () => {
+      const rollData: RollEntry[] = [
+        new RollEntry('address1', 10),
+        new RollEntry('address2', 15),
+      ];
+
+      mockCurrentSlot(periodFromCycle(cycles[1]), 8);
+
+      feedCycle(getRollsArgs(rollData, true));
+
+      feedCycle(getRollsArgs(rollData, true));
     });
   });
 
@@ -155,48 +166,62 @@ describe('Oracle Contract Tests', () => {
         new RollEntry('address8', 15),
       ];
 
-      const args = new Args()
-        .add<u32>(cycles[1])
-        .addSerializableObjectArray<RollEntry>(rollData);
+      mockCurrentSlot(periodFromCycle(cycles[1]), 8);
 
-      feedCycle(args.serialize());
+      feedCycle(getRollsArgs(rollData, true));
+      const lastCycle = bytesToU64(Storage.get(LAST_CYCLE_TAG));
+      expect(lastCycle).toBe(cycles[1]);
 
-      let cycle = getKeys(recordedCycleKey(cycles[1]));
       let rollKeys = getKeys(rollKeyPrefix(cycles[1]));
-      expect(cycle.length).toBe(1);
-      expect(rollKeys.length).toBe(8);
-
-      let deleteArgs = new Args().add<u32>(cycles[1]).add<u32>(4);
-      deleteCycle(deleteArgs.serialize());
-
-      cycle = getKeys(recordedCycleKey(cycles[1]));
-      expect(cycle.length).toBe(cycles[1]);
-
-      expect(Storage.has(deletingCycleKey(cycles[1]))).toBeTruthy();
-
-      deleteArgs = new Args().add<u32>(cycles[1]).add<u32>(20);
-      deleteCycle(deleteArgs.serialize());
-      expect(Storage.has(deletingCycleKey(cycles[1]))).toBeFalsy();
-
-      for (let i = 0; i < rollData.length; i++) {
-        expect(
-          Storage.has(rollKey(cycles[1], rollData[i].address)),
-        ).toBeFalsy();
+      for (let i = 0; i < rollKeys.length; i++) {
+        expect(Storage.has(rollKeys[i])).toBeTruthy();
+        const value = Storage.get(rollKeys[i]);
+        expect(bytesToU64(value)).toBe(rollData[i].rolls);
       }
+
+      let deleteArgs = new Args().add<u64>(cycles[1]).add<u64>(4);
+      deleteCycle(deleteArgs.serialize());
+
+      rollKeys = getKeys(rollKeyPrefix(cycles[1]));
+      expect(rollKeys.length).toBe(4);
+
+      deleteArgs = new Args().add<u64>(cycles[1]).add<u64>(4);
+      deleteCycle(deleteArgs.serialize());
+
+      rollKeys = getKeys(rollKeyPrefix(cycles[1]));
+      expect(rollKeys.length).toBe(0);
     });
 
     throws('Delete cycle fails if caller is not the owner', () => {
       switchUser(nonOwner);
 
-      const deleteArgs = new Args().add<u32>(cycles[1]).add<u32>(2);
+      const deleteArgs = new Args().add<u64>(cycles[1]).add<u64>(2);
       deleteCycle(deleteArgs.serialize());
     });
 
     throws('Delete cycle fails if cycle does not exist', () => {
-      const deleteArgs = new Args().add<u32>(cycles[1]).add<u32>(2);
+      const deleteArgs = new Args().add<u64>(cycles[1]).add<u64>(2);
       deleteCycle(deleteArgs.serialize());
     });
   });
 
-  // TODO - get nb rolls for an address
+  describe('Get Number of Rolls', () => {
+    test('Get number of rolls successfully', () => {
+      const rollData: RollEntry[] = [
+        new RollEntry('address1', 10),
+        new RollEntry('address2', 20),
+        new RollEntry('address3', 30),
+        new RollEntry('address4', 40),
+      ];
+
+      mockCurrentSlot(periodFromCycle(cycles[1]), 8);
+
+      feedCycle(getRollsArgs(rollData, true));
+
+      for (let i = 0; i < rollData.length; i++) {
+        const rolls = Storage.get(rollKey(cycles[1], rollData[i].address));
+        expect(bytesToU64(rolls)).toBe(rollData[i].rolls);
+      }
+    });
+  });
 });

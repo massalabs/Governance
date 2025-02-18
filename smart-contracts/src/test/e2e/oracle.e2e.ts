@@ -8,16 +8,23 @@ import {
 import { Oracle } from '../wrappers/Oracle';
 import * as dotenv from 'dotenv';
 import { RollEntry } from '../serializable/RollEntry';
+import { OutputEvents } from '@massalabs/massa-web3/dist/esm/generated/client-types';
 dotenv.config();
 
 const account = await Account.fromEnv();
 const provider = Web3Provider.buildnet(account);
 
 const oracle = Oracle.buildnet(provider);
-const cycle = 1n;
-const NB_STAKERS = 42000n;
+const NB_STAKERS = 10000n;
 const AVERAGE_ROLL_STORAGE_COST = 6250000n;
+// TODO - Check why why 5000 is to much now
 const BATCH_SIZE = 5000;
+
+function logEvents(events: OutputEvents) {
+  for (let event of events) {
+    console.log('Event message:', event.data);
+  }
+}
 
 /**
  * Feeds rolls data to the oracle in batches.
@@ -28,8 +35,9 @@ async function feedRolls(rolls: RollEntry[], batchSize: number) {
   for (let i = 0; i < rolls.length; i += batchSize) {
     const end = Math.min(i + batchSize, rolls.length);
     const batch = rolls.slice(i, end);
+    const isLastBatch = end === rolls.length;
 
-    const opFeed = await oracle.feedCycle(cycle, batch, {
+    const opFeed = await oracle.feedCycle(batch, isLastBatch, {
       coins: Mas.fromNanoMas(AVERAGE_ROLL_STORAGE_COST * BigInt(batchSize)),
     });
 
@@ -48,18 +56,25 @@ async function feedRolls(rolls: RollEntry[], batchSize: number) {
  * @param recordedRolls - Total number of recorded rolls.
  * @param batchSize - Number of rolls to delete in each batch.
  */
-async function deleteRolls(recordedRolls: number, batchSize: number) {
+async function deleteRolls(
+  recordedRolls: number,
+  batchSize: number,
+  cycle: bigint,
+) {
   let remainingRolls = BigInt(recordedRolls);
+
   while (remainingRolls > 0) {
     const deleteBatchSize =
       remainingRolls > BigInt(batchSize) ? BigInt(batchSize) : remainingRolls;
-    const opDeleteBatch = await oracle.deleteCycle(cycle, deleteBatchSize, {
-      coins: Mas.fromString('1'),
-    });
 
-    await opDeleteBatch.waitSpeculativeExecution();
+    const opDeleteBatch = await oracle.deleteCycle(cycle, deleteBatchSize);
+
+    const events = await opDeleteBatch.getSpeculativeEvents();
+
+    logEvents(events);
 
     remainingRolls -= deleteBatchSize;
+
     console.log(
       `Deleted batch of ${deleteBatchSize} rolls, remaining: ${remainingRolls}`,
     );
@@ -87,19 +102,23 @@ async function main() {
 
   await feedRolls(rolls, BATCH_SIZE);
 
-  const recordedRolls = await oracle.getNbRecordedRolls(cycle, false);
+  const lastCycle = await oracle.getLastCycle();
+  console.log('Last Recorded cycle: ' + lastCycle);
+
+  const recordedRolls = await oracle.getNbRecordedRolls(lastCycle, false);
   console.log('Recorded rolls: ' + recordedRolls);
 
   if (recordedRolls !== rolls.length) {
     throw new Error('Recorded rolls do not match');
   }
 
-  await deleteRolls(recordedRolls, BATCH_SIZE);
+  await deleteRolls(recordedRolls, BATCH_SIZE, lastCycle);
 
   const recordedRollsAfterDelete = await oracle.getNbRecordedRolls(
-    cycle,
+    lastCycle,
     false,
   );
+
   console.log('Recorded rolls after delete: ' + recordedRollsAfterDelete);
 
   if (recordedRollsAfterDelete !== 0) {

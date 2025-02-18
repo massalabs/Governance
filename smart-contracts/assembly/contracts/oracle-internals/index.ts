@@ -1,34 +1,20 @@
-import {
-  u32ToBytes,
-  bytesToU32,
-  u64ToBytes,
-  boolToByte,
-} from '@massalabs/as-types';
-import { getKeys, Storage } from '@massalabs/massa-as-sdk';
+import { u64ToBytes, bytesToU64, boolToByte } from '@massalabs/as-types';
+import { Context, getKeys, Storage } from '@massalabs/massa-as-sdk';
 import { RollEntry } from '../serializable/roll-entry';
 import {
   LAST_CYCLE_TAG,
   recordedCycleKey,
   rollKey,
   rollKeyPrefix,
-  deletingCycleKey,
 } from './keys';
 
+const NB_PERIODS_IN_CYCLE = 128;
+
 /**
- * Validates the given cycle and sets it if it is valid.
- * @param cycle - The cycle to validate and set.
+ * Returns the current cycle.
  */
-export function validateAndSetCycle(cycle: u32): void {
-  let lastCycle: u32 = 0;
-
-  if (Storage.has(LAST_CYCLE_TAG)) {
-    lastCycle = bytesToU32(Storage.get(LAST_CYCLE_TAG));
-    assert(cycle >= lastCycle, 'Cycle cannot be lower than the last cycle');
-    if (cycle === lastCycle) return;
-  }
-
-  Storage.set(LAST_CYCLE_TAG, u32ToBytes(cycle));
-  Storage.set(recordedCycleKey(cycle), new StaticArray<u8>(0));
+function getCurrentCycle(): u64 {
+  return Context.currentPeriod() / NB_PERIODS_IN_CYCLE;
 }
 
 /**
@@ -36,8 +22,17 @@ export function validateAndSetCycle(cycle: u32): void {
  * @param cycle - The cycle to feed roll data for.
  * @param rollData - An array of RollEntry objects containing the roll data.
  */
-export function _feedCycle(cycle: u32, rollData: RollEntry[]): void {
-  validateAndSetCycle(cycle);
+// TODO - Add and test melanism to tell cycle is not complete
+export function _feedCycle(rollData: RollEntry[], isLastBatch: boolean): void {
+  const cycle = getCurrentCycle();
+
+  let lastCycle = bytesToU64(Storage.get(LAST_CYCLE_TAG));
+  assert(cycle > lastCycle, 'Cycle should be greater than last cycle');
+
+  if (isLastBatch) {
+    Storage.set(LAST_CYCLE_TAG, u64ToBytes(cycle));
+    Storage.set(recordedCycleKey(cycle), new StaticArray<u8>(0));
+  }
 
   for (let i = 0; i < rollData.length; i++) {
     Storage.set(
@@ -51,15 +46,16 @@ export function _feedCycle(cycle: u32, rollData: RollEntry[]): void {
  * Deletes roll data for a given cycle.
  * @param cycle - The cycle to delete roll data for.
  * @param nbToDelete - The number of roll entries to delete.
+ * @remarks This function is called in batches to avoid exceeding the gas limit.
  */
-export function _deleteCycle(cycle: u32, nbToDelete: i32): void {
-  assert(Storage.has(recordedCycleKey(cycle)), 'Cycle not found');
-
-  if (!Storage.has(deletingCycleKey(cycle))) {
-    Storage.set(deletingCycleKey(cycle), boolToByte(true));
+export function _deleteCycle(cycle: u64, nbToDelete: i32): void {
+  if (Storage.has(recordedCycleKey(cycle))) {
+    Storage.del(recordedCycleKey(cycle));
   }
 
   const rollKeys = getKeys(rollKeyPrefix(cycle));
+
+  assert(rollKeys.length > 0, 'No roll data found for the given cycle');
 
   if (nbToDelete > rollKeys.length) {
     nbToDelete = rollKeys.length;
@@ -67,10 +63,5 @@ export function _deleteCycle(cycle: u32, nbToDelete: i32): void {
 
   for (let i = 0; i < nbToDelete; i++) {
     Storage.del(rollKeys[i]);
-  }
-
-  if (rollKeys.length === nbToDelete) {
-    Storage.del(recordedCycleKey(cycle));
-    Storage.del(deletingCycleKey(cycle));
   }
 }
