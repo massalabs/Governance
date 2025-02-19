@@ -5,7 +5,6 @@
     "main": "index.js",
     "scripts": {
         "test": "asp --summary",
-        "test:e2e:oracle": "tsx src/test/e2e/oracle.e2e.ts",
         "build": "massa-as-compile",
         "clean": "rimraf build",
         "deploy:oracle": "npm run build && tsx src/deploy/deploy-oracle.ts",
@@ -17,7 +16,7 @@
         "lint:fix": "eslint . --fix",
         "fmt:check": "npm run prettier && npm run lint",
         "fmt": "npm run prettier:fix && npm run lint:fix",
-        "feed": "tsx src/script/feeder.ts"
+        "oracle:feed": "tsx src/oracle/feeder.ts"
     },
     "keywords": [],
     "author": "",

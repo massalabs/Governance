@@ -50,12 +50,16 @@ export class Oracle extends SmartContract {
 
   async feedCycle(
     rollEntries: RollEntry[],
+    cycle: U64_t,
     isLastBatch: boolean,
     options?: ReadSCOptions,
   ): Promise<Operation> {
     return await this.call(
       'feedCycle',
-      new Args().addSerializableObjectArray(rollEntries).addBool(isLastBatch),
+      new Args()
+        .addSerializableObjectArray(rollEntries)
+        .addU64(cycle)
+        .addBool(isLastBatch),
       options,
     );
   }
