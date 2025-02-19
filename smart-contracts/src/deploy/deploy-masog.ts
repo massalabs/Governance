@@ -2,13 +2,13 @@
 import { Args, Mas, SmartContract } from '@massalabs/massa-web3';
 import { getProvider, getScByteCode } from '../utils';
 
-console.log('Deploying rolls oracle contract...');
+console.log('Deploying masOg contract...');
 
-const byteCode = getScByteCode('build', 'rolls-oracle.wasm');
+const byteCode = getScByteCode('build', 'masOg.wasm');
 
 const provider = await getProvider();
 const contract = await SmartContract.deploy(provider, byteCode, new Args(), {
-  coins: Mas.fromString('30'),
+  coins: 10000n,
 });
 
 console.log('Contract deployed at:', contract.address);

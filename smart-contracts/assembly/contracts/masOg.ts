@@ -7,6 +7,8 @@ import {
   bytesToU64,
   stringToBytes,
   u64ToBytes,
+  unwrapStaticArray,
+  wrapStaticArray,
 } from '@massalabs/as-types';
 import {
   Address,
@@ -50,6 +52,7 @@ export function setOracle(bin: StaticArray<u8>): void {
 }
 
 export function refresh(): void {
+  // todo: add an arg to limit the nb of cycles to update
   const oracleAddrStr = Storage.get(ORACLE_KEY);
   const oracleAddr = new Address(oracleAddrStr);
 
@@ -61,7 +64,7 @@ export function refresh(): void {
   let lastCycle = bytesToU64(
     Storage.getOf(oracleAddr, ORACLE_LAST_RECORDED_CYCLE),
   );
-  let startCycle = 0;
+  let startCycle: u64 = 0;
 
   if (Storage.has(LAST_UPDATED_CYCLE)) {
     startCycle = bytesToU64(Storage.get(LAST_UPDATED_CYCLE)) + 1;
@@ -72,7 +75,7 @@ export function refresh(): void {
 
   assert(startCycle <= lastCycle, 'Nothing to update');
 
-  let totalminted = 0;
+  let totalminted: u64 = 0;
 
   for (let cycle = startCycle; cycle <= lastCycle; cycle++) {
     assert(
@@ -83,14 +86,18 @@ export function refresh(): void {
     const starkersPrefix = rollKeyPrefix(cycle);
     const stakersData = getKeysOf(oracleAddrStr, starkersPrefix);
     for (let i = 0; i < stakersData.length; i++) {
-      const stakerAddrBytes = stakersData[i].slice(starkersPrefix.length);
+      const stakerAddrBytes = StaticArray.fromArray(
+        stakersData[i].slice(starkersPrefix.length),
+      );
       const rolls = bytesToU64(
         Storage.getOf(oracleAddr, rollKeyBytes(cycle, stakerAddrBytes)),
       );
-      const amount = u256.fromU64(rolls);
 
       // Mint
-      _increaseBalance(new Address(bytesToString(stakerAddrBytes)), amount);
+      _increaseBalance(
+        new Address(bytesToString(stakerAddrBytes)),
+        u256.fromU64(rolls),
+      );
       totalminted += rolls;
     }
   }

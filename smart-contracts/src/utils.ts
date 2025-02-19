@@ -3,6 +3,8 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 import * as dotenv from 'dotenv';
+import { Account, Web3Provider } from '@massalabs/massa-web3';
+import { isMainnet } from './config';
 dotenv.config();
 
 export function getScByteCode(folderName: string, fileName: string): Buffer {
@@ -14,4 +16,11 @@ export function getScByteCode(folderName: string, fileName: string): Buffer {
 
 export function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export async function getProvider(): Promise<Web3Provider> {
+  const account = await Account.fromEnv();
+  return isMainnet
+    ? Web3Provider.mainnet(account)
+    : Web3Provider.buildnet(account);
 }
