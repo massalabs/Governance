@@ -13,7 +13,7 @@ import {
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
 import { RollEntry } from './serializable/roll-entry';
 import { _deleteCycle, _feedCycle } from './oracle-internals';
-import { LAST_RECORDED_CYCLE_TAG } from './oracle-internals/keys';
+import { ORACLE_LAST_RECORDED_CYCLE } from './oracle-internals/keys';
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.
@@ -23,7 +23,7 @@ export function constructor(_: StaticArray<u8>): void {
 
   _setOwner(Context.caller().toString());
 
-  Storage.set(LAST_RECORDED_CYCLE_TAG, u64ToBytes(0));
+  Storage.set(ORACLE_LAST_RECORDED_CYCLE, u64ToBytes(0));
 
   generateEvent('Oracle Contract Initialized');
 }

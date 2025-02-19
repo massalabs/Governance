@@ -1,7 +1,7 @@
 import { stringToBytes, u64ToBytes } from '@massalabs/as-types';
 
 export const RECORDED_CYCLES_TAG = stringToBytes('RECORDED_CYCLES');
-export const LAST_RECORDED_CYCLE_TAG = stringToBytes('LAST_CYCLE');
+export const ORACLE_LAST_RECORDED_CYCLE = stringToBytes('LAST_CYCLE');
 export const ROLLS_TAG = stringToBytes('ROLLS');
 const DELETING_CYCLES_TAG = stringToBytes('DELETING_CYCLES');
 

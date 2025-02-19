@@ -3,7 +3,7 @@ import { getKeys, Storage } from '@massalabs/massa-as-sdk';
 import { RollEntry } from '../serializable/roll-entry';
 import {
   deletingCycleKey,
-  LAST_RECORDED_CYCLE_TAG,
+  ORACLE_LAST_RECORDED_CYCLE,
   recordedCycleKey,
   rollKey,
   rollKeyPrefix,
@@ -14,7 +14,7 @@ import {
  * @param cycle - The cycle to validate and set.
  */
 export function validateCycle(cycle: u64): void {
-  const lastCycle = bytesToU64(Storage.get(LAST_RECORDED_CYCLE_TAG));
+  const lastCycle = bytesToU64(Storage.get(ORACLE_LAST_RECORDED_CYCLE));
   assert(cycle > lastCycle, 'Cycle cannot be lower than the last cycle');
 }
 
@@ -31,7 +31,7 @@ export function _feedCycle(
   validateCycle(cycle);
 
   if (isLastBatch) {
-    Storage.set(LAST_RECORDED_CYCLE_TAG, u64ToBytes(cycle));
+    Storage.set(ORACLE_LAST_RECORDED_CYCLE, u64ToBytes(cycle));
     Storage.set(recordedCycleKey(cycle), []);
   }
 

@@ -15,12 +15,15 @@ import {
   Storage,
 } from '@massalabs/massa-as-sdk';
 import {
-  LAST_CYCLE_TAG,
+  ORACLE_LAST_RECORDED_CYCLE,
   recordedCycleKey,
   rollKeyBytes,
   rollKeyPrefix,
 } from './oracle-internals/keys';
-import { _increaseBalance, _increaseTotalSupply } from '@massalabs/sc-standards/assembly/contracts/MRC20/mintable/mint-internal';
+import {
+  _increaseBalance,
+  _increaseTotalSupply,
+} from '@massalabs/sc-standards/assembly/contracts/MRC20/mintable/mint-internal';
 
 const LAST_UPDATED_CYCLE = stringToBytes('LAST_UPDATE');
 const ORACLE_KEY = 'ORACLE_KEY';
@@ -51,11 +54,15 @@ export function refresh(): void {
   const oracleAddr = new Address(oracleAddrStr);
 
   assert(
-    Storage.hasOf(oracleAddr, LAST_CYCLE_TAG),
+    Storage.hasOf(oracleAddr, ORACLE_LAST_RECORDED_CYCLE),
     'Oracle contract should have LAST_CYCLE_TAG',
   );
-  let lastCycle = bytesToU64(Storage.getOf(oracleAddr, LAST_CYCLE_TAG));
+
+  let lastCycle = bytesToU64(
+    Storage.getOf(oracleAddr, ORACLE_LAST_RECORDED_CYCLE),
+  );
   let startCycle = 0;
+
   if (Storage.has(LAST_UPDATED_CYCLE)) {
     startCycle = bytesToU64(Storage.get(LAST_UPDATED_CYCLE)) + 1;
   } else {
@@ -83,8 +90,8 @@ export function refresh(): void {
       const amount = u256.fromU64(rolls);
 
       // Mint
-        _increaseBalance(new Address(bytesToString(stakerAddrBytes)), amount);
-        totalminted += rolls;
+      _increaseBalance(new Address(bytesToString(stakerAddrBytes)), amount);
+      totalminted += rolls;
     }
   }
 
