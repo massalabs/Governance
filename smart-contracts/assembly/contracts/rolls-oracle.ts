@@ -4,7 +4,7 @@ import {
   balance,
   generateEvent,
   setBytecode,
-  transferCoins,
+  transferRemaining,
 } from '@massalabs/massa-as-sdk';
 import { Args, u64ToBytes } from '@massalabs/as-types';
 import {
@@ -26,6 +26,7 @@ export function constructor(_: StaticArray<u8>): void {
   Storage.set(ORACLE_LAST_RECORDED_CYCLE, u64ToBytes(0));
 
   generateEvent('Oracle Contract Initialized');
+  transferRemaining(Context.transferredCoins());
 }
 
 /**
@@ -45,7 +46,11 @@ export function feedCycle(binaryArgs: StaticArray<u8>): void {
 
   const isLastBatch = args.next<boolean>().expect('Invalid isLastBatch');
 
+  const initialBalance = balance();
+
   _feedCycle(rollData, cycle, isLastBatch);
+
+  transferRemaining(initialBalance);
 }
 
 /**
@@ -59,21 +64,12 @@ export function deleteCycle(binaryArgs: StaticArray<u8>): void {
   const nbToDelete = args
     .next<u32>()
     .expect('Invalid number of cycles to delete');
+  const initialBalance = balance();
 
   _deleteCycle(cycle, nbToDelete);
 
+  transferRemaining(initialBalance);
   generateEvent(`Cycle ${cycle} deleted successfully`);
-}
-
-/**
- * Withdraw all coins from the contract balance to the owner's address.
- */
-export function withdrawCoins(): void {
-  _onlyOwner();
-  const owner = Context.caller();
-  const amount = balance();
-  transferCoins(owner, amount);
-  generateEvent(`Withdrawn ${amount.toString()} coins to owner: ${owner}`);
 }
 
 /**
@@ -81,7 +77,9 @@ export function withdrawCoins(): void {
  */
 export function upgradeSC(bytecode: StaticArray<u8>): void {
   _onlyOwner();
+  const initialBalance = balance();
   setBytecode(bytecode);
+  transferRemaining(initialBalance);
 }
 
 export {

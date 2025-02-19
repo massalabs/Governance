@@ -9,8 +9,8 @@ const contracts = {
     governance: 'AS1GovernanceAddress',
   },
   [NetworkName.Buildnet]: {
-    masOg: 'XXX',
-    oracle: 'AS1OracleAddress',
+    masOg: 'AS1sDmVVGc6czrPtkD77ADZMRvvPFBzE3BB1wDrD5b8ARWGmNGJR',
+    oracle: 'AS12rpGXRsSRf7onfZiKxo15ahKP2HKBDvLb93hs2Xps2o2iAimLm',
     governance: 'AS1GovernanceAddress',
   },
 };

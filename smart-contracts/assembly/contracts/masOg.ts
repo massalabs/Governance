@@ -7,14 +7,16 @@ import {
   bytesToU64,
   stringToBytes,
   u64ToBytes,
-  unwrapStaticArray,
-  wrapStaticArray,
 } from '@massalabs/as-types';
 import {
   Address,
+  assertIsSmartContract,
+  balance,
+  Context,
   getKeysOf,
   setBytecode,
   Storage,
+  transferRemaining,
 } from '@massalabs/massa-as-sdk';
 import {
   ORACLE_LAST_RECORDED_CYCLE,
@@ -35,12 +37,17 @@ export function constructor(bin: StaticArray<u8>): void {
   const oracleAddr = new Args(bin)
     .nextString()
     .expect('Oracle contract should be provided');
+
+  assertIsSmartContract(oracleAddr);
   Storage.set(ORACLE_KEY, oracleAddr);
+  transferRemaining(Context.transferredCoins());
 }
 
 export function upgradeSC(bytecode: StaticArray<u8>): void {
   _onlyOwner();
+  const initialBalance = balance();
   setBytecode(bytecode);
+  transferRemaining(initialBalance);
 }
 
 export function setOracle(bin: StaticArray<u8>): void {
@@ -60,6 +67,8 @@ export function refresh(): void {
     Storage.hasOf(oracleAddr, ORACLE_LAST_RECORDED_CYCLE),
     'Oracle contract should have LAST_CYCLE_TAG',
   );
+
+  const initialBalance = balance();
 
   let lastCycle = bytesToU64(
     Storage.getOf(oracleAddr, ORACLE_LAST_RECORDED_CYCLE),
@@ -105,6 +114,8 @@ export function refresh(): void {
   _increaseTotalSupply(u256.fromU64(totalminted));
 
   Storage.set(LAST_UPDATED_CYCLE, u64ToBytes(lastCycle));
+
+  transferRemaining(initialBalance);
 }
 
 export {
