@@ -1,0 +1,26 @@
+name: Feed Oracle Contract
+
+on:
+  schedule:
+    - cron: "*/15 * * * *" # Run every 15 minutes
+
+jobs:
+  feed-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: ./smart-contracts/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Run the feed script
+        working-directory: ./smart-contracts
+        run: npm run feed
