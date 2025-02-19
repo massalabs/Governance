@@ -86,7 +86,4 @@ npm run test:e2e
 
 
 ### TODO
-
-- [ ] Review what's been done
-- [ ] Improve end-to-end-tests
 - [ ] Code script to easily feed rolls data using node API to fetch stakers/rolls then feed the oracle

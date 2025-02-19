@@ -8,7 +8,7 @@ export class RollEntry implements Serializable {
     return new Args().add(this.address).add(this.rolls).serialize();
   }
 
-  deserialize(data: StaticArray<u8>, offset: i32): Result<i32> {
+  deserialize(data: StaticArray<u8>, offset: u32): Result<u32> {
     const args = new Args(data, offset);
 
     const address = args.next<string>();

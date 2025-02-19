@@ -1,4 +1,3 @@
-// TODO - Directly fetch rolls data from api
 import {
   Account,
   Mas,
@@ -8,17 +7,68 @@ import {
 import { Oracle } from '../wrappers/Oracle';
 import * as dotenv from 'dotenv';
 import { RollEntry } from '../serializable/RollEntry';
-import { OutputEvents } from '@massalabs/massa-web3/dist/esm/generated/client-types';
+import {
+  OutputEvents,
+  Staker,
+} from '@massalabs/massa-web3/dist/esm/generated/client-types';
+
 dotenv.config();
 
 const account = await Account.fromEnv();
 const provider = Web3Provider.buildnet(account);
 
 const oracle = Oracle.buildnet(provider);
-const NB_STAKERS = 10000n;
+
 const AVERAGE_ROLL_STORAGE_COST = 6250000n;
 // TODO - Check why why 5000 is to much now
 const BATCH_SIZE = 5000;
+
+const stakers: Staker[] = [];
+let offset = 0;
+
+while (true) {
+  const result = await provider.client.getStakers({
+    limit: 5000,
+    offset: offset,
+  });
+
+  if (result.length === 0) {
+    break;
+  }
+
+  stakers.push(...result);
+
+  ++offset;
+}
+
+const rolls = generateRolls(stakers);
+
+await feedRolls(rolls, BATCH_SIZE);
+
+const lastCycle = await oracle.getLastCycle();
+
+const recordedRolls = await oracle.getNbRecordedRolls(lastCycle, false);
+
+if (recordedRolls !== rolls.length) {
+  throw new Error('Recorded rolls do not match');
+}
+
+await deleteRolls(recordedRolls, BATCH_SIZE, lastCycle);
+
+const recordedRollsAfterDelete = await oracle.getNbRecordedRolls(
+  lastCycle,
+  false,
+);
+
+console.log('Recorded rolls after delete: ' + recordedRollsAfterDelete);
+
+if (recordedRollsAfterDelete !== 0) {
+  throw new Error('Recorded rolls after delete do not match');
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                   HELPERS                                  */
+/* -------------------------------------------------------------------------- */
 
 function logEvents(events: OutputEvents) {
   for (let event of events) {
@@ -83,47 +133,10 @@ async function deleteRolls(
 
 /**
  * Generates an array of RollEntry objects.
- * @param nbStakers - Number of stakers.
+ * @param stakers - Array of stakers.
  * @returns Array of RollEntry objects.
  */
-function generateRolls(nbStakers: bigint): RollEntry[] {
-  const rolls = [];
-  for (let i = 1n; i <= nbStakers; i++) {
-    rolls.push(new RollEntry(`AU${i}ExampleAddress`, 10n + i));
-  }
-  return rolls;
+function generateRolls(stakers: Staker[]): RollEntry[] {
+  // TODO - Rolls should be bigint
+  return stakers.map((staker) => new RollEntry(staker[0], BigInt(staker[1])));
 }
-
-/**
- * Main function to execute the feeding and deleting of rolls.
- */
-async function main() {
-  const rolls = generateRolls(NB_STAKERS);
-
-  await feedRolls(rolls, BATCH_SIZE);
-
-  const lastCycle = await oracle.getLastCycle();
-  console.log('Last Recorded cycle: ' + lastCycle);
-
-  const recordedRolls = await oracle.getNbRecordedRolls(lastCycle, false);
-  console.log('Recorded rolls: ' + recordedRolls);
-
-  if (recordedRolls !== rolls.length) {
-    throw new Error('Recorded rolls do not match');
-  }
-
-  await deleteRolls(recordedRolls, BATCH_SIZE, lastCycle);
-
-  const recordedRollsAfterDelete = await oracle.getNbRecordedRolls(
-    lastCycle,
-    false,
-  );
-
-  console.log('Recorded rolls after delete: ' + recordedRollsAfterDelete);
-
-  if (recordedRollsAfterDelete !== 0) {
-    throw new Error('Recorded rolls after delete do not match');
-  }
-}
-
-main();

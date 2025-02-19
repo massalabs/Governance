@@ -21,7 +21,7 @@ export const ORACLES_CONTRACTS = {
 
 export const ROLLS_TAG = strToBytes('ROLLS');
 const RECORDED_CYCLES_TAG = strToBytes('RECORDED_CYCLES');
-export const LAST_CYCLE_TAG = strToBytes('LAST_CYCLE');
+export const LAST_RECORDED_CYCLE_TAG = strToBytes('LAST_CYCLE');
 
 export function recordedCycleKey(cycle: U64_t): Uint8Array {
   return new Uint8Array([...RECORDED_CYCLES_TAG, ...U64.toBytes(cycle)]);
@@ -67,7 +67,7 @@ export class Oracle extends SmartContract {
   ): Promise<Operation> {
     return await this.call(
       'deleteCycle',
-      new Args().addU64(cycle).addI32(nbToDelete),
+      new Args().addU64(cycle).addU32(nbToDelete),
       options,
     );
   }
@@ -136,7 +136,7 @@ export class Oracle extends SmartContract {
 
   async getLastCycle(): Promise<U64_t> {
     const cycle = await this.provider.readStorage(this.address, [
-      LAST_CYCLE_TAG,
+      LAST_RECORDED_CYCLE_TAG,
     ]);
 
     if (cycle[0].length === 0) {

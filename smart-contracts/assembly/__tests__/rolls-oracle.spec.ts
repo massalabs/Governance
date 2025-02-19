@@ -5,7 +5,6 @@ import {
   resetStorage,
   setDeployContext,
   Storage,
-  mockCurrentSlot,
 } from '@massalabs/massa-as-sdk';
 import {
   constructor,
@@ -15,7 +14,8 @@ import {
 } from '../contracts/rolls-oracle';
 import { RollEntry } from '../contracts/serializable/roll-entry';
 import {
-  LAST_CYCLE_TAG,
+  deletingCycleKey,
+  LAST_RECORDED_CYCLE_TAG,
   recordedCycleKey,
   rollKey,
   rollKeyPrefix,
@@ -29,21 +29,18 @@ export function switchUser(user: string): void {
 }
 const owner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
 const nonOwner = 'AU1NonOwnerExampleAddress';
-const cycles = [0, 1, 2, 3, 4];
-const NB_PERIODS_IN_CYCLE = 128;
+const cycles = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
 function getRollsArgs(
   rollData: RollEntry[],
-  isLastBatch: boolean,
+  cycle: u64,
+  isLastBatch: boolean = true,
 ): StaticArray<u8> {
   return new Args()
     .addSerializableObjectArray<RollEntry>(rollData)
+    .add(cycle)
     .add(isLastBatch)
     .serialize();
-}
-
-function periodFromCycle(cycle: u64): u64 {
-  return cycle * NB_PERIODS_IN_CYCLE;
 }
 
 describe('Oracle Contract Tests', () => {
@@ -62,20 +59,18 @@ describe('Oracle Contract Tests', () => {
   });
 
   describe('Feed Cycle Data', () => {
-    // TODO: Remove if solution accepted
+    // TODO: Remove if solution of using onchain data accepted
     // Not needed with current implementation
-    // throws('Feed cycle fails if new cycle lower than last cycle', () => {
-    //   const rollData: RollEntry[] = [
-    //     new RollEntry('address1', 10),
-    //     new RollEntry('address2', 15),
-    //   ];
+    throws('Feed cycle fails if new cycle lower than last cycle', () => {
+      const rollData: RollEntry[] = [
+        new RollEntry('address1', 10),
+        new RollEntry('address2', 15),
+      ];
 
-    //   mockCurrentSlot(periodFromCycle(cycles[4]), 8);
+      feedCycle(getRollsArgs(rollData, cycles[4]));
 
-    //   feedCycle(getRollsArgs(rollData, true));
-
-    //   feedCycle(getRollsArgs(rollData, true));
-    // });
+      feedCycle(getRollsArgs(rollData, cycles[3]));
+    });
 
     test('Feed cycle data successfully', () => {
       const rollData: RollEntry[] = [
@@ -83,11 +78,9 @@ describe('Oracle Contract Tests', () => {
         new RollEntry('address2', 15),
       ];
 
-      mockCurrentSlot(periodFromCycle(cycles[1]), 8);
+      feedCycle(getRollsArgs(rollData, cycles[1]));
 
-      feedCycle(getRollsArgs(rollData, true));
-
-      const lastCycle = bytesToU64(Storage.get(LAST_CYCLE_TAG));
+      const lastCycle = bytesToU64(Storage.get(LAST_RECORDED_CYCLE_TAG));
       expect(lastCycle).toBe(cycles[1]);
 
       const cycle = getKeys(recordedCycleKey(cycles[1]));
@@ -111,18 +104,18 @@ describe('Oracle Contract Tests', () => {
         new RollEntry('address4', 25),
       ];
 
-      mockCurrentSlot(periodFromCycle(cycles[1]), 8);
+      feedCycle(getRollsArgs(rollData, cycles[1], false));
+      let lastCycle = bytesToU64(Storage.get(LAST_RECORDED_CYCLE_TAG));
+      expect(lastCycle).toBe(cycles[0]);
 
-      feedCycle(getRollsArgs(rollData, true));
+      feedCycle(getRollsArgs(rollData, cycles[1]));
 
-      const lastCycle = bytesToU64(Storage.get(LAST_CYCLE_TAG));
+      lastCycle = bytesToU64(Storage.get(LAST_RECORDED_CYCLE_TAG));
       expect(lastCycle).toBe(cycles[1]);
 
-      mockCurrentSlot(periodFromCycle(cycles[2]), 8);
+      feedCycle(getRollsArgs(rollData, cycles[2], true));
 
-      feedCycle(getRollsArgs(rollData, true));
-
-      const lastCycle2 = bytesToU64(Storage.get(LAST_CYCLE_TAG));
+      const lastCycle2 = bytesToU64(Storage.get(LAST_RECORDED_CYCLE_TAG));
       expect(lastCycle2).toBe(cycles[2]);
     });
 
@@ -134,9 +127,7 @@ describe('Oracle Contract Tests', () => {
         new RollEntry('address2', 15),
       ];
 
-      mockCurrentSlot(periodFromCycle(cycles[1]), 8);
-
-      feedCycle(getRollsArgs(rollData, true));
+      feedCycle(getRollsArgs(rollData, cycles[1], true));
     });
 
     throws('Feed cycle fails if cycle already exists', () => {
@@ -145,11 +136,9 @@ describe('Oracle Contract Tests', () => {
         new RollEntry('address2', 15),
       ];
 
-      mockCurrentSlot(periodFromCycle(cycles[1]), 8);
+      feedCycle(getRollsArgs(rollData, cycles[1], true));
 
-      feedCycle(getRollsArgs(rollData, true));
-
-      feedCycle(getRollsArgs(rollData, true));
+      feedCycle(getRollsArgs(rollData, cycles[1], true));
     });
   });
 
@@ -166,10 +155,8 @@ describe('Oracle Contract Tests', () => {
         new RollEntry('address8', 15),
       ];
 
-      mockCurrentSlot(periodFromCycle(cycles[1]), 8);
-
-      feedCycle(getRollsArgs(rollData, true));
-      const lastCycle = bytesToU64(Storage.get(LAST_CYCLE_TAG));
+      feedCycle(getRollsArgs(rollData, cycles[1], true));
+      const lastCycle = bytesToU64(Storage.get(LAST_RECORDED_CYCLE_TAG));
       expect(lastCycle).toBe(cycles[1]);
 
       let rollKeys = getKeys(rollKeyPrefix(cycles[1]));
@@ -184,9 +171,11 @@ describe('Oracle Contract Tests', () => {
 
       rollKeys = getKeys(rollKeyPrefix(cycles[1]));
       expect(rollKeys.length).toBe(4);
+      expect(Storage.has(deletingCycleKey(cycles[1]))).toBeTruthy();
 
       deleteArgs = new Args().add<u64>(cycles[1]).add<u64>(4);
       deleteCycle(deleteArgs.serialize());
+      expect(Storage.has(deletingCycleKey(cycles[1]))).toBeFalsy();
 
       rollKeys = getKeys(rollKeyPrefix(cycles[1]));
       expect(rollKeys.length).toBe(0);
@@ -214,9 +203,7 @@ describe('Oracle Contract Tests', () => {
         new RollEntry('address4', 40),
       ];
 
-      mockCurrentSlot(periodFromCycle(cycles[1]), 8);
-
-      feedCycle(getRollsArgs(rollData, true));
+      feedCycle(getRollsArgs(rollData, cycles[1], true));
 
       for (let i = 0; i < rollData.length; i++) {
         const rolls = Storage.get(rollKey(cycles[1], rollData[i].address));

@@ -13,7 +13,7 @@ import {
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
 import { RollEntry } from './serializable/roll-entry';
 import { _deleteCycle, _feedCycle } from './oracle-internals';
-import { LAST_CYCLE_TAG } from './oracle-internals/keys';
+import { LAST_RECORDED_CYCLE_TAG } from './oracle-internals/keys';
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.
@@ -23,7 +23,7 @@ export function constructor(_: StaticArray<u8>): void {
 
   _setOwner(Context.caller().toString());
 
-  Storage.set(LAST_CYCLE_TAG, u64ToBytes(0));
+  Storage.set(LAST_RECORDED_CYCLE_TAG, u64ToBytes(0));
 
   generateEvent('Oracle Contract Initialized');
 }
@@ -41,9 +41,11 @@ export function feedCycle(binaryArgs: StaticArray<u8>): void {
     .nextSerializableObjectArray<RollEntry>()
     .expect('Invalid roll data');
 
+  const cycle = args.next<u64>().expect('Invalid cycle number');
+
   const isLastBatch = args.next<boolean>().expect('Invalid isLastBatch');
 
-  _feedCycle(rollData, isLastBatch);
+  _feedCycle(rollData, cycle, isLastBatch);
 }
 
 /**
@@ -55,7 +57,7 @@ export function deleteCycle(binaryArgs: StaticArray<u8>): void {
   const args = new Args(binaryArgs);
   const cycle = args.next<u64>().expect('Invalid cycle number');
   const nbToDelete = args
-    .next<i32>()
+    .next<u32>()
     .expect('Invalid number of cycles to delete');
 
   _deleteCycle(cycle, nbToDelete);
