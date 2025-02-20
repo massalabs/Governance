@@ -35,7 +35,6 @@ export function constructor(_: StaticArray<u8>): void {
  */
 export function feedCycle(binaryArgs: StaticArray<u8>): void {
   _onlyOwner();
-
   const args = new Args(binaryArgs);
 
   const rollData = args
