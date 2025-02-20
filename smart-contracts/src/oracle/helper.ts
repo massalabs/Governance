@@ -41,6 +41,7 @@ export async function feedRolls(
 
     const opFeed = await oracle.feedCycle(batch, cycle, isLastBatch, {
       coins: Mas.fromNanoMas(AVERAGE_ROLL_STORAGE_COST * BigInt(batchSize)),
+      fee: Mas.fromString('0.1'),
     });
 
     const status = await opFeed.waitFinalExecution();

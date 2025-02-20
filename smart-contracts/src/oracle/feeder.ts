@@ -1,6 +1,4 @@
 /* eslint-disable camelcase */
-import { Account, Mas, Web3Provider } from '@massalabs/massa-web3';
-import * as dotenv from 'dotenv';
 import { Oracle } from './wrappers/Oracle';
 import {
   getStakers,
@@ -9,18 +7,15 @@ import {
   deleteRolls,
   getCycleInfo,
 } from './helper';
-import { MasOg } from '../masog/wrapper/MasOg';
+import { getProvider } from '../utils';
 
-dotenv.config();
 const BATCH_SIZE_FEED = 5000;
 const BATCH_SIZE_DELETE = 4000;
 const MAX_CYCLES = 5;
 
-const account = await Account.fromEnv();
-const provider = Web3Provider.buildnet(account);
-const providerMainnet = Web3Provider.mainnet(account);
-const oracle = Oracle.buildnet(provider);
-const masOg = MasOg.buildnet(provider);
+const provider = await getProvider();
+const providerMainnet = await getProvider(true);
+const oracle = await Oracle.init(provider);
 
 async function main() {
   console.log('Starting feeder...');
@@ -83,15 +78,15 @@ async function main() {
   }
 
   // Refresh masOg
-  try {
-    const refreshOp = await masOg.refresh(Mas.fromString('0.1'));
-    await refreshOp.waitSpeculativeExecution();
-    const events = await refreshOp.getSpeculativeEvents();
-    console.log('Refreshed masOg:', events);
-  } catch (error) {
-    console.error('Error refreshing masOg:', error);
-    throw error;
-  }
+  // try {
+  //   const refreshOp = await masOg.refresh(Mas.fromString('0.1'));
+  //   await refreshOp.waitSpeculativeExecution();
+  //   const events = await refreshOp.getSpeculativeEvents();
+  //   console.log('Refreshed masOg:', events);
+  // } catch (error) {
+  //   console.error('Error refreshing masOg:', error);
+  //   throw error;
+  // }
 
   console.log('Feeder finished\n');
 }

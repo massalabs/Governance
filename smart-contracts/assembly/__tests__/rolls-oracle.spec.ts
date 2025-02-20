@@ -1,8 +1,4 @@
-import {
-  Args,
-  bytesToString,
-  bytesToU64,
-} from '@massalabs/as-types';
+import { Args, bytesToString, bytesToU64 } from '@massalabs/as-types';
 import {
   changeCallStack,
   getKeys,

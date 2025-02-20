@@ -2,15 +2,15 @@ import { NetworkName } from '@massalabs/massa-web3';
 
 export const isMainnet = false;
 
-const contracts = {
+export const contracts = {
   [NetworkName.Mainnet]: {
     masOg: 'XXX',
     oracle: 'AS1OracleAddress',
     governance: 'AS1GovernanceAddress',
   },
   [NetworkName.Buildnet]: {
-    masOg: 'AS1RfrLb21iqjEZFPJM6muu9UsBW84yeNSCZ44UW1eucdoKXWiKq',
-    oracle: 'AS12vRWLkkSvR8pRpvYgYrkGhP6REnumX6cPxTg9VAKEcRbxgma9N',
+    masOg: 'AS1S8ebaNowaFCc4Jv9oTrLfHVhM9raQVhhL4SksC7DqvEC1sUhc',
+    oracle: 'AS1HDdfaRP9JAra9h3UeRGeoGmZMCPTf9pUVxdTQrk6nWeKuECzZ',
     governance: 'AS1GovernanceAddress',
   },
 };

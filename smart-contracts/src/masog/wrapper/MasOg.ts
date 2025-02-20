@@ -7,24 +7,19 @@ import {
   Args,
   Mas,
 } from '@massalabs/massa-web3';
-
-export const ORACLES_CONTRACTS = {
-  mainnet: '',
-  buildnet: 'AS1RfrLb21iqjEZFPJM6muu9UsBW84yeNSCZ44UW1eucdoKXWiKq',
-  local: '',
-};
+import { contracts } from '../../config';
 
 export class MasOg extends MRC20 {
   static mainnet(provider: Provider | PublicProvider): MasOg {
-    return new MasOg(provider, ORACLES_CONTRACTS.mainnet);
+    return new MasOg(provider, contracts.mainnet.masOg);
   }
 
   static buildnet(provider: Provider | PublicProvider): MasOg {
-    return new MasOg(provider, ORACLES_CONTRACTS.buildnet);
+    return new MasOg(provider, contracts.buildnet.masOg);
   }
 
   static local(provider: Provider | PublicProvider, address?: string): MasOg {
-    return new MasOg(provider, address ? address : ORACLES_CONTRACTS.local);
+    return new MasOg(provider, address ? address : contracts.buildnet.masOg);
   }
 
   async refresh(coins: bigint): Promise<Operation> {

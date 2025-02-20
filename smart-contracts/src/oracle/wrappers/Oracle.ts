@@ -9,15 +9,11 @@ import {
   bytesToStr,
   U64,
   Operation,
+  Mas,
 } from '@massalabs/massa-web3';
 import { U64_t } from '@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64';
 import { RollEntry } from '../serializable/RollEntry';
-
-export const ORACLES_CONTRACTS = {
-  mainnet: '',
-  buildnet: 'AS12vRWLkkSvR8pRpvYgYrkGhP6REnumX6cPxTg9VAKEcRbxgma9N',
-  local: 'AS1uYHPwXnQYTcY98BhfFnYg5gsp7oaHKD1orhm5zer1oegWUgQ',
-};
+import { contracts, getContracts } from '../../config';
 
 export const ROLLS_TAG = strToBytes('ROLLS');
 const RECORDED_CYCLES_TAG = strToBytes('RECORDED_CYCLES');
@@ -36,16 +32,20 @@ export function rollKey(cycle: U64_t, address: string): Uint8Array {
 }
 
 export class Oracle extends SmartContract {
+  static async init(provider: Provider | PublicProvider): Promise<Oracle> {
+    return new Oracle(provider, getContracts().oracle);
+  }
+
   static mainnet(provider: Provider | PublicProvider): Oracle {
-    return new Oracle(provider, ORACLES_CONTRACTS.mainnet);
+    return new Oracle(provider, contracts.mainnet.oracle);
   }
 
   static buildnet(provider: Provider | PublicProvider): Oracle {
-    return new Oracle(provider, ORACLES_CONTRACTS.buildnet);
+    return new Oracle(provider, contracts.buildnet.oracle );
   }
 
   static local(provider: Provider | PublicProvider): Oracle {
-    return new Oracle(provider, ORACLES_CONTRACTS.local);
+    return new Oracle(provider, contracts.buildnet.oracle);
   }
 
   async feedCycle(
@@ -151,6 +151,14 @@ export class Oracle extends SmartContract {
   }
 
   async upgradeSC(bytecode: Uint8Array): Promise<Operation> {
-    return await this.call('upgradeSC', new Args().addUint8Array(bytecode));
+    return this.call('upgradeSC', new Args().addUint8Array(bytecode));
+  }
+
+  async setMasOgAddress(): Promise<Operation> {
+    return this.call(
+      'setMasOgAddress',
+      new Args().addString(getContracts().masOg),
+      { coins: Mas.fromString('1') },
+    );
   }
 }
