@@ -19,6 +19,7 @@
         "oracle:feed": "tsx src/oracle/feeder.ts",
         "oracle:delete": "tsx src/oracle/delete.ts",
         "oracle:get": "tsx src/oracle/get.ts",
+        "oracle:setMasog": "tsx src/oracle/setMasOg.ts",
         "masog:refresh": "tsx src/masog/refresh.ts"
     },
     "keywords": [],

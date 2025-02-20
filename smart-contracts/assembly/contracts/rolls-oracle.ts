@@ -63,8 +63,13 @@ export function feedCycle(binaryArgs: StaticArray<u8>): void {
 
   _feedCycle(rollData, cycle, isLastBatch);
 
-  if(Storage.has(MASOG_KEY)) {
-    call(new Address(Storage.get(MASOG_KEY)) , 'refresh', new Args(), rollData.length * rollEntryCost);
+  if (Storage.has(MASOG_KEY)) {
+    call(
+      new Address(Storage.get(MASOG_KEY)),
+      'refresh',
+      new Args(),
+      rollData.length * rollEntryCost,
+    );
   }
   transferRemaining(initialBalance);
 }

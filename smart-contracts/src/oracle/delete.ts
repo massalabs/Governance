@@ -1,17 +1,12 @@
 /* eslint-disable camelcase */
-import { Account, Web3Provider } from '@massalabs/massa-web3';
-import * as dotenv from 'dotenv';
 import { Oracle } from './wrappers/Oracle';
 import { deleteRolls } from './helper';
-
-// Configuration
-dotenv.config();
+import { getProvider } from '../utils';
 
 const BATCH_SIZE_DELETE = 4000;
 
-const account = await Account.fromEnv();
-const provider = Web3Provider.buildnet(account);
-const oracle = Oracle.buildnet(provider);
+const provider = await getProvider();
+const oracle = await Oracle.init(provider);
 const cycleToDelete = 17450n;
 
 async function deleteCycle() {

@@ -18,9 +18,9 @@ export function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export async function getProvider(): Promise<Web3Provider> {
+export async function getProvider(forceMainnet = false): Promise<Web3Provider> {
   const account = await Account.fromEnv();
-  return isMainnet
+  return isMainnet || forceMainnet
     ? Web3Provider.mainnet(account)
     : Web3Provider.buildnet(account);
 }
