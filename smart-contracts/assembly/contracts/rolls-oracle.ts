@@ -1,7 +1,9 @@
 import {
+  Address,
   Context,
   Storage,
   balance,
+  call,
   generateEvent,
   setBytecode,
   transferRemaining,
@@ -15,6 +17,10 @@ import { RollEntry } from './serializable/roll-entry';
 import { _deleteCycle, _feedCycle } from './oracle-internals';
 import { ORACLE_LAST_RECORDED_CYCLE } from './oracle-internals/keys';
 
+export const MASOG_KEY = 'MASOG_KEY';
+
+const rollEntryCost = (53 + 8) * 100000;
+
 /**
  * Initializes the smart contract and sets the deployer as the owner.
  */
@@ -27,6 +33,14 @@ export function constructor(_: StaticArray<u8>): void {
 
   generateEvent('Oracle Contract Initialized');
   transferRemaining(Context.transferredCoins());
+}
+
+export function setMasOgAddress(bin: StaticArray<u8>): void {
+  _onlyOwner();
+  const oracleAddr = new Args(bin)
+    .nextString()
+    .expect('Masog contract should be provided');
+  Storage.set(MASOG_KEY, oracleAddr);
 }
 
 /**
@@ -49,6 +63,9 @@ export function feedCycle(binaryArgs: StaticArray<u8>): void {
 
   _feedCycle(rollData, cycle, isLastBatch);
 
+  if(Storage.has(MASOG_KEY)) {
+    call(new Address(Storage.get(MASOG_KEY)) , 'refresh', new Args(), rollData.length * rollEntryCost);
+  }
   transferRemaining(initialBalance);
 }
 
