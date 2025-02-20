@@ -12,7 +12,7 @@ import {
 } from '@massalabs/massa-web3/dist/esm/generated/client-types';
 import { RollEntry } from './serializable/RollEntry';
 import { Oracle } from './wrappers/Oracle';
-const AVERAGE_ROLL_STORAGE_COST = 6250000n;
+const AVERAGE_ROLL_STORAGE_COST = 62500000n;
 const PERIODS_PER_CYCLE = 128n;
 
 /**
@@ -44,7 +44,7 @@ export async function feedRolls(
     });
 
     const status = await opFeed.waitFinalExecution();
-    if (status === OperationStatus.SpeculativeError) {
+    if (status === OperationStatus.Error) {
       throw new Error(`Failed to feed batch ${i / batchSize + 1}`);
     }
 

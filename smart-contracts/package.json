@@ -18,7 +18,8 @@
         "fmt": "npm run prettier:fix && npm run lint:fix",
         "oracle:feed": "tsx src/oracle/feeder.ts",
         "oracle:delete": "tsx src/oracle/delete.ts",
-        "oracle:get": "tsx src/oracle/get.ts"
+        "oracle:get": "tsx src/oracle/get.ts",
+        "masog:refresh": "tsx src/masog/refresh.ts"
     },
     "keywords": [],
     "author": "",

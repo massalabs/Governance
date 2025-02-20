@@ -7,14 +7,14 @@ import { deleteRolls } from './helper';
 // Configuration
 dotenv.config();
 
-const BATCH_SIZE_DELETE = 1000;
+const BATCH_SIZE_DELETE = 4000;
 
 const account = await Account.fromEnv();
 const provider = Web3Provider.buildnet(account);
 const oracle = Oracle.buildnet(provider);
-const cycleToDelete = 17420n;
+const cycleToDelete = 17450n;
 
-async function main() {
+async function deleteCycle() {
   try {
     const recordedCycles = await oracle.getRecordedCycles();
     console.log('Recorded cycles:', recordedCycles);
@@ -29,4 +29,4 @@ async function main() {
   }
 }
 
-main();
+deleteCycle();
