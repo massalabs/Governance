@@ -13,6 +13,7 @@ import {
 import { RollEntry } from './serializable/RollEntry';
 import { Oracle } from './wrappers/Oracle';
 const AVERAGE_ROLL_STORAGE_COST = 6250000n;
+const PERIODS_PER_CYCLE = 128n;
 
 /**
  * Logs events to console * @param events - Array of output events to log
@@ -68,8 +69,12 @@ export async function deleteRolls(
   while (remainingRolls > 0) {
     const deleteBatchSize =
       remainingRolls > BigInt(batchSize) ? BigInt(batchSize) : remainingRolls;
+    console.log('deleteBatchSize: ', deleteBatchSize);
 
-    const opDeleteBatch = await oracle.deleteCycle(cycle, deleteBatchSize);
+    const opDeleteBatch = await oracle.deleteCycle(cycle, deleteBatchSize, {
+      coins: Mas.fromString('0.1'),
+    });
+    await opDeleteBatch.waitSpeculativeExecution();
     const events = await opDeleteBatch.getSpeculativeEvents();
     logEvents(events);
 
@@ -107,12 +112,64 @@ export async function getStakers(provider: Web3Provider): Promise<Staker[]> {
   return stakers;
 }
 
+// Helper function to calculate cycle from period
+function calculateCycleFromPeriod(period: U64_t): U64_t {
+  return period / PERIODS_PER_CYCLE;
+}
+
+// Helper function to calculate cycle start period
+function calculateCycleStartPeriod(cycle: U64_t): U64_t {
+  return cycle * PERIODS_PER_CYCLE;
+}
+
 /**
- * Calculates current cycle from period
+ * Gets the current cycle number
  * @param client - PublicAPI client instance
  * @returns Current cycle number
  */
 export async function getCurrentCycle(client: PublicAPI): Promise<U64_t> {
-  const currentPeriod = await client.fetchPeriod();
-  return BigInt(currentPeriod) / 128n;
+  const currentPeriod = BigInt(await client.fetchPeriod());
+  return calculateCycleFromPeriod(currentPeriod);
+}
+
+/**
+ * Gets the start period of the next cycle
+ * @param currentCycle - Current cycle number
+ * @returns Next cycle start period
+ */
+export function getNextCycleStartPeriod(currentCycle: U64_t): U64_t {
+  return calculateCycleStartPeriod(currentCycle + 1n);
+}
+
+/**
+ * Calculates remaining periods until the next cycle
+ * @param client - PublicAPI client instance
+ * @returns Remaining periods
+ */
+export async function getRemainingPeriodsToNextCycle(
+  client: PublicAPI,
+): Promise<U64_t> {
+  const currentPeriod = BigInt(await client.fetchPeriod());
+  const currentCycle = calculateCycleFromPeriod(currentPeriod);
+  const nextCycleStart = getNextCycleStartPeriod(currentCycle);
+
+  console.log('currentPeriod:', currentPeriod);
+  console.log('nextCycleStart:', nextCycleStart);
+
+  return nextCycleStart - currentPeriod;
+}
+
+// Optional: Utility function to get all cycle info at once
+export async function getCycleInfo(client: PublicAPI) {
+  const currentPeriod = BigInt(await client.fetchPeriod());
+  const currentCycle = calculateCycleFromPeriod(currentPeriod);
+  const nextCycleStart = getNextCycleStartPeriod(currentCycle);
+  const remainingPeriods = nextCycleStart - currentPeriod;
+
+  return {
+    currentPeriod,
+    currentCycle,
+    nextCycleStart,
+    remainingPeriods,
+  };
 }

@@ -15,7 +15,7 @@ import { RollEntry } from '../serializable/RollEntry';
 
 export const ORACLES_CONTRACTS = {
   mainnet: '',
-  buildnet: 'AS1C2ThVh4MaZQsWuFCvJgw3yeh6T4NsM5pVCW7o2AaNkZuoiGJ8',
+  buildnet: 'AS12vRWLkkSvR8pRpvYgYrkGhP6REnumX6cPxTg9VAKEcRbxgma9N',
   local: 'AS1uYHPwXnQYTcY98BhfFnYg5gsp7oaHKD1orhm5zer1oegWUgQ',
 };
 
@@ -84,7 +84,7 @@ export class Oracle extends SmartContract {
     return U64.fromBytes(result[0]);
   }
 
-  async getNbRecordedRolls(cycle: U64_t, final = false): Promise<number> {
+  async getNbRecordByCycle(cycle: U64_t, final = false): Promise<number> {
     const filter = rollKeyPrefix(cycle);
 
     const keys = await this.provider.getStorageKeys(

@@ -16,7 +16,9 @@
         "lint:fix": "eslint . --fix",
         "fmt:check": "npm run prettier && npm run lint",
         "fmt": "npm run prettier:fix && npm run lint:fix",
-        "oracle:feed": "tsx src/oracle/feeder.ts"
+        "oracle:feed": "tsx src/oracle/feeder.ts",
+        "oracle:delete": "tsx src/oracle/delete.ts",
+        "oracle:get": "tsx src/oracle/get.ts"
     },
     "keywords": [],
     "author": "",

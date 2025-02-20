@@ -5,66 +5,77 @@ import { Oracle } from './wrappers/Oracle';
 import {
   getStakers,
   generateRolls,
-  getCurrentCycle,
   feedRolls,
   deleteRolls,
+  getCycleInfo,
 } from './helper';
 
-// Configuration
 dotenv.config();
 const BATCH_SIZE_FEED = 5000;
-const BATCH_SIZE_DELETE = 3000;
-const MAX_CYCLES = 5n;
+const BATCH_SIZE_DELETE = 100;
+const MAX_CYCLES = 5;
 
 const account = await Account.fromEnv();
 const provider = Web3Provider.buildnet(account);
+const providerMainnet = Web3Provider.mainnet(account);
 const oracle = Oracle.buildnet(provider);
 
-// Main execution
 async function main() {
   try {
+    console.log('Starting feeder...');
     // Fetch initial data
-    const stakers = await getStakers(provider);
-    const rolls = generateRolls(stakers);
-    const lastCycle = await oracle.getLastCycle();
-    const currentCycle = await getCurrentCycle(provider.client);
 
-    console.log('Last cycle:', lastCycle);
-    console.log('Current cycle:', currentCycle);
+    const lastCycle = await oracle.getLastCycle();
+    const { currentCycle, remainingPeriods } = await getCycleInfo(
+      provider.client,
+    );
+
+    console.log('- Last cycle:', lastCycle);
+    console.log('- Current cycle:', currentCycle);
+
     if (lastCycle >= currentCycle) {
-      console.log('Nothing to update');
+      console.log('Remaining periods to next cycle:', remainingPeriods);
+      console.log('');
       return;
     }
+
+    const stakers = await getStakers(providerMainnet);
+    const rolls = generateRolls(stakers);
+    console.log(stakers.length, 'stakers found');
 
     // Process rolls
     await feedRolls(oracle, rolls, currentCycle, BATCH_SIZE_FEED);
 
     // Verify recording
-    const recordedRolls = await oracle.getNbRecordedRolls(lastCycle, false);
-    console.log(recordedRolls, rolls.length);
-    if (recordedRolls !== rolls.length) {
+    let nbRecord = await oracle.getNbRecordByCycle(currentCycle, false);
+    console.log('Recorded rolls:', nbRecord);
+
+    if (nbRecord !== rolls.length) {
+      // TODO: Implement a retry mechanism ?
       throw new Error('Recorded rolls do not match generated rolls');
     }
 
     // Manage cycle history
     const recordedCycles = await oracle.getRecordedCycles();
-    console.log('Recorded cycles:', recordedCycles.sort());
+    console.log('Recorded cycles:', recordedCycles);
 
-    if (recordedCycles.length > 5) {
-      await deleteRolls(
-        oracle,
-        recordedRolls,
-        BATCH_SIZE_DELETE,
-        recordedCycles[0],
-      );
-      console.log('Deleted rolls from 5 cycles ago');
-    } else {
-      console.log('No rolls to delete');
+    // Delete old cycles and keep only the last 5
+    const cyclesToDelete = recordedCycles
+      .sort()
+      .slice(0, recordedCycles.length - MAX_CYCLES);
+
+    for (const cycle of cyclesToDelete) {
+      nbRecord = await oracle.getNbRecordByCycle(cycle, false);
+      console.log(`Deleting rolls from cycle ${cycle}`);
+      await deleteRolls(oracle, nbRecord, BATCH_SIZE_DELETE, cycle);
+      console.log(`Deleted rolls from cycles ${cycle}`);
     }
   } catch (error) {
     console.error('Error in main execution:', error);
     throw error;
   }
+  console.log('Feeder finished\n');
 }
 
 main();
+setInterval(main, 60 * 1000);
