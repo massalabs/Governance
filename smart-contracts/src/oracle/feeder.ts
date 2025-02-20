@@ -97,4 +97,4 @@ async function main() {
 }
 
 main();
-setInterval(main, 60 * 1000);
+// setInterval(main, 60 * 1000); Only for local testing

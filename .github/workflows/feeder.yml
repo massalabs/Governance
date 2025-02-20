@@ -25,3 +25,5 @@ jobs:
       - name: Run the feed script
         working-directory: ./smart-contracts
         run: npm run oracle:feed
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
