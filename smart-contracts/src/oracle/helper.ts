@@ -91,7 +91,9 @@ export async function deleteRolls(
  * @returns Array of RollEntry objects
  */
 export function generateRolls(stakers: Staker[]): RollEntry[] {
-  return stakers.map((staker) => new RollEntry(staker[0], BigInt(staker[1])));
+  return stakers.map((staker) =>
+    RollEntry.create(staker[0], BigInt(staker[1])),
+  );
 }
 
 /**

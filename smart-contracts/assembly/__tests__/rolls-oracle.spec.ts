@@ -1,4 +1,8 @@
-import { Args, bytesToString, bytesToU64 } from '@massalabs/as-types';
+import {
+  Args,
+  bytesToString,
+  bytesToU64,
+} from '@massalabs/as-types';
 import {
   changeCallStack,
   getKeys,
@@ -17,7 +21,7 @@ import {
   deletingCycleKey,
   ORACLE_LAST_RECORDED_CYCLE,
   recordedCycleKey,
-  rollKey,
+  rollKeyBytes,
   rollKeyPrefix,
 } from '../contracts/oracle-internals/keys';
 import { getRollsArgs } from './utils';
@@ -53,8 +57,8 @@ describe('Oracle Contract Tests', () => {
     // Not needed with current implementation
     throws('Feed cycle fails if new cycle lower than last cycle', () => {
       const rollData: RollEntry[] = [
-        new RollEntry('address1', 10),
-        new RollEntry('address2', 15),
+        RollEntry.create('address1', 10),
+        RollEntry.create('address2', 15),
       ];
 
       feedCycle(getRollsArgs(rollData, cycles[4]));
@@ -64,8 +68,8 @@ describe('Oracle Contract Tests', () => {
 
     test('Feed cycle data successfully', () => {
       const rollData: RollEntry[] = [
-        new RollEntry('address1', 10),
-        new RollEntry('address2', 15),
+        RollEntry.create('address1', 10),
+        RollEntry.create('address2', 15),
       ];
 
       feedCycle(getRollsArgs(rollData, cycles[1]));
@@ -78,20 +82,19 @@ describe('Oracle Contract Tests', () => {
 
       for (let i = 0; i < rollData.length; i++) {
         const valueBinary = Storage.get(
-          rollKey(cycles[1], rollData[i].address),
+          rollKeyBytes(cycles[1], rollData[i].address),
         );
 
-        const value = bytesToU64(valueBinary);
-        expect(value).toBe(rollData[i].rolls);
+        expect(valueBinary).toStrictEqual(rollData[i].rolls);
       }
     });
 
     test('Update last cycle successfully', () => {
       const rollData: RollEntry[] = [
-        new RollEntry('address1', 10),
-        new RollEntry('address2', 15),
-        new RollEntry('address3', 20),
-        new RollEntry('address4', 25),
+        RollEntry.create('address1', 10),
+        RollEntry.create('address2', 15),
+        RollEntry.create('address3', 20),
+        RollEntry.create('address4', 25),
       ];
 
       feedCycle(getRollsArgs(rollData, cycles[1], false));
@@ -113,8 +116,8 @@ describe('Oracle Contract Tests', () => {
       switchUser(nonOwner);
 
       const rollData: RollEntry[] = [
-        new RollEntry('address1', 10),
-        new RollEntry('address2', 15),
+        RollEntry.create('address1', 10),
+        RollEntry.create('address2', 15),
       ];
 
       feedCycle(getRollsArgs(rollData, cycles[1], true));
@@ -122,8 +125,8 @@ describe('Oracle Contract Tests', () => {
 
     throws('Feed cycle fails if cycle already exists', () => {
       const rollData: RollEntry[] = [
-        new RollEntry('address1', 10),
-        new RollEntry('address2', 15),
+        RollEntry.create('address1', 10),
+        RollEntry.create('address2', 15),
       ];
 
       feedCycle(getRollsArgs(rollData, cycles[1], true));
@@ -135,14 +138,14 @@ describe('Oracle Contract Tests', () => {
   describe('Delete Cycle Data', () => {
     test('Delete cycle data successfully', () => {
       const rollData: RollEntry[] = [
-        new RollEntry('address1', 10),
-        new RollEntry('address2', 15),
-        new RollEntry('address3', 15),
-        new RollEntry('address4', 15),
-        new RollEntry('address5', 15),
-        new RollEntry('address6', 15),
-        new RollEntry('address7', 15),
-        new RollEntry('address8', 15),
+        RollEntry.create('address1', 10),
+        RollEntry.create('address2', 15),
+        RollEntry.create('address3', 15),
+        RollEntry.create('address4', 15),
+        RollEntry.create('address5', 15),
+        RollEntry.create('address6', 15),
+        RollEntry.create('address7', 15),
+        RollEntry.create('address8', 15),
       ];
 
       feedCycle(getRollsArgs(rollData, cycles[1], true));
@@ -153,7 +156,7 @@ describe('Oracle Contract Tests', () => {
       for (let i = 0; i < rollKeys.length; i++) {
         expect(Storage.has(rollKeys[i])).toBeTruthy();
         const value = Storage.get(rollKeys[i]);
-        expect(bytesToU64(value)).toBe(rollData[i].rolls);
+        expect(value).toStrictEqual(rollData[i].rolls);
       }
 
       let deleteArgs = new Args().add<u64>(cycles[1]).add<u64>(4);
@@ -187,17 +190,17 @@ describe('Oracle Contract Tests', () => {
   describe('Get Number of Rolls', () => {
     test('Get number of rolls successfully', () => {
       const rollData: RollEntry[] = [
-        new RollEntry('address1', 10),
-        new RollEntry('address2', 20),
-        new RollEntry('address3', 30),
-        new RollEntry('address4', 40),
+        RollEntry.create('address1', 10),
+        RollEntry.create('address2', 20),
+        RollEntry.create('address3', 30),
+        RollEntry.create('address4', 40),
       ];
 
       feedCycle(getRollsArgs(rollData, cycles[1], true));
 
       for (let i = 0; i < rollData.length; i++) {
-        const rolls = Storage.get(rollKey(cycles[1], rollData[i].address));
-        expect(bytesToU64(rolls)).toBe(rollData[i].rolls);
+        const rolls = Storage.get(rollKeyBytes(cycles[1], rollData[i].address));
+        expect(rolls).toStrictEqual(rollData[i].rolls);
       }
     });
   });

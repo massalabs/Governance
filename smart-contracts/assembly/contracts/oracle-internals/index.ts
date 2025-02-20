@@ -5,7 +5,7 @@ import {
   deletingCycleKey,
   ORACLE_LAST_RECORDED_CYCLE,
   recordedCycleKey,
-  rollKey,
+  rollKeyBytes,
   rollKeyPrefix,
 } from './keys';
 
@@ -36,10 +36,7 @@ export function _feedCycle(
   }
 
   for (let i = 0; i < rollData.length; i++) {
-    Storage.set(
-      rollKey(cycle, rollData[i].address),
-      u64ToBytes(rollData[i].rolls),
-    );
+    Storage.set(rollKeyBytes(cycle, rollData[i].address), rollData[i].rolls);
   }
 }
 
