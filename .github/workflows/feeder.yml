@@ -2,7 +2,7 @@ name: Feed Oracle Contract
 
 on:
   schedule:
-    - cron: "*/5 * * * *" # Run every 15 minutes
+    - cron: "*/5 * * * *"
 
 jobs:
   feed-data:
@@ -19,8 +19,9 @@ jobs:
           cache-dependency-path: ./smart-contracts/package-lock.json
 
       - name: Install
+        working-directory: ./smart-contracts
         run: npm ci
 
       - name: Run the feed script
         working-directory: ./smart-contracts
-        run: npm run feed
+        run: npm run oracle:feed
