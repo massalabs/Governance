@@ -30,10 +30,11 @@ import {
 } from '@massalabs/sc-standards/assembly/contracts/MRC20/mintable/mint-internal';
 
 const LAST_UPDATED_CYCLE = stringToBytes('LAST_UPDATE');
-const ORACLE_KEY = 'ORACLE_KEY';
+export const ORACLE_KEY = 'ORACLE_KEY';
 
 export function constructor(bin: StaticArray<u8>): void {
   mrc20Constructor('MASOG', 'MASOG', 9, u256.Zero);
+
   const oracleAddr = new Args(bin)
     .nextString()
     .expect('Oracle contract should be provided');
@@ -79,6 +80,7 @@ export function refresh(): void {
     startCycle = bytesToU64(Storage.get(LAST_UPDATED_CYCLE)) + 1;
   } else {
     // first refresh
+    assert(lastCycle, 'Not anough recorded cycles');
     startCycle = lastCycle - 1;
   }
 
@@ -87,6 +89,7 @@ export function refresh(): void {
   let totalminted: u64 = 0;
 
   for (let cycle = startCycle; cycle <= lastCycle; cycle++) {
+    // todo handle the case where a cycle is missing
     assert(
       Storage.hasOf(oracleAddr, recordedCycleKey(cycle)),
       `Cycle ${cycle} is not registered in oracle contract`,

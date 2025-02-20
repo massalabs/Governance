@@ -20,6 +20,7 @@ import {
   rollKey,
   rollKeyPrefix,
 } from '../contracts/oracle-internals/keys';
+import { getRollsArgs } from './utils';
 
 export const contractAddress =
   'AS12BqZEQ6sByhRLyEuf0YbQmcF2PsDdkNNG1akBJu9XcjZA1eT';
@@ -31,23 +32,12 @@ const owner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
 const nonOwner = 'AU1NonOwnerExampleAddress';
 const cycles = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
-function getRollsArgs(
-  rollData: RollEntry[],
-  cycle: u64,
-  isLastBatch: boolean = true,
-): StaticArray<u8> {
-  return new Args()
-    .addSerializableObjectArray<RollEntry>(rollData)
-    .add(cycle)
-    .add(isLastBatch)
-    .serialize();
-}
-
 describe('Oracle Contract Tests', () => {
   beforeEach(() => {
     resetStorage();
+    switchUser(owner);
     setDeployContext(owner);
-    constructor(new Args().serialize());
+    constructor([]);
   });
 
   describe('Initialization', () => {
