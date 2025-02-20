@@ -8,6 +8,7 @@ import {
   getCycleInfo,
 } from './helper';
 import { getProvider } from '../utils';
+import { Mas } from '@massalabs/massa-web3';
 
 const BATCH_SIZE_FEED = 5000;
 const BATCH_SIZE_DELETE = 4000;
@@ -16,6 +17,8 @@ const MAX_CYCLES = 5;
 const provider = await getProvider();
 const providerMainnet = await getProvider(true);
 const oracle = await Oracle.init(provider);
+
+console.log(`Account: ${provider.address} balance: ${Mas.toString(await provider.balance())}`, );
 
 async function main() {
   console.log('Starting feeder...');

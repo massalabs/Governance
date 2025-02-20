@@ -41,7 +41,7 @@ export class Oracle extends SmartContract {
   }
 
   static buildnet(provider: Provider | PublicProvider): Oracle {
-    return new Oracle(provider, contracts.buildnet.oracle );
+    return new Oracle(provider, contracts.buildnet.oracle);
   }
 
   static local(provider: Provider | PublicProvider): Oracle {
