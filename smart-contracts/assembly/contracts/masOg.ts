@@ -66,7 +66,7 @@ export function refresh(): void {
 
   assert(
     Storage.hasOf(oracleAddr, ORACLE_LAST_RECORDED_CYCLE),
-    'Oracle contract should have LAST_CYCLE_TAG',
+    'Oracle contract should have ORACLE_LAST_RECORDED_CYCLE key',
   );
 
   const initialBalance = balance();
@@ -78,6 +78,9 @@ export function refresh(): void {
 
   if (Storage.has(LAST_UPDATED_CYCLE)) {
     startCycle = bytesToU64(Storage.get(LAST_UPDATED_CYCLE)) + 1;
+    if (startCycle > lastCycle) {
+      return;
+    }
   } else {
     // first refresh
     assert(lastCycle, 'Not anough recorded cycles');

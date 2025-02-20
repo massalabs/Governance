@@ -18,7 +18,11 @@ const provider = await getProvider();
 const providerMainnet = await getProvider(true);
 const oracle = await Oracle.init(provider);
 
-console.log(`Account: ${provider.address} balance: ${Mas.toString(await provider.balance())}`, );
+console.log(
+  `Account: ${provider.address} balance: ${Mas.toString(
+    await provider.balance(),
+  )}`,
+);
 
 async function main() {
   console.log('Starting feeder...');

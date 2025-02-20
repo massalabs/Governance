@@ -2,6 +2,7 @@ import {
   Address,
   Context,
   Storage,
+  assertIsSmartContract,
   balance,
   call,
   generateEvent,
@@ -40,6 +41,8 @@ export function setMasOgAddress(bin: StaticArray<u8>): void {
   const oracleAddr = new Args(bin)
     .nextString()
     .expect('Masog contract should be provided');
+
+  assertIsSmartContract(oracleAddr);
   Storage.set(MASOG_KEY, oracleAddr);
 }
 
