@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { Account, Web3Provider } from '@massalabs/massa-web3';
+import { Account, Mas, Web3Provider } from '@massalabs/massa-web3';
 import * as dotenv from 'dotenv';
 import { Oracle } from './wrappers/Oracle';
 import {
@@ -84,7 +84,7 @@ async function main() {
 
   // Refresh masOg
   try {
-    const refreshOp = await masOg.refresh();
+    const refreshOp = await masOg.refresh(Mas.fromString('0.1'));
     await refreshOp.waitSpeculativeExecution();
     const events = await refreshOp.getSpeculativeEvents();
     console.log('Refreshed masOg:', events);

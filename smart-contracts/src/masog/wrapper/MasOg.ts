@@ -15,7 +15,7 @@ export const ORACLES_CONTRACTS = {
 };
 
 export class MasOg extends MRC20 {
-  static mainnet(provider: Provider | PublicProvider, address?: string): MasOg {
+  static mainnet(provider: Provider | PublicProvider): MasOg {
     return new MasOg(provider, ORACLES_CONTRACTS.mainnet);
   }
 
@@ -27,7 +27,7 @@ export class MasOg extends MRC20 {
     return new MasOg(provider, address ? address : ORACLES_CONTRACTS.local);
   }
 
-  async refresh(): Promise<Operation> {
-    return this.call('refresh', new Args(), { coins: Mas.fromString('0.1') });
+  async refresh(coins: bigint): Promise<Operation> {
+    return this.call('refresh', new Args(), { coins });
   }
 }

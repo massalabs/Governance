@@ -69,8 +69,8 @@ describe('masOg Token Contract Tests', () => {
     setCallStack(oracleOwner, oracleAddress);
 
     const rollData: RollEntry[] = [
-      new RollEntry(staker1, staker1Rolls),
-      new RollEntry(staker2, staker2Rolls),
+      RollEntry.create(staker1, staker1Rolls),
+      RollEntry.create(staker2, staker2Rolls),
     ];
     for (let i = 1; i <= nbCycles; i++) {
       feedCycle(getRollsArgs(rollData, i));
