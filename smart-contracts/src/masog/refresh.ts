@@ -1,4 +1,4 @@
-import { Account, Web3Provider } from '@massalabs/massa-web3';
+import { Account, Mas, Web3Provider } from '@massalabs/massa-web3';
 import * as dotenv from 'dotenv';
 import { MasOg } from '../masog/wrapper/MasOg';
 
@@ -10,7 +10,7 @@ const masOg = MasOg.buildnet(provider);
 
 async function main() {
   try {
-    const refreshOp = await masOg.refresh();
+    const refreshOp = await masOg.refresh(Mas.fromString("O.1"));
     await refreshOp.waitSpeculativeExecution();
     const events = await refreshOp.getSpeculativeEvents();
     console.log('Refreshed masOg:', events);

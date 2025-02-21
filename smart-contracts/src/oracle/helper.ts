@@ -176,3 +176,29 @@ export async function getCycleInfo(client: PublicAPI) {
     remainingPeriods,
   };
 }
+
+const MAX_CYCLES = 5;
+
+/**
+ * Determines cycles to delete, keeping the most recent MAX_CYCLES
+ * @param recordedCycles - Array of cycle numbers
+ * @returns Array of cycles to delete
+ */
+export function getCyclesToDelete(recordedCycles: bigint[]): bigint[] {
+  const sortedCycles = recordedCycles.sort((a: bigint, b: bigint) =>
+    a < b ? -1 : a > b ? 1 : 0,
+  );
+
+  console.log('Sorted cycles:', sortedCycles);
+  console.log('Total cycles recorded:', sortedCycles.length);
+  console.log('MAX_CYCLES:', MAX_CYCLES);
+
+  const cyclesToDelete = sortedCycles.slice(
+    0,
+    Math.max(0, sortedCycles.length - MAX_CYCLES),
+  );
+  console.log('Cycles to delete:', cyclesToDelete);
+  console.log('Cycles to keep:', sortedCycles.slice(-MAX_CYCLES));
+
+  return cyclesToDelete;
+}
