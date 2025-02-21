@@ -4,13 +4,13 @@ export const isMainnet = false;
 
 export const contracts = {
   [NetworkName.Mainnet]: {
-    masOg: 'XXX',
     oracle: 'AS1OracleAddress',
+    masOg: 'XXX',
     governance: 'AS1GovernanceAddress',
   },
   [NetworkName.Buildnet]: {
-    masOg: 'AS1D8KuNiSLCJhhy7JQue1ce2o4W3DvvyVn7SwUXA5zjGwVZU12P',
-    oracle: 'AS12QM25kAyzWNxKLZteqmZnXTyVqyx59Z4i5XWdPhry2N6w2D7Bd',
+    oracle: 'AS12RmhViZwRGkWTsTKzegDkDogakwoQ5LDPRfFGpTTxTwKjhs7Q6',
+    masOg: 'AS1Wcu8aGKaJQkkguq8ZFVrcCKYJdrVhqedkAEqQX9xktM2PXteY',
     governance: 'AS1GovernanceAddress',
   },
 };

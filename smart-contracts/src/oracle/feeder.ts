@@ -56,7 +56,7 @@ async function runFeeder(): Promise<void> {
     // Process rolls
     const stakers = await getStakers(providerMainnet);
     const rolls = generateRolls(stakers);
-    console.log(`${stakers.length} stakers found`);
+    console.log(`Stakers found: ${stakers.length}`);
 
     await feedRolls(oracle, rolls, currentCycle, BATCH_SIZE_FEED);
     const nbRecord = await oracle.getNbRecordByCycle(currentCycle, true);

@@ -20,7 +20,7 @@ import { ORACLE_LAST_RECORDED_CYCLE } from './oracle-internals/keys';
 
 export const MASOG_KEY = 'MASOG_KEY';
 
-const rollEntryCost = (53 + 8) * 100000;
+const rollEntryCost = u64((53 + 8) * 100000);
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.

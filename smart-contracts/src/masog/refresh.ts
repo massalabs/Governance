@@ -10,7 +10,7 @@ const masOg = MasOg.buildnet(provider);
 
 async function main() {
   try {
-    const refreshOp = await masOg.refresh(Mas.fromString("O.1"));
+    const refreshOp = await masOg.refresh(Mas.fromMas(60n));
     await refreshOp.waitSpeculativeExecution();
     const events = await refreshOp.getSpeculativeEvents();
     console.log('Refreshed masOg:', events);
