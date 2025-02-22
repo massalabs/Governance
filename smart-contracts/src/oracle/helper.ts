@@ -185,6 +185,10 @@ const MAX_CYCLES = 5;
  * @returns Array of cycles to delete
  */
 export function getCyclesToDelete(recordedCycles: bigint[]): bigint[] {
+  if (recordedCycles.length <= MAX_CYCLES) {
+    return [];
+  }
+
   const sortedCycles = recordedCycles.sort((a: bigint, b: bigint) =>
     a < b ? -1 : a > b ? 1 : 0,
   );

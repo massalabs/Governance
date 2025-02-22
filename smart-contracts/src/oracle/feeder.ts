@@ -14,7 +14,6 @@ import { Mas } from '@massalabs/massa-web3';
 // Constants
 const BATCH_SIZE_FEED = 5000;
 const BATCH_SIZE_DELETE = 4000;
-const POLLING_INTERVAL_MS = 60 * 1000; // 1 minute
 
 // Initialize providers and oracle
 const provider = await getProvider();
@@ -37,7 +36,7 @@ async function runFeeder(): Promise<void> {
   try {
     // Fetch initial data
     const lastCycle = await oracle.getLastCycle();
-    const recordedCycles = await oracle.getRecordedCycles();
+    let recordedCycles = await oracle.getRecordedCycles();
     const { currentCycle, remainingPeriods } = await getCycleInfo(
       provider.client,
     );
@@ -68,6 +67,7 @@ async function runFeeder(): Promise<void> {
     }
 
     // Manage cycle history
+    recordedCycles = await oracle.getRecordedCycles();
     const cyclesToDelete = getCyclesToDelete(recordedCycles);
     if (cyclesToDelete.length === 0) {
       console.log('No cycles to delete');
@@ -87,6 +87,6 @@ async function runFeeder(): Promise<void> {
   }
 }
 
-// Start the feeder and set up polling (for local testing)
 runFeeder();
+// const POLLING_INTERVAL_MS = 60 * 1000; // 1 minute
 // setInterval(() => runFeeder(), POLLING_INTERVAL_MS); // Uncomment for polling
