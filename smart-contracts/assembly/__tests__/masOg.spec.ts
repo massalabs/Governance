@@ -91,7 +91,7 @@ describe('masOg Token Contract Tests', () => {
   test('Refresh', () => {
     setCallStack(nonOwner, masOgAddress);
 
-    refresh();
+    refresh(new Args().add(<i32>0).serialize());
 
     const staker1balance = bytesToU256(
       balanceOf(new Args().add(staker1).serialize()),

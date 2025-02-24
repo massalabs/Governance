@@ -60,8 +60,11 @@ export function setOracle(bin: StaticArray<u8>): void {
   Storage.set(ORACLE_KEY, oracleAddr);
 }
 
-export function refresh(): void {
-  // todo: add an arg to limit the nb of cycles to update
+export function refresh(bin: StaticArray<u8>): void {
+  const maxCycles = new Args(bin)
+    .nextI32()
+    .expect('maxCycles should be provided. use O to refresh all cycles');
+
   const oracleAddrStr = Storage.get(ORACLE_KEY);
   const oracleAddr = new Address(oracleAddrStr);
 
@@ -93,6 +96,10 @@ export function refresh(): void {
   let totalminted: u64 = 0;
 
   for (let cycle = startCycle; cycle <= lastCycle; cycle++) {
+    if (maxCycles && cycle >= startCycle + maxCycles) {
+      break;
+    }
+
     generateEvent(`Refreshing cycle ${cycle.toString()}`);
     if (!Storage.hasOf(oracleAddr, recordedCycleKey(cycle))) {
       generateEvent(`Warning: cycle ${cycle.toString()} is not registered`);

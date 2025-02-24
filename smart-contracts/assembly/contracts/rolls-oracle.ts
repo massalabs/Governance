@@ -46,6 +46,11 @@ export function setMasOgAddress(bin: StaticArray<u8>): void {
   Storage.set(MASOG_KEY, oracleAddr);
 }
 
+export function unsetMasOgAddress(_: StaticArray<u8>): void {
+  _onlyOwner();
+  Storage.del(MASOG_KEY);
+}
+
 /**
  * Feed cycle data into the oracle.
  * @param binaryArgs - Serialized arguments containing the cycle number and roll data.
@@ -70,7 +75,7 @@ export function feedCycle(binaryArgs: StaticArray<u8>): void {
     call(
       new Address(Storage.get(MASOG_KEY)),
       'refresh',
-      new Args(),
+      new Args().add(<i32>0),
       rollData.length * MAX_MINT_COST + 1_000_000_000,
     );
   }
