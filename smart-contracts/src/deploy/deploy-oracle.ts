@@ -2,6 +2,7 @@
 import { Args, Mas, SmartContract } from '@massalabs/massa-web3';
 import { getProvider, getScByteCode } from '../utils';
 import { deployMasOg } from './lib/masog';
+import { Oracle } from '../oracle/wrappers/Oracle';
 
 console.log('Deploying rolls oracle contract...');
 
@@ -26,5 +27,12 @@ for (const event of events) {
 const executedCommand = process.env.npm_lifecycle_event;
 
 if (executedCommand === 'deploy:all') {
-  await deployMasOg(contract.address);
+  const masOg = await deployMasOg(contract.address);
+
+  console.log('Add Masog contract to oracle:');
+  const op = await new Oracle(provider, contract.address).setMasOgAddress(
+    masOg,
+  );
+  await op.waitSpeculativeExecution();
 }
+console.log('Done');

@@ -154,11 +154,11 @@ export class Oracle extends SmartContract {
     return this.call('upgradeSC', new Args().addUint8Array(bytecode));
   }
 
-  async setMasOgAddress(): Promise<Operation> {
-    return this.call(
-      'setMasOgAddress',
-      new Args().addString(getContracts().masOg),
-      { coins: Mas.fromString('1') },
-    );
+  async setMasOgAddress(
+    masOgConract = getContracts().masOg,
+  ): Promise<Operation> {
+    return this.call('setMasOgAddress', new Args().addString(masOgConract), {
+      coins: Mas.fromString('1'),
+    });
   }
 }
