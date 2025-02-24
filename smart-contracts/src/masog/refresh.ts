@@ -1,24 +1,16 @@
-import { Account, Mas, Web3Provider } from '@massalabs/massa-web3';
-import * as dotenv from 'dotenv';
+import { Mas } from '@massalabs/massa-web3';
 import { MasOg } from '../masog/wrapper/MasOg';
+import { getProvider } from '../utils';
 
-dotenv.config();
+const provider = await getProvider();
+const masOg = await MasOg.init(provider);
 
-const account = await Account.fromEnv();
-const provider = Web3Provider.buildnet(account);
-const masOg = MasOg.buildnet(provider);
+const refreshOp = await masOg.refresh(Mas.fromMas(60n));
+await refreshOp.waitSpeculativeExecution();
+const events = await refreshOp.getSpeculativeEvents();
+console.log(
+  'Refreshed masOg:',
+  events.map((e) => e.data),
+);
 
-async function main() {
-  try {
-    const refreshOp = await masOg.refresh(Mas.fromMas(60n));
-    await refreshOp.waitSpeculativeExecution();
-    const events = await refreshOp.getSpeculativeEvents();
-    console.log('Refreshed masOg:', events);
-  } catch (error) {
-    console.error('Error in main execution:', error);
-    throw error;
-  }
-  console.log('Feeder finished\n');
-}
-
-main();
+console.log('Feeder finished\n');

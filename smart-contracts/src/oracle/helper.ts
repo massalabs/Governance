@@ -12,7 +12,8 @@ import {
 } from '@massalabs/massa-web3/dist/esm/generated/client-types';
 import { RollEntry } from './serializable/RollEntry';
 import { Oracle } from './wrappers/Oracle';
-const AVERAGE_ROLL_STORAGE_COST = 62500000n;
+const AVERAGE_ROLL_STORAGE_COST = 62_500_000n;
+const MAX_MINT_STORAGE_COST = 9_600_000n;
 const PERIODS_PER_CYCLE = 128n;
 
 /**
@@ -40,15 +41,23 @@ export async function feedRolls(
     const isLastBatch = end === rolls.length;
 
     const opFeed = await oracle.feedCycle(batch, cycle, isLastBatch, {
-      coins: Mas.fromNanoMas(AVERAGE_ROLL_STORAGE_COST * BigInt(batchSize)),
+      coins: Mas.fromNanoMas(
+        Mas.fromString('100') +
+          (AVERAGE_ROLL_STORAGE_COST + MAX_MINT_STORAGE_COST) *
+            BigInt(batchSize),
+      ),
       fee: Mas.fromString('0.1'),
     });
 
     const status = await opFeed.waitFinalExecution();
-    if (status === OperationStatus.Error) {
+    if (status !== OperationStatus.Success) {
       throw new Error(`Failed to feed batch ${i / batchSize + 1}`);
     }
-
+    const events = await opFeed.getFinalEvents();
+    console.log(
+      'events: ',
+      events.map((event) => event.data),
+    );
     console.log(`Batch ${i / batchSize + 1} fed successfully`);
   }
 }

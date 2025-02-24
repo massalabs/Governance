@@ -7,9 +7,13 @@ import {
   Args,
   Mas,
 } from '@massalabs/massa-web3';
-import { contracts } from '../../config';
+import { contracts, getContracts } from '../../config';
 
 export class MasOg extends MRC20 {
+  static async init(provider: Provider | PublicProvider): Promise<MasOg> {
+    return new MasOg(provider, getContracts().masOg);
+  }
+
   static mainnet(provider: Provider | PublicProvider): MasOg {
     return new MasOg(provider, contracts.mainnet.masOg);
   }

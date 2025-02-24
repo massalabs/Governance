@@ -20,7 +20,7 @@ import { ORACLE_LAST_RECORDED_CYCLE } from './oracle-internals/keys';
 
 export const MASOG_KEY = 'MASOG_KEY';
 
-const rollEntryCost = u64((53 + 8) * 100000);
+const MAX_MINT_COST: u64 = 9_600_000;
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.
@@ -71,7 +71,7 @@ export function feedCycle(binaryArgs: StaticArray<u8>): void {
       new Address(Storage.get(MASOG_KEY)),
       'refresh',
       new Args(),
-      rollData.length * rollEntryCost,
+      rollData.length * MAX_MINT_COST + 1_000_000_000,
     );
   }
   transferRemaining(initialBalance);

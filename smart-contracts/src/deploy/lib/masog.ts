@@ -16,6 +16,7 @@ export async function deployMasOg(
     new Args().addString(oracleAddress),
     {
       coins: Mas.fromString('1'),
+      fee: Mas.fromString('0.1'),
     },
   );
 

@@ -10,6 +10,7 @@ const byteCode = getScByteCode('build', 'rolls-oracle.wasm');
 const provider = await getProvider();
 const contract = await SmartContract.deploy(provider, byteCode, new Args(), {
   coins: Mas.fromString('30'),
+  fee: Mas.fromString('0.1'),
 });
 
 console.log('Oracle contract deployed at:', contract.address);

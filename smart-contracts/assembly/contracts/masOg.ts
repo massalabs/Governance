@@ -13,6 +13,7 @@ import {
   assertIsSmartContract,
   balance,
   Context,
+  generateEvent,
   getKeysOf,
   setBytecode,
   Storage,
@@ -92,11 +93,11 @@ export function refresh(): void {
   let totalminted: u64 = 0;
 
   for (let cycle = startCycle; cycle <= lastCycle; cycle++) {
-    // todo handle the case where a cycle is missing
-    assert(
-      Storage.hasOf(oracleAddr, recordedCycleKey(cycle)),
-      `Cycle ${cycle} is not registered in oracle contract`,
-    );
+    generateEvent(`Refreshing cycle ${cycle.toString()}`);
+    if (!Storage.hasOf(oracleAddr, recordedCycleKey(cycle))) {
+      generateEvent(`Warning: cycle ${cycle.toString()} is not registered`);
+      continue;
+    }
 
     const starkersPrefix = rollKeyPrefix(cycle);
     const stakersData = getKeysOf(oracleAddrStr, starkersPrefix);
