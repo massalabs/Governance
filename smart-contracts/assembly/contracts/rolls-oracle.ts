@@ -6,6 +6,7 @@ import {
   balance,
   call,
   generateEvent,
+  getKeys,
   setBytecode,
   transferRemaining,
 } from '@massalabs/massa-as-sdk';
@@ -16,7 +17,10 @@ import {
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
 import { RollEntry } from './serializable/roll-entry';
 import { _deleteCycle, _feedCycle } from './oracle-internals';
-import { ORACLE_LAST_RECORDED_CYCLE } from './oracle-internals/keys';
+import {
+  ORACLE_LAST_RECORDED_CYCLE,
+  rollKeyPrefix,
+} from './oracle-internals/keys';
 
 export const MASOG_KEY = 'MASOG_KEY';
 
@@ -71,12 +75,14 @@ export function feedCycle(binaryArgs: StaticArray<u8>): void {
 
   _feedCycle(rollData, cycle, isLastBatch);
 
-  if (Storage.has(MASOG_KEY)) {
+  // This should not be activated before transfer to contract feature is activated on mainnet
+  if (isLastBatch && Storage.has(MASOG_KEY)) {
+    const nbStakers = getKeys(rollKeyPrefix(cycle)).length;
     call(
       new Address(Storage.get(MASOG_KEY)),
       'refresh',
       new Args().add(<i32>0),
-      rollData.length * MAX_MINT_COST + 1_000_000_000,
+      nbStakers * MAX_MINT_COST + 1_000_000_000,
     );
   }
   transferRemaining(initialBalance);
