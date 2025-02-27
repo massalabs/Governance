@@ -87,13 +87,13 @@ export function refresh(bin: StaticArray<u8>): void {
     }
   } else {
     // first refresh
-    assert(lastCycle, 'Not anough recorded cycles');
+    assert(lastCycle, 'Not enough recorded cycles');
     startCycle = lastCycle - 1;
   }
 
   assert(startCycle <= lastCycle, 'Nothing to update');
 
-  let totalminted: u64 = 0;
+  let totalMinted: u64 = 0;
 
   for (let cycle = startCycle; cycle <= lastCycle; cycle++) {
     if (maxCycles && cycle >= startCycle + maxCycles) {
@@ -121,11 +121,11 @@ export function refresh(bin: StaticArray<u8>): void {
         new Address(bytesToString(stakerAddrBytes)),
         u256.fromU64(rolls),
       );
-      totalminted += rolls;
+      totalMinted += rolls;
     }
   }
 
-  _increaseTotalSupply(u256.fromU64(totalminted));
+  _increaseTotalSupply(u256.fromU64(totalMinted));
 
   Storage.set(LAST_UPDATED_CYCLE, u64ToBytes(lastCycle));
 
