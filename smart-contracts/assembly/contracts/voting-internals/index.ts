@@ -69,6 +69,8 @@ export function _refresh(): void {
 
   // Then handle Voting proposals
   const votingProposalsKeys = getKeys(statusKeyPrefix(voting));
+  const totalSupply = getMasogTotalSupply();
+
   if (votingProposalsKeys.length == 0) return;
 
   for (let i = 0; i < votingProposalsKeys.length; i++) {
@@ -79,8 +81,7 @@ export function _refresh(): void {
     const proposal = Proposal.getById(bytesToU64(id));
 
     if (currentTimestamp - proposal.creationTimestamp >= VOTING_PERIOD) {
-      const majority = getMasogTotalSupply() / 2;
-
+      const majority = totalSupply / 2;
       if (proposal.positiveVoteVolume > majority) {
         proposal.setStatus(accepted).save();
       } else {

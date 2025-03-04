@@ -155,12 +155,13 @@ export class Proposal implements Serializable {
     // Delete the status index
     Storage.del(statusKey(this.status, this.id));
 
-    // Delete all votes and comments for this proposal
+    // Delete all votes
     const voteKeys = getKeys(voteKey(this.id, ''));
     for (let i = 0; i < voteKeys.length; i++) {
       Storage.del(voteKeys[i]);
     }
 
+    // Delete all comments
     const commentKeys = getKeys(commentKey(this.id, ''));
     for (let i = 0; i < commentKeys.length; i++) {
       Storage.del(commentKeys[i]);

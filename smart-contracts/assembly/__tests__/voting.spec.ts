@@ -65,8 +65,7 @@ const MIN_VOTE_MASOG_AMOUNT = u64(1_000_000_000); // 1 MASOG with 9 decimals
 const DISCUSSION_PERIOD = u64(3 * 7 * 24 * 60 * 60 * 1000); // 3 weeks in milliseconds
 const VOTING_PERIOD = u64(4 * 7 * 24 * 60 * 60 * 1000); // 4 weeks in milliseconds
 
-beforeEach(() => {
-  resetStorage();
+beforeAll(() => {
   setupContracts();
 });
 
@@ -361,28 +360,28 @@ describe('Vote', () => {
 
 describe('Refresh', () => {
   beforeEach(() => {
-    resetStorage();
     setupContracts();
     setCallStack(votingOwner, votingContractAddress);
+  });
+
+  afterEach(() => {
+    resetStorage();
   });
 
   test('Refresh transitions DISCUSSION to VOTING after 3 weeks', () => {
     const baseTime = u64(1000000000);
     setupProposal(1, discussion, baseTime);
     setupProposal(2, discussion, baseTime);
-
     let isStatusKey = Storage.has(statusKey(discussion, 1));
     expect(isStatusKey).toBe(true);
-
     // Set timestamp to 3 weeks + 1 millisecond
     mockTimestamp(u64(baseTime + DISCUSSION_PERIOD + 1));
+    mockMasogTotalSupply(u64(1000_000_000_000));
     refresh([]);
-
     const proposalBytes = Storage.get(proposalKey(1));
     const proposal = new Proposal();
     proposal.deserialize(proposalBytes, 0);
     expect(proposal.status).toStrictEqual(VOTING_STATUS);
-
     isStatusKey = Storage.has(statusKey(voting, 1));
     expect(isStatusKey).toBe(true);
   });
@@ -428,21 +427,18 @@ describe('Refresh', () => {
   test('Refresh processes multiple proposals in batch', () => {
     const baseTime = u64(1000000000);
     const totalSupply = u64(1000_000_000_000);
+
     setupProposal(1, discussion, baseTime);
-    setupProposal(2, voting, baseTime, totalSupply / 2 + 1);
+    setupProposal(2, voting, baseTime - VOTING_PERIOD, totalSupply / 2 + 1);
 
     mockMasogTotalSupply(totalSupply);
-    mockTimestamp(baseTime + VOTING_PERIOD + 1); // Both periods exceeded
+    mockTimestamp(baseTime + DISCUSSION_PERIOD + 1);
     refresh([]);
 
-    const proposal1Bytes = Storage.get(proposalKey(1));
-    const proposal1 = new Proposal();
-    proposal1.deserialize(proposal1Bytes, 0);
+    const proposal1 = Proposal.getById(1);
     expect(proposal1.status).toStrictEqual(voting);
 
-    const proposal2Bytes = Storage.get(proposalKey(2));
-    const proposal2 = new Proposal();
-    proposal2.deserialize(proposal2Bytes, 0);
+    const proposal2 = Proposal.getById(2);
     expect(proposal2.status).toStrictEqual(accepted);
   });
 
@@ -452,6 +448,7 @@ describe('Refresh', () => {
 
     // Set timestamp to just under 3 weeks
     mockTimestamp(baseTime + DISCUSSION_PERIOD - 1);
+    mockMasogTotalSupply(u64(1000_000_000_000));
 
     refresh([]);
 
@@ -539,15 +536,12 @@ function setupProposal(
     `Summary ${id}`,
     `Change ${id}`,
   );
-
   proposal.id = id;
-  proposal.status = status;
   proposal.owner = stringToBytes(votingOwner);
   proposal.creationTimestamp = timestamp;
   proposal.positiveVoteVolume = positiveVotes;
   proposal.negativeVoteVolume = negativeVotes;
   proposal.blankVoteVolume = blankVotes;
-  Storage.set(proposalKey(id), proposal.serialize());
   Storage.set(UPDATE_PROPOSAL_COUNTER_TAG, u64ToBytes(id));
-  Storage.set(statusKey(status, id), []);
+  proposal.setStatus(status).save();
 }
