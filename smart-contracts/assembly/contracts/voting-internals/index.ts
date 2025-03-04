@@ -52,7 +52,6 @@ export function _submitProposal(proposal: Proposal): void {
  */
 export function _refresh(): void {
   const discussionProposalsKeys = getKeys(statusKeyPrefix(discussion));
-  const votingProposalsKeys = getKeys(statusKeyPrefix(voting));
   const currentTimestamp = Context.timestamp();
 
   // First handle Discussion proposals
@@ -69,6 +68,7 @@ export function _refresh(): void {
   }
 
   // Then handle Voting proposals
+  const votingProposalsKeys = getKeys(statusKeyPrefix(voting));
   if (votingProposalsKeys.length == 0) return;
 
   for (let i = 0; i < votingProposalsKeys.length; i++) {
