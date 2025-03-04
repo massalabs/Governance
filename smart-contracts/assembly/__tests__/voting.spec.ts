@@ -22,6 +22,7 @@ import {
   constructor as votingSystemConstructor,
   vote,
   refresh,
+  deleteProposal,
 } from '../contracts/voting-system';
 import {
   MASOG_KEY,
@@ -458,6 +459,45 @@ describe('Refresh', () => {
     const proposal = new Proposal();
     proposal.deserialize(proposalBytes, 0);
     expect(proposal.status).toStrictEqual(discussion);
+  });
+});
+
+describe('DeleteProposal', () => {
+  beforeEach(() => {
+    resetStorage();
+    setupContracts();
+    setCallStack(votingOwner, votingContractAddress);
+    setupProposal(1, voting, 1234567890); // Setup a proposal in DISCUSSION status
+  });
+
+  test('Successfully deletes a proposal and all associated data', () => {
+    // Add a vote to the proposal
+    const voterMASOGBalance = MIN_VOTE_MASOG_AMOUNT * 2;
+    mockMasogBalance(voterMASOGBalance);
+    const voteObj = generateVote(1, 1, 'Test comment');
+    const voteArgs = new Args().add<Vote>(voteObj).serialize();
+    vote(voteArgs);
+
+    // Delete the proposal
+    const deleteArgs = new Args().add<u64>(1).serialize();
+    deleteProposal(deleteArgs);
+
+    // Verify proposal is deleted
+    expect(Storage.has(proposalKey(1))).toBe(false);
+    expect(Storage.has(statusKey(discussion, 1))).toBe(false);
+    expect(Storage.has(voteKey(1, votingOwner))).toBe(false);
+    expect(Storage.has(commentKey(1, votingOwner))).toBe(false);
+  });
+
+  throws('Fails when trying to delete non-existent proposal', () => {
+    const deleteArgs = new Args().add<u64>(888).serialize();
+    deleteProposal(deleteArgs);
+  });
+
+  throws('Fails when called by non-owner', () => {
+    setCallStack(nonOwner, votingContractAddress);
+    const deleteArgs = new Args().add<u64>(1).serialize();
+    deleteProposal(deleteArgs);
   });
 });
 

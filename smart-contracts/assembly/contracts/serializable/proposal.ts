@@ -1,7 +1,12 @@
 import { Serializable, Result } from '@massalabs/as-types';
 import { Args } from '@massalabs/as-types/assembly/argument';
-import { Storage } from '@massalabs/massa-as-sdk';
-import { proposalKey, statusKey } from '../voting-internals/keys';
+import { getKeys, Storage } from '@massalabs/massa-as-sdk';
+import {
+  commentKey,
+  proposalKey,
+  statusKey,
+  voteKey,
+} from '../voting-internals/keys';
 
 export class Proposal implements Serializable {
   constructor(
@@ -137,6 +142,29 @@ export class Proposal implements Serializable {
   save(): void {
     this.assertIsValid();
     Storage.set(proposalKey(this.id), this.serialize());
+  }
+
+  /**
+   * Deletes a proposal and all its associated data from storage.
+   * Note: We intentionally keep the proposal counter (UPDATE_PROPOSAL_COUNTER_TAG)
+   * to ensure new proposals get new IDs rather than reusing deleted ones.
+   */
+  delete(): void {
+    // Delete the proposal data
+    Storage.del(proposalKey(this.id));
+    // Delete the status index
+    Storage.del(statusKey(this.status, this.id));
+
+    // Delete all votes and comments for this proposal
+    const voteKeys = getKeys(voteKey(this.id, ''));
+    for (let i = 0; i < voteKeys.length; i++) {
+      Storage.del(voteKeys[i]);
+    }
+
+    const commentKeys = getKeys(commentKey(this.id, ''));
+    for (let i = 0; i < commentKeys.length; i++) {
+      Storage.del(commentKeys[i]);
+    }
   }
 
   /**

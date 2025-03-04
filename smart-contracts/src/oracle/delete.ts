@@ -11,7 +11,6 @@ const cycleToDelete = 17450n;
 
 const recordedCycles = await oracle.getRecordedCycles();
 console.log('Recorded cycles:', recordedCycles);
-// TODO: Should we add a key in storage to get the nb of rolls per cycle?
 const nbRecord = await oracle.getNbRecordByCycle(cycleToDelete, false);
 console.log('Recorded rolls to delete:', nbRecord);
 await deleteRolls(oracle, nbRecord, BATCH_SIZE_DELETE, cycleToDelete);

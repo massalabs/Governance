@@ -15,7 +15,12 @@ import { UPDATE_PROPOSAL_COUNTER_TAG } from './voting-internals/keys';
 import { MASOG_KEY } from './rolls-oracle';
 import { Proposal } from './serializable/proposal';
 import { Vote } from './serializable/vote';
-import { _refresh, _submitProposal, _vote } from './voting-internals';
+import {
+  _refresh,
+  _submitProposal,
+  _vote,
+  _deleteProposal,
+} from './voting-internals';
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.
@@ -92,6 +97,23 @@ export function upgradeSC(bytecode: StaticArray<u8>): void {
   _onlyOwner();
   const initialBalance = balance();
   setBytecode(bytecode);
+  transferRemaining(initialBalance);
+}
+
+/**
+ * Deletes a proposal and all its associated data (admin-only).
+ * This is a temporary function to help clean up illegal or spam content.
+ * @param binaryArgs - Serialized proposal ID (u64).
+ */
+export function deleteProposal(binaryArgs: StaticArray<u8>): void {
+  _onlyOwner();
+  const initialBalance = balance();
+
+  const args = new Args(binaryArgs);
+  const proposalId = args.nextU64().expect('Proposal ID is required');
+
+  _deleteProposal(proposalId);
+
   transferRemaining(initialBalance);
 }
 

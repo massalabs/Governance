@@ -120,3 +120,12 @@ export function _vote(vote: Vote): void {
 
   proposal.save();
 }
+
+/**
+ * Deletes a proposal and all its associated data.
+ * @param proposalId - The ID of the proposal to delete.
+ */
+export function _deleteProposal(proposalId: u64): void {
+  const proposal = Proposal.getById(proposalId);
+  proposal.delete();
+}
