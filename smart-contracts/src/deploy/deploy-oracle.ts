@@ -26,7 +26,7 @@ for (const event of events) {
 
 const executedCommand = process.env.npm_lifecycle_event;
 
-if (executedCommand === 'deploy:all') {
+if (executedCommand === 'deploy:oracle:all') {
   const masOg = await deployMasOg(contract.address);
 
   console.log('Add Masog contract to oracle:');

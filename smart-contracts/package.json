@@ -8,9 +8,9 @@
         "build": "massa-as-compile",
         "clean": "rimraf build",
         "deploy:oracle": "npm run build && tsx src/deploy/deploy-oracle.ts",
+        "deploy:oracle:all": "npm run build && tsx src/deploy/deploy-oracle.ts",
         "deploy:masog": "npm run build && tsx src/deploy/deploy-masog.ts",
         "deploy:voting": "npm run build && tsx src/deploy/deploy-voting.ts",
-        "deploy:all": "npm run build && tsx src/deploy/deploy-oracle.ts",
         "hello": "tsx src/hello.ts",
         "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check assembly",
         "prettier:fix": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
@@ -22,7 +22,9 @@
         "oracle:delete": "tsx src/oracle/delete.ts",
         "oracle:get": "tsx src/oracle/get.ts",
         "oracle:setMasog": "tsx src/oracle/setMasOg.ts",
-        "masog:refresh": "tsx src/masog/refresh.ts"
+        "masog:refresh": "tsx src/masog/refresh.ts",
+        "voting:submit-proposal": "tsx src/vote/submit-proposal.ts",
+        "voting:upgrade-contract": "npm run build && tsx src/vote/upgrade-contract.ts"
     },
     "keywords": [],
     "author": "",

@@ -9,7 +9,6 @@ import {
 } from '@massalabs/massa-as-sdk';
 import { MASOG_KEY } from '../rolls-oracle';
 
-const MASOG_DECIMAL = u64(9);
 const MAS_DECIMAL = u64(9);
 
 /**
@@ -36,9 +35,7 @@ export function getMasogBalance(address: Address): u64 {
 export function assertSufficientMasogBalance(balance: u64, amount: u64): void {
   assert(
     balance >= amount,
-    `Insufficient MASOG balance to make a proposal (need ${
-      amount / 10 ** MASOG_DECIMAL
-    })`,
+    `Insufficient MASOG balance to make a proposal (need ${amount})`,
   );
 }
 
