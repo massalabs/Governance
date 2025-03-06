@@ -6,7 +6,6 @@ export const contracts = {
   [NetworkName.Mainnet]: {
     oracle: 'AS1OracleAddress',
     masOg: 'XXX',
-    governance: 'AS1GovernanceAddress',
     voting: 'AS1VotingAddress',
   },
   [NetworkName.Buildnet]: {

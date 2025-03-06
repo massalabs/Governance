@@ -1,18 +1,17 @@
 import { OperationStatus } from '@massalabs/massa-web3';
 import { getProvider, getScByteCode } from '../utils';
-import { Voting } from './wrapper/Voting';
+import { MasOg } from './wrapper/MasOg';
 
 const provider = await getProvider();
 
-const votingSystem = Voting.buildnet(provider);
+const masOg = MasOg.buildnet(provider);
 
-const bytecode = getScByteCode('build', 'voting-system.wasm');
-
-const op = await votingSystem.upgradeSC(bytecode);
+const bytecode = getScByteCode('build', 'masOg.wasm');
+const op = await masOg.upgradeSC(bytecode);
 const status = await op.waitFinalExecution();
 
 if (status !== OperationStatus.Success) {
   throw new Error('Failed to submit proposal');
 }
 
-console.log('Voting System Contract upgraded');
+console.log('MasOg Contract upgraded');

@@ -14,6 +14,7 @@ import {
   balance,
   Context,
   generateEvent,
+  // generateEvent,
   getKeysOf,
   setBytecode,
   Storage,
@@ -34,7 +35,7 @@ const LAST_UPDATED_CYCLE = stringToBytes('LAST_UPDATE');
 export const ORACLE_KEY = 'ORACLE_KEY';
 
 export function constructor(bin: StaticArray<u8>): void {
-  mrc20Constructor('MASOG', 'MASOG', 9, u256.Zero);
+  mrc20Constructor('MASOG', 'MASOG', 0, u256.Zero);
 
   const oracleAddr = new Args(bin)
     .nextString()
@@ -100,7 +101,6 @@ export function refresh(bin: StaticArray<u8>): void {
       break;
     }
 
-    generateEvent(`Refreshing cycle ${cycle.toString()}`);
     if (!Storage.hasOf(oracleAddr, recordedCycleKey(cycle))) {
       generateEvent(`Warning: cycle ${cycle.toString()} is not registered`);
       continue;

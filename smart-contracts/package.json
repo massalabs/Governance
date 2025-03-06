@@ -23,6 +23,7 @@
         "oracle:get": "tsx src/oracle/get.ts",
         "oracle:setMasog": "tsx src/oracle/setMasOg.ts",
         "masog:refresh": "tsx src/masog/refresh.ts",
+        "masog:upgrade-contract": "npm run build && tsx src/masog/upgrade-contract.ts",
         "voting:submit-proposal": "tsx src/vote/submit-proposal.ts",
         "voting:upgrade-contract": "npm run build && tsx src/vote/upgrade-contract.ts"
     },

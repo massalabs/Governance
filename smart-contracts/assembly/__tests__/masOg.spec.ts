@@ -81,7 +81,7 @@ describe('masOg Token Contract Tests', () => {
     expect(bytesToString(name([]))).toBe('MASOG');
     expect(bytesToString(symbol([]))).toBe('MASOG');
     expect(bytesToU256(totalSupply([]))).toBe(u256.Zero);
-    expect(byteToU8(decimals([]))).toBe(<u8>9);
+    expect(byteToU8(decimals([]))).toBe(<u8>0);
   });
 
   test('Refresh', () => {

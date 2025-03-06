@@ -6,8 +6,8 @@ import { MasOg } from '../masog/wrapper/MasOg';
 
 const provider = await getProvider('PRIVATE_KEY_VOTER');
 
-// Check MasOg balance
 const masOg = MasOg.buildnet(provider);
+
 const balance = await masOg.balanceOf(provider.address);
 console.log('MasOg balance:', balance);
 
