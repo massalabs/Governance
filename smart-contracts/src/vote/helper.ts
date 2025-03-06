@@ -2,6 +2,7 @@ import { OutputEvents } from '@massalabs/massa-web3/dist/esm/generated/client-ty
 import { Voting } from './wrapper/Voting';
 import { Proposal } from './serializable/Proposal';
 import { Vote } from './serializable/Vote';
+import { OperationStatus } from '@massalabs/massa-web3';
 
 /**
  * Logs events to console
@@ -22,7 +23,7 @@ export async function submitProposalAndWait(
 ) {
   const op = await voting.submitProposal(proposal);
   const status = await op.waitFinalExecution();
-  if (status !== 'Success') {
+  if (status !== OperationStatus.Success) {
     throw new Error('Failed to submit proposal');
   }
   const events = await op.getFinalEvents();
@@ -38,7 +39,7 @@ export async function submitProposalAndWait(
 export async function castVoteAndWait(voting: Voting, vote: Vote) {
   const op = await voting.vote(vote);
   const status = await op.waitFinalExecution();
-  if (status !== 'Success') {
+  if (status !== OperationStatus.Success) {
     throw new Error('Failed to cast vote');
   }
   const events = await op.getFinalEvents();
@@ -53,7 +54,7 @@ export async function castVoteAndWait(voting: Voting, vote: Vote) {
 export async function refreshAndWait(voting: Voting) {
   const op = await voting.refresh();
   const status = await op.waitFinalExecution();
-  if (status !== 'Success') {
+  if (status !== OperationStatus.Success) {
     throw new Error('Failed to refresh proposals');
   }
   const events = await op.getFinalEvents();
@@ -72,7 +73,7 @@ export async function deleteProposalAndWait(
 ) {
   const op = await voting.deleteProposal(proposalId);
   const status = await op.waitFinalExecution();
-  if (status !== 'Success') {
+  if (status !== OperationStatus.Success) {
     throw new Error('Failed to delete proposal');
   }
   const events = await op.getFinalEvents();
@@ -91,7 +92,7 @@ export async function setMasOgAddressAndWait(
 ) {
   const op = await voting.setMasOgAddress(masogAddress);
   const status = await op.waitFinalExecution();
-  if (status !== 'Success') {
+  if (status !== OperationStatus.Success) {
     throw new Error('Failed to set MASOG address');
   }
   const events = await op.getFinalEvents();
