@@ -13,6 +13,8 @@ export default function CreateProposal() {
     summary: "",
     parameterChange: undefined,
   });
+  const [jsonInput, setJsonInput] = useState("");
+  const [jsonError, setJsonError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -28,6 +30,16 @@ export default function CreateProposal() {
 
       if (votingPower < BigInt(1000)) {
         throw new Error("Insufficient MASOG balance. Required: 1000");
+      }
+
+      // Validate JSON one last time before submission
+      if (jsonInput && !jsonError) {
+        try {
+          const parsed = JSON.parse(jsonInput);
+          formData.parameterChange = parsed;
+        } catch (err) {
+          throw new Error("Invalid JSON format for parameter change");
+        }
       }
 
       const proposalId = await createProposal(formData);
@@ -46,21 +58,36 @@ export default function CreateProposal() {
   ) => {
     const { name, value } = e.target;
     if (name === "parameterChange") {
-      try {
-        const parsed = JSON.parse(value);
-        setFormData((prev) => ({
-          ...prev,
-          parameterChange: parsed,
-        }));
-        setError(null);
-      } catch (err) {
-        setError("Invalid JSON format for parameter change");
+      setJsonInput(value);
+      if (value.trim() === "") {
+        setJsonError(null);
+        setFormData((prev) => ({ ...prev, parameterChange: undefined }));
+      } else {
+        try {
+          const parsed = JSON.parse(value);
+          setJsonError(null);
+          setFormData((prev) => ({ ...prev, parameterChange: parsed }));
+        } catch (err) {
+          setJsonError("Invalid JSON format");
+        }
       }
     } else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
       }));
+    }
+  };
+
+  const formatJson = () => {
+    try {
+      const parsed = JSON.parse(jsonInput);
+      const formatted = JSON.stringify(parsed, null, 2);
+      setJsonInput(formatted);
+      setJsonError(null);
+      setFormData((prev) => ({ ...prev, parameterChange: parsed }));
+    } catch (err) {
+      setJsonError("Cannot format invalid JSON");
     }
   };
 
@@ -161,20 +188,44 @@ export default function CreateProposal() {
                 >
                   Parameter Change (JSON)
                 </label>
-                <div className="flex items-center text-f-tertiary">
-                  <InformationCircleIcon className="h-4 w-4 mr-1" />
-                  <span className="mas-caption">Optional</span>
+                <div className="flex items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={formatJson}
+                    className="text-brand hover:text-brand/80 mas-caption transition-colors"
+                  >
+                    Format JSON
+                  </button>
+                  <div className="flex items-center text-f-tertiary">
+                    <InformationCircleIcon className="h-4 w-4 mr-1" />
+                    <span className="mas-caption">Optional</span>
+                  </div>
                 </div>
               </div>
-              <textarea
-                name="parameterChange"
-                id="parameterChange"
-                rows={6}
-                value={JSON.stringify(formData.parameterChange || {}, null, 2)}
-                onChange={handleChange}
-                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-f-primary font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
-                placeholder='{"parameter": "value"}'
-              />
+              <div className="relative">
+                <textarea
+                  name="parameterChange"
+                  id="parameterChange"
+                  rows={8}
+                  value={jsonInput}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 bg-background border rounded-lg font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand/30 ${
+                    jsonError
+                      ? "border-s-error text-s-error"
+                      : "border-border text-f-primary"
+                  }`}
+                  placeholder='{
+  "parameter": "value",
+  "nested": {
+    "key": "value"
+  }
+}'
+                  spellCheck="false"
+                />
+                {jsonError && (
+                  <p className="mt-1 text-s-error mas-caption">{jsonError}</p>
+                )}
+              </div>
             </div>
           </div>
 

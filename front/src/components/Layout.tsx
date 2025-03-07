@@ -48,11 +48,11 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="border-t border-border bg-secondary mt-auto">
+      {/* <footer className="border-t border-border bg-secondary mt-auto">
         <div className="container mx-auto px-4 py-6 text-center text-f-tertiary">
           © {new Date().getFullYear()} Governance Portal
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }
