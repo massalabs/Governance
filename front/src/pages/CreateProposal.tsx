@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useGovernanceStore } from "../store/useGovernanceStore";
+import { useStore } from "../store/useStore";
 import { CreateProposalParams } from "../types/governance";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 export default function CreateProposal() {
   const navigate = useNavigate();
-  const { createProposal, account, votingPower } = useGovernanceStore();
+  const { account, votingPower, addProposal } = useStore();
   const [formData, setFormData] = useState<CreateProposalParams>({
     forumPostLink: "",
     title: "",
@@ -42,7 +42,7 @@ export default function CreateProposal() {
         }
       }
 
-      const proposalId = await createProposal(formData);
+      const proposalId = await addProposal(formData);
       navigate(`/proposals/${proposalId}`);
     } catch (err) {
       setError(
