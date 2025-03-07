@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useGovernance } from "../contexts/GovernanceContext";
+import { useGovernanceStore } from "../store/useGovernanceStore";
 import { CreateProposalParams } from "../types/governance";
 
 export default function CreateProposal() {
   const navigate = useNavigate();
-  const { createProposal, account, votingPower } = useGovernance();
+  const { createProposal, account, votingPower } = useGovernanceStore();
   const [formData, setFormData] = useState<CreateProposalParams>({
     forumPostLink: "",
     title: "",
@@ -64,22 +64,19 @@ export default function CreateProposal() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">
+      <h1 className="text-2xl font-bold text-text-light dark:text-text-dark mb-6">
         Create New Proposal
       </h1>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg">
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-100 rounded-lg">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label
-            htmlFor="title"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="title" className="label">
             Title
           </label>
           <input
@@ -95,10 +92,7 @@ export default function CreateProposal() {
         </div>
 
         <div>
-          <label
-            htmlFor="forumPostLink"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="forumPostLink" className="label">
             Forum Post Link
           </label>
           <input
@@ -113,10 +107,7 @@ export default function CreateProposal() {
         </div>
 
         <div>
-          <label
-            htmlFor="summary"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="summary" className="label">
             Summary
           </label>
           <textarea
@@ -132,10 +123,7 @@ export default function CreateProposal() {
         </div>
 
         <div>
-          <label
-            htmlFor="parameterChange"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="parameterChange" className="label">
             Parameter Change (JSON)
           </label>
           <textarea
@@ -150,7 +138,7 @@ export default function CreateProposal() {
         </div>
 
         <div className="flex justify-between items-center">
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-secondary-light dark:text-secondary-dark">
             Cost: 1000 MAS | Required MASOG Balance: 1000
           </div>
           <button

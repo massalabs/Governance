@@ -1,50 +1,58 @@
-import { Link, Outlet } from "react-router-dom";
-import {
-  HomeIcon,
-  DocumentTextIcon,
-  ChartBarIcon,
-} from "@heroicons/react/24/outline";
-
-const navigation = [
-  { name: "Home", href: "/", icon: HomeIcon },
-  { name: "Proposals", href: "/proposals", icon: DocumentTextIcon },
-  { name: "Create Proposal", href: "/create", icon: ChartBarIcon },
-];
+import { useEffect } from "react";
+import { Outlet, Link } from "react-router-dom";
+import { useUIStore } from "../store/useUIStore";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Layout() {
+  const { theme } = useUIStore();
+
+  useEffect(() => {
+    // Update the HTML class when theme changes
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <span className="text-2xl font-bold text-primary-600">
-                  Massa Governance
-                </span>
-              </div>
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-primary-600"
-                  >
-                    <item.icon className="h-5 w-5 mr-1" />
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
+    <div className="min-h-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+      <header className="border-b border-gray-200 dark:border-gray-700 bg-surface-light dark:bg-surface-dark">
+        <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-8">
+            <Link
+              to="/"
+              className="text-2xl font-bold text-primary-light dark:text-primary-dark"
+            >
+              Governance
+            </Link>
+            <div className="flex items-center space-x-4">
+              <Link
+                to="/proposals"
+                className="text-secondary-light dark:text-secondary-dark hover:text-primary-light dark:hover:text-primary-dark transition-colors"
+              >
+                Proposals
+              </Link>
+              <Link
+                to="/create"
+                className="text-secondary-light dark:text-secondary-dark hover:text-primary-light dark:hover:text-primary-dark transition-colors"
+              >
+                Create Proposal
+              </Link>
             </div>
           </div>
-        </div>
-      </nav>
+          <div className="flex items-center space-x-4">
+            <ThemeToggle />
+            {/* Add wallet connection button or other controls here */}
+          </div>
+        </nav>
+      </header>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <Outlet />
-        </div>
+      <main className="container mx-auto px-4 py-8">
+        <Outlet />
       </main>
+
+      <footer className="border-t border-gray-200 dark:border-gray-700 bg-surface-light dark:bg-surface-dark">
+        <div className="container mx-auto px-4 py-6 text-center text-secondary-light dark:text-secondary-dark">
+          © {new Date().getFullYear()} Governance Portal
+        </div>
+      </footer>
     </div>
   );
 }
