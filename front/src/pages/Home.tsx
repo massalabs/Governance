@@ -4,12 +4,23 @@ import { useEffect } from "react";
 import { useGovernanceStore } from "../store/governanceStore";
 
 export default function Home() {
-  const { stats, loading, proposals, fetchProposals, fetchStats } =
-    useGovernanceStore();
+  const {
+    stats,
+    loading,
+    proposals,
+    userMasogBalance,
+    userVotingPower,
+    fetchProposals,
+    fetchStats,
+    fetchUserBalance,
+  } = useGovernanceStore();
 
   useEffect(() => {
-    Promise.all([fetchProposals(), fetchStats()]);
-  }, [fetchProposals, fetchStats]);
+    const fetchData = async () => {
+      await Promise.all([fetchProposals(), fetchStats(), fetchUserBalance()]);
+    };
+    fetchData();
+  }, [fetchProposals, fetchStats, fetchUserBalance]);
 
   return (
     <div className="space-y-8">
@@ -60,13 +71,13 @@ export default function Home() {
           <div>
             <p className="text-f-tertiary mb-2 mas-body">MASOG Balance</p>
             <p className="text-xl font-semibold text-f-primary mas-h3">
-              {loading ? "..." : `${stats.userMasogBalance.toString()} MASOG`}
+              {loading ? "..." : `${userMasogBalance.toString()} MASOG`}
             </p>
           </div>
           <div>
             <p className="text-f-tertiary mb-2 mas-body">Voting Power</p>
             <p className="text-xl font-semibold text-f-primary mas-h3">
-              {loading ? "..." : stats.userVotingPower.toString()}
+              {loading ? "..." : userVotingPower.toString()}
             </p>
           </div>
         </div>

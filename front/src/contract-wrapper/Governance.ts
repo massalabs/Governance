@@ -22,8 +22,9 @@ export type Upgradable = SmartContract & {
 };
 
 const UPDATE_PROPOSAL_TAG = strToBytes("UPDATE_PROPOSAL_TAG");
-const UPDATE_VOTE_TAG = strToBytes("VOTE");
+const UPDATE_VOTE_TAG = strToBytes("UPDATE_VOTE_TAG");
 const UPDATE_COUNTER_TAG = strToBytes("UPDATE_PROPOSAL_COUNTER");
+const UPDATE_PROPOSAL_ID_BY_STATUS_TAG = strToBytes("PROPOSAL_BY_STATUS_TAG");
 
 export class Governance extends SmartContract implements Upgradable {
   static async init(provider: Provider | PublicProvider): Promise<Governance> {
@@ -121,9 +122,8 @@ export class Governance extends SmartContract implements Upgradable {
 
     const values = await this.provider.readStorage(this.address, keys, final);
 
-    console.log(values);
     return values
-      .filter((value) => value !== null)
+      .filter((value) => value !== null && value.length > 0)
       .map((value) => {
         const proposal = new Proposal();
         proposal.deserialize(value as Uint8Array, 0);

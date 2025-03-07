@@ -121,7 +121,6 @@ export class Governance extends SmartContract implements Upgradable {
 
     const values = await this.provider.readStorage(this.address, keys, final);
 
-    console.log(values);
     return values.map((value) => {
       const proposal = new Proposal();
       proposal.deserialize(value, 0);

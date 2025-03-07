@@ -36,23 +36,26 @@ interface GovernanceStats {
   totalProposals: bigint;
   activeProposals: bigint;
   totalVotes: bigint;
-  userMasogBalance: bigint;
-  userVotingPower: bigint;
 }
 
 interface GovernanceState {
   proposals: FormattedProposal[];
   stats: GovernanceStats;
+  userMasogBalance: bigint;
+  userVotingPower: bigint;
   loading: boolean;
   error: string | null;
   lastProposalsFetch: number | null;
   lastStatsFetch: number | null;
+  lastBalanceFetch: number | null;
   fetchProposals: (force?: boolean) => Promise<void>;
   fetchStats: (force?: boolean) => Promise<void>;
+  fetchUserBalance: (force?: boolean) => Promise<void>;
   refresh: () => Promise<void>;
 }
 
 const CACHE_DURATION = 30 * 1000; // 30 seconds in milliseconds
+const BALANCE_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 export const useGovernanceStore = create<GovernanceState>((set, get) => ({
   proposals: [],
@@ -60,13 +63,14 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
     totalProposals: 0n,
     activeProposals: 0n,
     totalVotes: 0n,
-    userMasogBalance: 0n,
-    userVotingPower: 0n,
   },
+  userMasogBalance: 0n,
+  userVotingPower: 0n,
   loading: false,
   error: null,
   lastProposalsFetch: null,
   lastStatsFetch: null,
+  lastBalanceFetch: null,
 
   fetchProposals: async (force = false) => {
     const state = get();
@@ -136,8 +140,7 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
       return;
     }
 
-    const { governance, masOg } = useContractStore.getState();
-    const { connectedAccount } = useAccountStore.getState();
+    const { governance } = useContractStore.getState();
     if (!governance) return;
 
     try {
@@ -159,23 +162,11 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
         0n
       );
 
-      // Get user-specific stats if connected
-      let userMasogBalance = 0n;
-      let userVotingPower = 0n;
-
-      if (connectedAccount && masOg) {
-        userMasogBalance = await masOg.balanceOf(connectedAccount.address);
-        // For now, voting power is equal to MASOG balance
-        userVotingPower = userMasogBalance;
-      }
-
       set({
         stats: {
           totalProposals,
           activeProposals: BigInt(activeProposals),
           totalVotes,
-          userMasogBalance,
-          userVotingPower,
         },
         lastStatsFetch: now,
       });
@@ -189,7 +180,60 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
     }
   },
 
+  fetchUserBalance: async (force = false) => {
+    const state = get();
+    const now = Date.now();
+
+    // If we have data and it's not stale, and we're not forcing a refresh, return early
+    if (
+      !force &&
+      state.lastBalanceFetch &&
+      now - state.lastBalanceFetch < BALANCE_CACHE_DURATION
+    ) {
+      return;
+    }
+
+    const { masOg } = useContractStore.getState();
+    const { connectedAccount } = useAccountStore.getState();
+    if (!connectedAccount || !masOg) return;
+
+    try {
+      set({ loading: true, error: null });
+      const userMasogBalance = await masOg.balanceOf(connectedAccount.address);
+      set({
+        userMasogBalance,
+        userVotingPower: userMasogBalance, // For now, voting power is equal to MASOG balance
+        lastBalanceFetch: now,
+      });
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch user balance";
+      set({ error: errorMessage });
+      toast.error(errorMessage);
+    } finally {
+      set({ loading: false });
+    }
+  },
+
   refresh: async () => {
-    await Promise.all([get().fetchProposals(true), get().fetchStats(true)]);
+    await Promise.all([
+      get().fetchProposals(true),
+      get().fetchStats(true),
+      get().fetchUserBalance(true),
+    ]);
   },
 }));
+
+// Subscribe to account changes
+useAccountStore.subscribe((state) => {
+  const connectedAccount = state.connectedAccount;
+  if (connectedAccount) {
+    useGovernanceStore.getState().fetchUserBalance(true);
+  } else {
+    // Reset user-related data when account is disconnected
+    useGovernanceStore.setState({
+      userMasogBalance: 0n,
+      userVotingPower: 0n,
+    });
+  }
+});
