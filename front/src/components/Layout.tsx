@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { useUIStore } from "../store/useUIStore";
 import ThemeToggle from "./ThemeToggle";
+import { ConnectButton } from "./ConnectWalletPopup";
 
 export default function Layout() {
   const { theme } = useUIStore();
@@ -38,6 +39,8 @@ export default function Layout() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
+            <ConnectButton />
+
             <ThemeToggle />
             {/* Add wallet connection button or other controls here */}
           </div>

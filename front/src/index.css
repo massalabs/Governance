@@ -2,12 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
+/* @layer base {
   body {
     @apply bg-gray-50 text-gray-900;
   }
-}
-
+} */
+/* 
 @layer components {
   .card {
     @apply bg-surface-light dark:bg-surface-dark rounded-lg border border-gray-200 dark:border-gray-700 p-6;
@@ -37,4 +37,4 @@
   .label {
     @apply block text-sm font-medium text-secondary-light dark:text-secondary-dark mb-1;
   }
-}
+} */
