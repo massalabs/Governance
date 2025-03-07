@@ -68,7 +68,7 @@ export default function Proposals() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {proposals.map((proposal) => {
           const status = statusConfig[proposal.status];
           const totalVotes =
@@ -80,83 +80,157 @@ export default function Proposals() {
           return (
             <div
               key={proposal.id.toString()}
-              className="bg-secondary border border-border p-6 rounded-lg shadow-sm"
+              className="bg-secondary border border-border rounded-lg shadow-sm divide-y divide-border"
             >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-f-primary mas-h2">{proposal.title}</h3>
-                  <p className="mt-1 text-f-tertiary mas-body2">
-                    {proposal.summary}
-                  </p>
-                  <a
-                    href={proposal.forumPostLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-flex items-center text-sm text-brand hover:opacity-80 transition-opacity mas-buttons"
+              {/* Header Section */}
+              <div className="p-6">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-f-primary mas-h2">{proposal.title}</h3>
+                    <p className="mt-1 text-f-tertiary mas-body2">
+                      {proposal.summary}
+                    </p>
+                    <a
+                      href={proposal.forumPostLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-flex items-center text-sm text-brand hover:opacity-80 transition-opacity mas-buttons"
+                    >
+                      View forum post →
+                    </a>
+                  </div>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status.color}`}
                   >
-                    View forum post →
-                  </a>
+                    <status.icon className="h-4 w-4 mr-1" />
+                    {status.label}
+                  </span>
                 </div>
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status.color}`}
-                >
-                  <status.icon className="h-4 w-4 mr-1" />
-                  {status.label}
-                </span>
+
+                {/* Basic Info */}
+                <div className="mt-4 flex items-center space-x-6">
+                  <div>
+                    <span className="text-f-tertiary mas-caption">
+                      Created by
+                    </span>
+                    <div className="text-f-primary mas-body2">
+                      {proposal.creator}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-f-tertiary mas-caption">Period</span>
+                    <div className="text-f-primary mas-body2">
+                      {format(
+                        new Date(Number(proposal.startTime)),
+                        "MMM d, yyyy"
+                      )}{" "}
+                      -{" "}
+                      {format(
+                        new Date(Number(proposal.endTime)),
+                        "MMM d, yyyy"
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div>
-                  <span className="text-f-tertiary mas-body2">Creator</span>
-                  <div className="mt-1 text-f-primary mas-body">
-                    {proposal.creator}
+              {/* Voting Section */}
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Vote Distribution */}
+                  <div>
+                    <h4 className="text-f-primary mas-h3 mb-3">
+                      Vote Distribution
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center">
+                        <div className="w-24 text-f-tertiary mas-body2">
+                          Positive
+                        </div>
+                        <div className="flex-1 mx-2">
+                          <div className="h-2 bg-tertiary rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-s-success rounded-full"
+                              style={{
+                                width: `${
+                                  (Number(proposal.positiveVotes) /
+                                    Number(totalVotes)) *
+                                  100
+                                }%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div className="w-24 text-right text-f-primary mas-body">
+                          {proposal.positiveVotes.toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-24 text-f-tertiary mas-body2">
+                          Negative
+                        </div>
+                        <div className="flex-1 mx-2">
+                          <div className="h-2 bg-tertiary rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-s-error rounded-full"
+                              style={{
+                                width: `${
+                                  (Number(proposal.negativeVotes) /
+                                    Number(totalVotes)) *
+                                  100
+                                }%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div className="w-24 text-right text-f-primary mas-body">
+                          {proposal.negativeVotes.toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-24 text-f-tertiary mas-body2">
+                          Blank
+                        </div>
+                        <div className="flex-1 mx-2">
+                          <div className="h-2 bg-tertiary rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-neutral/30 rounded-full"
+                              style={{
+                                width: `${
+                                  (Number(proposal.blankVotes) /
+                                    Number(totalVotes)) *
+                                  100
+                                }%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div className="w-24 text-right text-f-primary mas-body">
+                          {proposal.blankVotes.toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <span className="text-f-tertiary mas-body2">
-                    Voting Period
-                  </span>
-                  <div className="mt-1 text-f-primary mas-body">
-                    {format(
-                      new Date(Number(proposal.startTime)),
-                      "MMM d, yyyy"
-                    )}{" "}
-                    -{" "}
-                    {format(new Date(Number(proposal.endTime)), "MMM d, yyyy")}
-                  </div>
-                </div>
-                <div>
-                  <span className="text-f-tertiary mas-body2">Votes</span>
-                  <div className="mt-1 grid grid-cols-1 gap-1">
-                    <div className="flex justify-between text-f-primary mas-body">
-                      <span>Positive:</span>
-                      <span>{proposal.positiveVotes.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-f-primary mas-body">
-                      <span>Negative:</span>
-                      <span>{proposal.negativeVotes.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-f-primary mas-body">
-                      <span>Blank:</span>
-                      <span>{proposal.blankVotes.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <span className="text-f-tertiary mas-body2">Progress</span>
-                  <div className="mt-1">
-                    <div className="flex justify-between text-f-primary mas-body">
-                      <span>Total Votes:</span>
-                      <span>{totalVotes.toLocaleString()}</span>
-                    </div>
-                    <div className="mt-2 h-2 bg-tertiary rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-brand rounded-full transition-all duration-500"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                    <div className="mt-1 text-right text-f-tertiary mas-caption">
-                      {progress}% of quorum
+
+                  {/* Progress */}
+                  <div>
+                    <h4 className="text-f-primary mas-h3 mb-3">
+                      Quorum Progress
+                    </h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-f-primary mas-body">
+                        <span>Total Votes:</span>
+                        <span>{totalVotes.toLocaleString()}</span>
+                      </div>
+                      <div className="h-2 bg-tertiary rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-brand rounded-full transition-all duration-500"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      <div className="text-right text-f-tertiary mas-caption">
+                        {progress}% of quorum reached
+                      </div>
                     </div>
                   </div>
                 </div>
