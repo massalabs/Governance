@@ -11,7 +11,7 @@ import {
   _onlyOwner,
   _setOwner,
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
-import { UPDATE_PROPOSAL_COUNTER_TAG } from './voting-internals/keys';
+import { UPDATE_PROPOSAL_COUNTER_TAG } from './governance-internals/keys';
 import { MASOG_KEY } from './rolls-oracle';
 import { Proposal } from './serializable/proposal';
 import { Vote } from './serializable/vote';
@@ -20,7 +20,7 @@ import {
   _submitProposal,
   _vote,
   _deleteProposal,
-} from './voting-internals';
+} from './governance-internals';
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.

@@ -6,7 +6,7 @@ import {
   proposalKey,
   statusKey,
   voteKey,
-} from '../voting-internals/keys';
+} from '../governance-internals/keys';
 
 export class Proposal implements Serializable {
   constructor(
@@ -175,7 +175,7 @@ export class Proposal implements Serializable {
    */
   static getById(id: u64): Proposal {
     const proposalKeyBytes = proposalKey(id);
-    assert(Storage.has(proposalKeyBytes), 'Proposal does not exist');
+    assert(Storage.has(proposalKeyBytes), `Proposal ${id} does not exist`);
     const proposalBytes = Storage.get(proposalKeyBytes);
     const proposal = new Proposal();
     proposal.deserialize(proposalBytes, 0);

@@ -3,16 +3,17 @@ import { stringToBytes, u64ToBytes } from '@massalabs/as-types';
 export const UPDATE_PROPOSAL_COUNTER_TAG = stringToBytes(
   'UPDATE_PROPOSAL_COUNTER',
 );
-export const UPDATE_PROPOSAL_TAG = stringToBytes('UPDATE_PROPOSAL');
-export const UPDATE_PROPOSAL_ID_BY_STATUS_TAG =
-  stringToBytes('PROPOSAL_BY_STATUS');
-export const UPDATE_VOTE_TAG = stringToBytes('VOTE');
-export const UPDATE_VOTE_COMMENT_TAG = stringToBytes('VOTE_COMMENT');
+export const UPDATE_PROPOSAL_TAG = stringToBytes('UPDATE_PROPOSAL_TAG');
+export const UPDATE_PROPOSAL_ID_BY_STATUS_TAG = stringToBytes(
+  'PROPOSAL_BY_STATUS_TAG',
+);
+export const UPDATE_VOTE_TAG = stringToBytes('UPDATE_VOTE_TAG');
+export const UPDATE_VOTE_COMMENT_TAG = stringToBytes('UPDATE_VOTE_COMMENT_TAG');
 
-export const discussion = stringToBytes('DISCUSSION');
-export const voting = stringToBytes('VOTING');
-export const accepted = stringToBytes('ACCEPTED');
-export const rejected = stringToBytes('REJECTED');
+export const discussionStatus = stringToBytes('DISCUSSION');
+export const votingStatus = stringToBytes('VOTING');
+export const acceptedStatus = stringToBytes('ACCEPTED');
+export const rejectedStatus = stringToBytes('REJECTED');
 
 /**
  * Constructs a key for a specific proposal attribute.

@@ -1,5 +1,5 @@
 import { OutputEvents } from '@massalabs/massa-web3/dist/esm/generated/client-types';
-import { Voting } from './wrapper/Voting';
+import { Governance } from './wrapper/Governance';
 import { Proposal } from './serializable/Proposal';
 import { Vote } from './serializable/Vote';
 import { OperationStatus } from '@massalabs/massa-web3';
@@ -14,14 +14,14 @@ export function logEvents(events: OutputEvents) {
 
 /**
  * Submits a proposal and waits for final execution
- * @param voting - Voting contract instance
+ * @param governance - Governance contract instance
  * @param proposal - Proposal to submit
  */
 export async function submitProposalAndWait(
-  voting: Voting,
+  governance: Governance,
   proposal: Proposal,
 ) {
-  const op = await voting.submitProposal(proposal);
+  const op = await governance.submitProposal(proposal);
   const status = await op.waitFinalExecution();
   if (status !== OperationStatus.Success) {
     throw new Error('Failed to submit proposal');
@@ -33,11 +33,11 @@ export async function submitProposalAndWait(
 
 /**
  * Casts a vote and waits for final execution
- * @param voting - Voting contract instance
+ * @param governance - Governance contract instance
  * @param vote - Vote to cast
  */
-export async function castVoteAndWait(voting: Voting, vote: Vote) {
-  const op = await voting.vote(vote);
+export async function castVoteAndWait(governance: Governance, vote: Vote) {
+  const op = await governance.vote(vote);
   const status = await op.waitFinalExecution();
   if (status !== OperationStatus.Success) {
     throw new Error('Failed to cast vote');
@@ -49,10 +49,10 @@ export async function castVoteAndWait(voting: Voting, vote: Vote) {
 
 /**
  * Refreshes proposal statuses and waits for final execution
- * @param voting - Voting contract instance
+ * @param governance - Governance contract instance
  */
-export async function refreshAndWait(voting: Voting) {
-  const op = await voting.refresh();
+export async function refreshAndWait(governance: Governance) {
+  const op = await governance.refresh();
   const status = await op.waitFinalExecution();
   if (status !== OperationStatus.Success) {
     throw new Error('Failed to refresh proposals');
@@ -64,14 +64,14 @@ export async function refreshAndWait(voting: Voting) {
 
 /**
  * Deletes a proposal and waits for final execution
- * @param voting - Voting contract instance
+ * @param governance - Governance contract instance
  * @param proposalId - ID of the proposal to delete
  */
 export async function deleteProposalAndWait(
-  voting: Voting,
+  governance: Governance,
   proposalId: bigint,
 ) {
-  const op = await voting.deleteProposal(proposalId);
+  const op = await governance.deleteProposal(proposalId);
   const status = await op.waitFinalExecution();
   if (status !== OperationStatus.Success) {
     throw new Error('Failed to delete proposal');
@@ -83,14 +83,14 @@ export async function deleteProposalAndWait(
 
 /**
  * Sets the MASOG contract address and waits for final execution
- * @param voting - Voting contract instance
+ * @param governance - Governance contract instance
  * @param masogAddress - Address of the MASOG contract
  */
 export async function setMasOgAddressAndWait(
-  voting: Voting,
+  governance: Governance,
   masogAddress: string,
 ) {
-  const op = await voting.setMasOgAddress(masogAddress);
+  const op = await governance.setMasOgAddress(masogAddress);
   const status = await op.waitFinalExecution();
   if (status !== OperationStatus.Success) {
     throw new Error('Failed to set MASOG address');

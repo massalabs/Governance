@@ -10,7 +10,7 @@
         "deploy:oracle": "npm run build && tsx src/deploy/deploy-oracle.ts",
         "deploy:oracle:all": "npm run build && tsx src/deploy/deploy-oracle.ts",
         "deploy:masog": "npm run build && tsx src/deploy/deploy-masog.ts",
-        "deploy:voting": "npm run build && tsx src/deploy/deploy-voting.ts",
+        "deploy:governance": "npm run build && tsx src/deploy/deploy-governance.ts",
         "hello": "tsx src/hello.ts",
         "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check assembly",
         "prettier:fix": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
@@ -24,8 +24,9 @@
         "oracle:setMasog": "tsx src/oracle/setMasOg.ts",
         "masog:refresh": "tsx src/masog/refresh.ts",
         "masog:upgrade-contract": "npm run build && tsx src/masog/upgrade-contract.ts",
-        "voting:submit-proposal": "tsx src/vote/submit-proposal.ts",
-        "voting:upgrade-contract": "npm run build && tsx src/vote/upgrade-contract.ts"
+        "governance:submit-proposal": "tsx src/governance/submit-proposal.ts",
+        "governance:upgrade-contract": "npm run build && tsx src/governance/upgrade-contract.ts",
+        "governance:e2e": "tsx src/governance/e2e-test.ts"
     },
     "keywords": [],
     "author": "",

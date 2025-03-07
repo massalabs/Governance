@@ -3,7 +3,6 @@ import {
   Args,
   DeserializedResult,
   Serializable,
-  U64,
   strToBytes,
 } from '@massalabs/massa-web3';
 import { U64_t } from '@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64';

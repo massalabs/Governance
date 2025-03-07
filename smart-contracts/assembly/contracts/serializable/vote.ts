@@ -1,7 +1,7 @@
 import { Serializable, Result, i32ToBytes } from '@massalabs/as-types';
 import { Args } from '@massalabs/as-types/assembly/argument';
 import { Context, Storage } from '@massalabs/massa-as-sdk';
-import { voteKey, commentKey } from '../voting-internals/keys';
+import { voteKey, commentKey } from '../governance-internals/keys';
 
 export class Vote implements Serializable {
   constructor(
@@ -52,8 +52,6 @@ export class Vote implements Serializable {
       'Voter has already cast a vote for this proposal',
     );
 
-    // Record the vote
-    // TODO: SHould we add voting power (masog balance) at this moment of voting instead of just the vote value (1,0,-1)
     Storage.set(voteKeyBytes, i32ToBytes(this.value));
 
     if (this.comment.length > 0) {

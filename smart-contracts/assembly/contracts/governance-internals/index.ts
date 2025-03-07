@@ -2,12 +2,12 @@ import { bytesToU64, u64ToBytes, stringToBytes } from '@massalabs/as-types';
 import { Storage, Context, getKeys } from '@massalabs/massa-as-sdk';
 import { Proposal } from '../serializable/proposal';
 import {
-  accepted,
-  discussion,
-  rejected,
+  acceptedStatus,
+  discussionStatus,
+  rejectedStatus,
+  votingStatus,
   statusKeyPrefix,
   UPDATE_PROPOSAL_COUNTER_TAG,
-  voting,
 } from './keys';
 import { Vote } from '../serializable/vote';
 import {
@@ -42,40 +42,42 @@ export function _submitProposal(proposal: Proposal): void {
   proposal.id = counter;
   proposal.owner = stringToBytes(Context.caller().toString());
   proposal.creationTimestamp = Context.timestamp();
-  proposal.setStatus(discussion).save();
+  proposal.setStatus(discussionStatus).save();
 }
 
 /**
  * Refreshes the status of proposals based on the current timestamp.
- * @remarks This function moves proposals from discussion to voting status
- * and from voting to accepted or rejected status.
+ * @remarks This function moves proposals from discussion to votingStatus status
+ * and from votingStatus to accepted or rejected status.
  */
 export function _refresh(): void {
-  const discussionProposalsKeys = getKeys(statusKeyPrefix(discussion));
+  const discussionProposalsKeys = getKeys(statusKeyPrefix(discussionStatus));
   const currentTimestamp = Context.timestamp();
 
   // First handle Discussion proposals
   for (let i = 0; i < discussionProposalsKeys.length; i++) {
     const id = StaticArray.fromArray(
-      discussionProposalsKeys[i].slice(statusKeyPrefix(discussion).length),
+      discussionProposalsKeys[i].slice(
+        statusKeyPrefix(discussionStatus).length,
+      ),
     );
 
     const proposal = Proposal.getById(bytesToU64(id));
 
     if (currentTimestamp - proposal.creationTimestamp >= DISCUSSION_PERIOD) {
-      proposal.setStatus(voting).save();
+      proposal.setStatus(votingStatus).save();
     }
   }
 
-  // Then handle Voting proposals
-  const votingProposalsKeys = getKeys(statusKeyPrefix(voting));
+  // Then handle votingStatus proposals
+  const votingStatusProposalsKeys = getKeys(statusKeyPrefix(votingStatus));
   const totalSupply = getMasogTotalSupply();
 
-  if (votingProposalsKeys.length == 0) return;
+  if (votingStatusProposalsKeys.length == 0) return;
 
-  for (let i = 0; i < votingProposalsKeys.length; i++) {
+  for (let i = 0; i < votingStatusProposalsKeys.length; i++) {
     const id = StaticArray.fromArray(
-      votingProposalsKeys[i].slice(statusKeyPrefix(voting).length),
+      votingStatusProposalsKeys[i].slice(statusKeyPrefix(votingStatus).length),
     );
 
     const proposal = Proposal.getById(bytesToU64(id));
@@ -83,9 +85,9 @@ export function _refresh(): void {
     if (currentTimestamp - proposal.creationTimestamp >= VOTING_PERIOD) {
       const majority = totalSupply / 2;
       if (proposal.positiveVoteVolume > majority) {
-        proposal.setStatus(accepted).save();
+        proposal.setStatus(acceptedStatus).save();
       } else {
-        proposal.setStatus(rejected).save();
+        proposal.setStatus(rejectedStatus).save();
       }
     }
   }
@@ -100,7 +102,7 @@ export function _vote(vote: Vote): void {
   const proposal = Proposal.getById(vote.proposalId);
 
   assert(
-    proposal.status.toString() === voting.toString(),
+    proposal.status.toString() === votingStatus.toString(),
     'Proposal must be in VOTING status',
   );
 
