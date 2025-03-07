@@ -1,19 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-
 import App from "./App";
-import { GovernanceProvider } from "./contexts/GovernanceContext";
 import "./index.css";
-import { Account, JsonRpcProvider } from "@massalabs/massa-web3";
+import { useContractInitialization } from "./hooks/useContractInitialization";
+import useAccountSync from "./hooks/useAccountSync";
 
-const account = await Account.generate();
-
-const provider = await JsonRpcProvider.buildnet(account);
+function AppWithHooks() {
+  useAccountSync();
+  useContractInitialization();
+  return <App />;
+}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <GovernanceProvider provider={provider}>
-      <App />
-    </GovernanceProvider>
+    <AppWithHooks />
   </React.StrictMode>
 );
