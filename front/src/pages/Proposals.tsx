@@ -25,18 +25,30 @@ const mockProposals: Proposal[] = [
   // Add more mock proposals as needed
 ];
 
-const statusColors: Record<ProposalStatus, string> = {
-  ACTIVE: "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100",
-  EXECUTED: "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100",
-  EXPIRED: "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100",
-  CANCELLED: "bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100",
-};
-
-const statusIcons: Record<ProposalStatus, any> = {
-  ACTIVE: ClockIcon,
-  EXECUTED: CheckCircleIcon,
-  EXPIRED: XCircleIcon,
-  CANCELLED: XCircleIcon,
+const statusConfig: Record<
+  ProposalStatus,
+  { color: string; icon: any; label: string }
+> = {
+  ACTIVE: {
+    color: "bg-s-success/10 text-s-success",
+    icon: ClockIcon,
+    label: "Active",
+  },
+  EXECUTED: {
+    color: "bg-info/10 text-info",
+    icon: CheckCircleIcon,
+    label: "Executed",
+  },
+  EXPIRED: {
+    color: "bg-s-error/10 text-s-error",
+    icon: XCircleIcon,
+    label: "Expired",
+  },
+  CANCELLED: {
+    color: "bg-neutral/10 text-neutral",
+    icon: XCircleIcon,
+    label: "Cancelled",
+  },
 };
 
 export default function Proposals() {
@@ -45,67 +57,66 @@ export default function Proposals() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-text-light dark:text-text-dark">
-          Proposals
-        </h1>
+        <h1 className="text-f-primary mas-title">Proposals</h1>
         <div className="flex space-x-4">
-          <button className="btn btn-secondary">Filter</button>
-          <button className="btn btn-primary">Sort</button>
+          <button className="px-4 py-2 bg-secondary border border-border rounded-lg text-f-primary hover:bg-tertiary transition-colors mas-buttons">
+            Filter
+          </button>
+          <button className="px-4 py-2 bg-brand text-neutral rounded-lg hover:opacity-90 transition-opacity mas-buttons">
+            Sort
+          </button>
         </div>
       </div>
 
       <div className="space-y-4">
         {proposals.map((proposal) => {
-          const StatusIcon = statusIcons[proposal.status];
+          const status = statusConfig[proposal.status];
           const totalVotes =
             proposal.positiveVotes +
             proposal.negativeVotes +
             proposal.blankVotes;
-          const progress = Number((totalVotes * BigInt(100)) / BigInt(2000000)); // Using 2M as quorum
+          const progress = Number((totalVotes * BigInt(100)) / BigInt(2000000));
 
           return (
-            <div key={proposal.id.toString()} className="card">
+            <div
+              key={proposal.id.toString()}
+              className="bg-secondary border border-border p-6 rounded-lg shadow-sm"
+            >
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-lg font-medium text-text-light dark:text-text-dark">
-                    {proposal.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-secondary-light dark:text-secondary-dark">
+                  <h3 className="text-f-primary mas-h2">{proposal.title}</h3>
+                  <p className="mt-1 text-f-tertiary mas-body2">
                     {proposal.summary}
                   </p>
                   <a
                     href={proposal.forumPostLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-2 inline-flex items-center text-sm text-primary-light dark:text-primary-dark hover:opacity-80"
+                    className="mt-2 inline-flex items-center text-sm text-brand hover:opacity-80 transition-opacity mas-buttons"
                   >
                     View forum post →
                   </a>
                 </div>
                 <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    statusColors[proposal.status]
-                  }`}
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status.color}`}
                 >
-                  <StatusIcon className="h-4 w-4 mr-1" />
-                  {proposal.status}
+                  <status.icon className="h-4 w-4 mr-1" />
+                  {status.label}
                 </span>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+              <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div>
-                  <span className="font-medium text-secondary-light dark:text-secondary-dark">
-                    Creator
-                  </span>
-                  <div className="text-text-light dark:text-text-dark">
+                  <span className="text-f-tertiary mas-body2">Creator</span>
+                  <div className="mt-1 text-f-primary mas-body">
                     {proposal.creator}
                   </div>
                 </div>
                 <div>
-                  <span className="font-medium text-secondary-light dark:text-secondary-dark">
+                  <span className="text-f-tertiary mas-body2">
                     Voting Period
                   </span>
-                  <div className="text-text-light dark:text-text-dark">
+                  <div className="mt-1 text-f-primary mas-body">
                     {format(
                       new Date(Number(proposal.startTime)),
                       "MMM d, yyyy"
@@ -115,43 +126,38 @@ export default function Proposals() {
                   </div>
                 </div>
                 <div>
-                  <span className="font-medium text-secondary-light dark:text-secondary-dark">
-                    Positive Votes
-                  </span>
-                  <div className="text-text-light dark:text-text-dark">
-                    {proposal.positiveVotes.toLocaleString()}
+                  <span className="text-f-tertiary mas-body2">Votes</span>
+                  <div className="mt-1 grid grid-cols-1 gap-1">
+                    <div className="flex justify-between text-f-primary mas-body">
+                      <span>Positive:</span>
+                      <span>{proposal.positiveVotes.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-f-primary mas-body">
+                      <span>Negative:</span>
+                      <span>{proposal.negativeVotes.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-f-primary mas-body">
+                      <span>Blank:</span>
+                      <span>{proposal.blankVotes.toLocaleString()}</span>
+                    </div>
                   </div>
                 </div>
                 <div>
-                  <span className="font-medium text-secondary-light dark:text-secondary-dark">
-                    Negative Votes
-                  </span>
-                  <div className="text-text-light dark:text-text-dark">
-                    {proposal.negativeVotes.toLocaleString()}
-                  </div>
-                </div>
-                <div>
-                  <span className="font-medium text-secondary-light dark:text-secondary-dark">
-                    Blank Votes
-                  </span>
-                  <div className="text-text-light dark:text-text-dark">
-                    {proposal.blankVotes.toLocaleString()}
-                  </div>
-                </div>
-                <div>
-                  <span className="font-medium text-secondary-light dark:text-secondary-dark">
-                    Total Votes
-                  </span>
-                  <div className="text-text-light dark:text-text-dark">
-                    {totalVotes.toLocaleString()}
-                  </div>
-                </div>
-                <div>
-                  <span className="font-medium text-secondary-light dark:text-secondary-dark">
-                    Progress
-                  </span>
-                  <div className="text-text-light dark:text-text-dark">
-                    {progress}%
+                  <span className="text-f-tertiary mas-body2">Progress</span>
+                  <div className="mt-1">
+                    <div className="flex justify-between text-f-primary mas-body">
+                      <span>Total Votes:</span>
+                      <span>{totalVotes.toLocaleString()}</span>
+                    </div>
+                    <div className="mt-2 h-2 bg-tertiary rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-brand rounded-full transition-all duration-500"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    <div className="mt-1 text-right text-f-tertiary mas-caption">
+                      {progress}% of quorum
+                    </div>
                   </div>
                 </div>
               </div>
