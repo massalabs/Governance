@@ -4,8 +4,8 @@ import {
   DeserializedResult,
   Serializable,
   strToBytes,
-} from "@massalabs/massa-web3";
-import { U64_t } from "@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64";
+} from '@massalabs/massa-web3';
+import { U64_t } from '@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64';
 
 export class Proposal implements Serializable<Proposal> {
   constructor(
@@ -19,7 +19,7 @@ export class Proposal implements Serializable<Proposal> {
     public creationTimestamp: U64_t = 0n,
     public positiveVoteVolume: U64_t = 0n,
     public negativeVoteVolume: U64_t = 0n,
-    public blankVoteVolume: U64_t = 0n
+    public blankVoteVolume: U64_t = 0n,
   ) {}
 
   static create(
@@ -27,7 +27,7 @@ export class Proposal implements Serializable<Proposal> {
     forumPostLink: string,
     summary: string,
     parameterChange: string,
-    owner: string
+    owner: string,
   ): Proposal {
     return new Proposal(
       strToBytes(title),
@@ -40,7 +40,7 @@ export class Proposal implements Serializable<Proposal> {
       0n,
       0n,
       0n,
-      0n
+      0n,
     );
   }
 

@@ -100,8 +100,4 @@ export class GovernanceService {
       userVotingPower: BigInt(0),
     };
   }
-
-  async refreshProposals(): Promise<void> {
-    // TODO: Implement actual blockchain call
-  }
 }

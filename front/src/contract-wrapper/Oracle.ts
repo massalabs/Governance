@@ -81,10 +81,9 @@ export class Oracle extends SmartContract {
       rollKey(cycle, address),
     ]);
 
-    if (result[0] === null) {
-      throw new Error("No roll found");
+    if (!result[0]) {
+      return 0n;
     }
-
     return U64.fromBytes(result[0]);
   }
 
@@ -125,13 +124,9 @@ export class Oracle extends SmartContract {
       final
     );
 
-    if (!values || values.length === 0) {
-      throw new Error("No values found");
-    }
-
     return values.map((value, i) => ({
       address: bytesToStr(keys[i].slice(filter.length)),
-      rolls: U64.fromBytes(value!), // Add non-null assertion since we checked values exists
+      rolls: U64.fromBytes(value!),
     }));
   }
 
@@ -151,7 +146,7 @@ export class Oracle extends SmartContract {
       ORACLE_LAST_RECORDED_CYCLE,
     ]);
 
-    if (!cycle[0] || cycle[0]?.length === 0) {
+    if (!cycle[0] || cycle[0].length === 0) {
       throw new Error("No cycle found");
     }
 
