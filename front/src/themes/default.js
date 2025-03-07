@@ -2,13 +2,23 @@ import { createThemes } from "tw-colors";
 import plugin from "tailwindcss/plugin";
 
 // Newspaper-style colors
-const colorSepia = "#F4F1EA"; // Light paper background
-const colorInk = "#2C2C2C"; // Dark text
+const colorPaper = "#F7F3EB"; // Warm off-white for main background
+const colorSepia = "#EDE5D8"; // Warmer sepia for secondary elements
+const colorInk = "#1A1715"; // Rich dark brown-black for text
 const colorAccent = "#8B0000"; // Deep red for accents
-const colorParchment = "#E8E6E1"; // Secondary light
-const colorDarkSlate = "#1A1A1A"; // Dark mode background
-const colorCream = "#FAF9F7"; // Light mode surface
-const colorMuted = "#4A4A4A"; // Muted text
+const colorParchment = "#E8E2D7"; // Warm light beige for cards
+const colorBorder = "#D3C7B8"; // Warm beige for borders
+
+// Dark mode colors
+const colorDarkBg = "#2A2520"; // Warm dark brown background
+const colorDarkCard = "#332E28"; // Slightly lighter warm brown for cards
+const colorDarkText = "#E8E2D7"; // Warm off-white for text
+const colorDarkMuted = "#9A8F84"; // Warm gray for muted text
+const colorDarkBorder = "#403931"; // Rich brown for borders
+const colorDarkAccent = "#E85D5D"; // Warmer, softer red for accents
+
+// Light mode colors
+const colorMuted = "#6B635A"; // Warm gray for muted text (light mode)
 
 /** @type {import('tailwindcss').Config} */
 // eslint-disable-next-line no-undef
@@ -20,71 +30,79 @@ module.exports = {
     },
   },
   plugins: [
-    createThemes({
-      light: {
-        primary: colorAccent,
-        secondary: colorParchment,
-        tertiary: colorSepia,
-        neutral: colorInk,
-        info: colorMuted,
-        beige: colorParchment,
-        gray: colorCream,
-        // states:
-        "s-success": colorAccent,
-        "s-error": colorAccent,
-        "s-warning": colorAccent,
-        "s-info": colorMuted,
-        "s-info-1": colorMuted,
-        // components:
-        "c-default": colorInk,
-        "c-hover": colorInk,
-        "c-pressed": colorMuted,
-        "c-disabled-1": colorMuted,
-        "c-disabled-2": colorParchment,
-        "c-error": colorAccent,
-        // icons:
-        "i-primary": colorMuted,
-        "i-secondary": colorParchment,
-        "i-tertiary": colorInk,
-        // fonts:
-        "f-primary": colorInk,
-        "f-secondary": colorParchment,
-        "f-tertiary": colorMuted,
-        "f-disabled-1": colorMuted,
-        "f-disabled-2": colorParchment,
+    createThemes(
+      {
+        light: {
+          primary: colorAccent,
+          secondary: colorParchment,
+          tertiary: colorSepia,
+          neutral: colorInk,
+          info: colorMuted,
+          beige: colorParchment,
+          gray: colorPaper,
+          brand: colorAccent,
+          background: colorPaper,
+          border: colorBorder,
+          // states:
+          "s-success": colorAccent,
+          "s-error": colorAccent,
+          "s-warning": colorAccent,
+          "s-info": colorMuted,
+          "s-info-1": colorMuted,
+          // components:
+          "c-default": colorInk,
+          "c-hover": colorInk,
+          "c-pressed": colorMuted,
+          "c-disabled-1": colorMuted,
+          "c-disabled-2": colorParchment,
+          "c-error": colorAccent,
+          // icons:
+          "i-primary": colorMuted,
+          "i-secondary": colorParchment,
+          "i-tertiary": colorInk,
+          // fonts:
+          "f-primary": colorInk,
+          "f-secondary": colorParchment,
+          "f-tertiary": colorMuted,
+          "f-disabled-1": colorMuted,
+          "f-disabled-2": colorParchment,
+        },
+        dark: {
+          primary: colorDarkAccent,
+          secondary: colorDarkCard,
+          tertiary: "#3B352E",
+          brand: colorDarkAccent,
+          neutral: colorDarkText,
+          info: colorDarkMuted,
+          background: colorDarkBg,
+          border: colorDarkBorder,
+          // states:
+          "s-success": colorDarkAccent,
+          "s-error": colorDarkAccent,
+          "s-warning": colorDarkAccent,
+          "s-info": colorDarkMuted,
+          "s-info-1": colorDarkMuted,
+          // components:
+          "c-default": colorDarkText,
+          "c-hover": colorDarkText,
+          "c-pressed": colorDarkMuted,
+          "c-disabled-1": colorDarkMuted,
+          "c-disabled-2": "#3B352E",
+          "c-error": colorDarkAccent,
+          // icons:
+          "i-primary": colorDarkMuted,
+          "i-secondary": "#3B352E",
+          "i-tertiary": colorDarkText,
+          // fonts:
+          "f-primary": colorDarkText,
+          "f-secondary": "#3B352E",
+          "f-tertiary": colorDarkMuted,
+          "f-disabled-1": colorDarkMuted,
+          "f-disabled-2": "#3B352E",
+        },
       },
-      dark: {
-        primary: "#B22222",
-        secondary: colorDarkSlate,
-        tertiary: "#2A2A2A",
-        brand: "#B22222",
-        neutral: "#E0E0E0",
-        info: "#A0A0A0",
-        // states:
-        "s-success": "#B22222",
-        "s-error": "#B22222",
-        "s-warning": "#B22222",
-        "s-info": "#A0A0A0",
-        "s-info-1": "#A0A0A0",
-        // components:
-        "c-default": "#E0E0E0",
-        "c-hover": "#E0E0E0",
-        "c-pressed": "#A0A0A0",
-        "c-disabled-1": "#A0A0A0",
-        "c-disabled-2": "#2A2A2A",
-        "c-error": "#B22222",
-        // icons:
-        "i-primary": "#A0A0A0",
-        "i-secondary": "#2A2A2A",
-        "i-tertiary": "#E0E0E0",
-        // fonts:
-        "f-primary": "#E0E0E0",
-        "f-secondary": "#2A2A2A",
-        "f-tertiary": "#A0A0A0",
-        "f-disabled-1": "#A0A0A0",
-        "f-disabled-2": "#2A2A2A",
-      },
-    }),
+      { defaultTheme: "light" }
+    ),
     plugin(function ({ addComponents, theme }) {
       addComponents({
         ".mas-banner": {
@@ -156,7 +174,8 @@ module.exports = {
           lineHeight: "1.5",
         },
         ".active-button": {
-          "@apply transition-all duration-100 ease-in-out": {},
+          "@apply transition-all duration-100 ease-in-out border border-border":
+            {},
           "&:hover": {
             "@apply -translate-y-[2%] shadow-md": {},
           },

@@ -8,31 +8,30 @@ export default function Layout() {
   const { theme } = useUIStore();
 
   useEffect(() => {
-    // Update the HTML class when theme changes
-    document.documentElement.classList.toggle("dark", theme === "dark");
+    // Remove both theme classes first
+    document.documentElement.classList.remove("theme-light", "theme-dark");
+    // Add the current theme class
+    document.documentElement.classList.add(`theme-${theme}`);
   }, [theme]);
 
   return (
-    <div className="min-h-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
-      <header className="border-b border-gray-200 dark:border-gray-700 bg-surface-light dark:bg-surface-dark">
+    <div className="min-h-screen bg-background text-f-primary">
+      <header className="border-b border-border bg-secondary shadow-sm">
         <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-8">
-            <Link
-              to="/"
-              className="text-2xl font-bold text-primary-light dark:text-primary-dark"
-            >
+            <Link to="/" className="text-2xl font-bold text-brand mas-title">
               Governance
             </Link>
             <div className="flex items-center space-x-4">
               <Link
                 to="/proposals"
-                className="text-secondary-light dark:text-secondary-dark hover:text-primary-light dark:hover:text-primary-dark transition-colors"
+                className="text-f-tertiary hover:text-brand transition-colors mas-menu-default"
               >
                 Proposals
               </Link>
               <Link
                 to="/create"
-                className="text-secondary-light dark:text-secondary-dark hover:text-primary-light dark:hover:text-primary-dark transition-colors"
+                className="text-f-tertiary hover:text-brand transition-colors mas-menu-default"
               >
                 Create Proposal
               </Link>
@@ -40,9 +39,7 @@ export default function Layout() {
           </div>
           <div className="flex items-center space-x-4">
             <ConnectButton />
-
             <ThemeToggle />
-            {/* Add wallet connection button or other controls here */}
           </div>
         </nav>
       </header>
@@ -51,8 +48,8 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="border-t border-gray-200 dark:border-gray-700 bg-surface-light dark:bg-surface-dark">
-        <div className="container mx-auto px-4 py-6 text-center text-secondary-light dark:text-secondary-dark">
+      <footer className="border-t border-border bg-secondary mt-auto">
+        <div className="container mx-auto px-4 py-6 text-center text-f-tertiary">
           © {new Date().getFullYear()} Governance Portal
         </div>
       </footer>

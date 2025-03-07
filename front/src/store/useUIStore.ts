@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface UIState {
   isWalletModalOpen: boolean;
@@ -15,27 +16,37 @@ interface UIState {
   toggleTheme: () => void;
 }
 
-export const useUIStore = create<UIState>((set) => ({
-  isWalletModalOpen: false,
-  isCreateProposalModalOpen: false,
-  isVoteModalOpen: false,
-  selectedProposalId: null,
-  theme: "light",
+export const useUIStore = create<UIState>()(
+  persist(
+    (set) => ({
+      isWalletModalOpen: false,
+      isCreateProposalModalOpen: false,
+      isVoteModalOpen: false,
+      selectedProposalId: null,
+      theme: window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light",
 
-  toggleWalletModal: () =>
-    set((state) => ({ isWalletModalOpen: !state.isWalletModalOpen })),
+      toggleWalletModal: () =>
+        set((state) => ({ isWalletModalOpen: !state.isWalletModalOpen })),
 
-  toggleCreateProposalModal: () =>
-    set((state) => ({
-      isCreateProposalModalOpen: !state.isCreateProposalModalOpen,
-    })),
+      toggleCreateProposalModal: () =>
+        set((state) => ({
+          isCreateProposalModalOpen: !state.isCreateProposalModalOpen,
+        })),
 
-  openVoteModal: (proposalId: bigint) =>
-    set({ isVoteModalOpen: true, selectedProposalId: proposalId }),
+      openVoteModal: (proposalId: bigint) =>
+        set({ isVoteModalOpen: true, selectedProposalId: proposalId }),
 
-  closeVoteModal: () =>
-    set({ isVoteModalOpen: false, selectedProposalId: null }),
+      closeVoteModal: () =>
+        set({ isVoteModalOpen: false, selectedProposalId: null }),
 
-  toggleTheme: () =>
-    set((state) => ({ theme: state.theme === "light" ? "dark" : "light" })),
-}));
+      toggleTheme: () =>
+        set((state) => ({ theme: state.theme === "light" ? "dark" : "light" })),
+    }),
+    {
+      name: "ui-storage",
+      partialize: (state) => ({ theme: state.theme }),
+    }
+  )
+);
