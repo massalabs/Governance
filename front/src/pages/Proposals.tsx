@@ -6,6 +6,7 @@ import {
   XCircleIcon,
   ClockIcon,
   CheckBadgeIcon,
+  ChatBubbleLeftRightIcon,
 } from "@heroicons/react/24/outline";
 
 const statusConfig = {
@@ -38,6 +39,10 @@ const statusConfig = {
 export default function Proposals() {
   const { proposals, hasVoted, getUserVote } = useStore();
 
+  const isValidForumLink = (link: string) => {
+    return link.startsWith("https://forum.massa.community/");
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -50,7 +55,7 @@ export default function Proposals() {
         </Link>
       </div>
 
-      <div className="grid gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {proposals.map((proposal) => {
           const StatusIcon = statusConfig[proposal.status].icon;
           const statusColor = statusConfig[proposal.status].color;
@@ -58,6 +63,8 @@ export default function Proposals() {
           const statusLabel = statusConfig[proposal.status].label;
           const hasUserVoted = hasVoted(proposal.id);
           const userVote = getUserVote(proposal.id);
+          const hasValidForumLink =
+            proposal.forumPostLink && isValidForumLink(proposal.forumPostLink);
 
           return (
             <div
@@ -68,7 +75,14 @@ export default function Proposals() {
                 {/* Header Section */}
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
-                    <h2 className="text-f-primary mas-h2">{proposal.title}</h2>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-f-primary mas-h2">
+                        {proposal.title}
+                      </h2>
+                      <span className="text-f-tertiary mas-caption bg-tertiary px-2 py-0.5 rounded">
+                        #{proposal.id}
+                      </span>
+                    </div>
                     <p className="text-f-tertiary mas-body">
                       {proposal.summary}
                     </p>
@@ -89,10 +103,24 @@ export default function Proposals() {
                     {new Date(proposal.startTime * 1000).toLocaleDateString()} -{" "}
                     {new Date(proposal.endTime * 1000).toLocaleDateString()}
                   </span>
+                  {hasValidForumLink && (
+                    <>
+                      <span>•</span>
+                      <a
+                        href={proposal.forumPostLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-brand hover:opacity-80"
+                      >
+                        <ChatBubbleLeftRightIcon className="h-4 w-4" />
+                        <span>Forum Discussion</span>
+                      </a>
+                    </>
+                  )}
                 </div>
 
                 {/* Voting Section */}
-                <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-border">
+                <div className="space-y-4 pt-4 border-t border-border">
                   <div className="space-y-4">
                     <h3 className="text-f-primary mas-h3">Vote Distribution</h3>
                     <div className="space-y-2">
@@ -167,14 +195,12 @@ export default function Proposals() {
                         />
                       </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-4">
-                    <h3 className="text-f-primary mas-h3">Quorum Progress</h3>
-                    <div className="space-y-2">
+                    {/* Quorum Progress */}
+                    <div className="space-y-2 pt-4 border-t border-border">
                       <div className="flex items-center justify-between">
                         <span className="text-f-tertiary mas-body2">
-                          Progress
+                          Quorum Progress
                         </span>
                         <span className="text-f-primary mas-body2">
                           {(

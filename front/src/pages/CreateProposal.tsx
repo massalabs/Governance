@@ -15,8 +15,13 @@ export default function CreateProposal() {
   });
   const [jsonInput, setJsonInput] = useState("");
   const [jsonError, setJsonError] = useState<string | null>(null);
+  const [forumLinkError, setForumLinkError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const isValidForumLink = (link: string) => {
+    return link.startsWith("https://forum.massa.community/");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +35,12 @@ export default function CreateProposal() {
 
       if (votingPower < BigInt(1000)) {
         throw new Error("Insufficient MASOG balance. Required: 1000");
+      }
+
+      if (!isValidForumLink(formData.forumPostLink)) {
+        throw new Error(
+          "Forum link must start with https://forum.massa.community/"
+        );
       }
 
       // Validate JSON one last time before submission
@@ -71,6 +82,16 @@ export default function CreateProposal() {
           setJsonError("Invalid JSON format");
         }
       }
+    } else if (name === "forumPostLink") {
+      setForumLinkError(
+        value && !isValidForumLink(value)
+          ? "Forum link must start with https://forum.massa.community/"
+          : null
+      );
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -146,10 +167,17 @@ export default function CreateProposal() {
                 id="forumPostLink"
                 value={formData.forumPostLink}
                 onChange={handleChange}
-                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-f-primary focus:outline-none focus:ring-2 focus:ring-brand/30 mas-body"
+                className={`w-full px-4 py-2 bg-background border rounded-lg text-f-primary focus:outline-none focus:ring-2 focus:ring-brand/30 mas-body ${
+                  forumLinkError ? "border-s-error" : "border-border"
+                }`}
                 required
-                placeholder="https://forum.example.com/your-proposal"
+                placeholder="https://forum.massa.community/your-proposal"
               />
+              {forumLinkError && (
+                <p className="mt-1 text-s-error mas-caption">
+                  {forumLinkError}
+                </p>
+              )}
             </div>
 
             <div>

@@ -1,32 +1,49 @@
 import { createThemes } from "tw-colors";
 import plugin from "tailwindcss/plugin";
 
-// Newspaper-style colors
-const colorPaper = "#F7F3EB"; // Warm off-white for main background
-const colorSepia = "#EDE5D8"; // Warmer sepia for secondary elements
-const colorInk = "#1A1715"; // Rich dark brown-black for text
-const colorAccent = "#8B0000"; // Deep red for accents
-const colorParchment = "#E8E2D7"; // Warm light beige for cards
-const colorBorder = "#D3C7B8"; // Warm beige for borders
+// Modern clean colors
+const colorPaper = "#F8FAFC"; // Very light blue-gray for main background
+const colorSepia = "#F1F5F9"; // Light cool gray for secondary elements
+const colorInk = "#1A1F36"; // Deep blue-gray for text
+const colorAccent = "#3B82F6"; // Modern blue for accents
+const colorParchment = "#FFFFFF"; // Pure white for cards
+const colorBorder = "#E2E8F0"; // Light gray for borders
 
 // Dark mode colors
-const colorDarkBg = "#2A2520"; // Warm dark brown background
-const colorDarkCard = "#332E28"; // Slightly lighter warm brown for cards
-const colorDarkText = "#E8E2D7"; // Warm off-white for text
-const colorDarkMuted = "#9A8F84"; // Warm gray for muted text
-const colorDarkBorder = "#403931"; // Rich brown for borders
-const colorDarkAccent = "#E85D5D"; // Warmer, softer red for accents
+const colorDarkBg = "#0F172A"; // Deep blue-gray background
+const colorDarkCard = "#1E293B"; // Slightly lighter blue-gray for cards
+const colorDarkText = "#F8FAFC"; // Cool white for text
+const colorDarkMuted = "#94A3B8"; // Cool gray for muted text
+const colorDarkBorder = "#334155"; // Blue-gray for borders
+const colorDarkAccent = "#60A5FA"; // Bright blue for accents
 
 // Light mode colors
-const colorMuted = "#6B635A"; // Warm gray for muted text (light mode)
+const colorMuted = "#64748B"; // Cool gray for muted text (light mode)
 
 /** @type {import('tailwindcss').Config} */
 // eslint-disable-next-line no-undef
 module.exports = {
   theme: {
     fontFamily: {
-      serif: ["Merriweather", "Georgia", "serif"],
-      sans: ["Inter", "system-ui", "sans-serif"],
+      sans: [
+        "Inter",
+        "system-ui",
+        "-apple-system",
+        "BlinkMacSystemFont",
+        "Segoe UI",
+        "Roboto",
+        "Helvetica Neue",
+        "Arial",
+        "sans-serif",
+      ],
+      display: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
+    },
+    extend: {
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "gradient-conic":
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      },
     },
   },
   plugins: [
@@ -66,11 +83,16 @@ module.exports = {
           "f-tertiary": colorMuted,
           "f-disabled-1": colorMuted,
           "f-disabled-2": colorParchment,
+          // backgrounds:
+          "bg-primary": colorPaper,
+          "bg-secondary": colorParchment,
+          "bg-tertiary": colorSepia,
+          "bg-card": colorParchment,
         },
         dark: {
           primary: colorDarkAccent,
           secondary: colorDarkCard,
-          tertiary: "#3B352E",
+          tertiary: colorDarkBg,
           brand: colorDarkAccent,
           neutral: colorDarkText,
           info: colorDarkMuted,
@@ -87,18 +109,23 @@ module.exports = {
           "c-hover": colorDarkText,
           "c-pressed": colorDarkMuted,
           "c-disabled-1": colorDarkMuted,
-          "c-disabled-2": "#3B352E",
+          "c-disabled-2": colorDarkCard,
           "c-error": colorDarkAccent,
           // icons:
           "i-primary": colorDarkMuted,
-          "i-secondary": "#3B352E",
+          "i-secondary": colorDarkCard,
           "i-tertiary": colorDarkText,
           // fonts:
           "f-primary": colorDarkText,
-          "f-secondary": "#3B352E",
+          "f-secondary": colorDarkCard,
           "f-tertiary": colorDarkMuted,
           "f-disabled-1": colorDarkMuted,
-          "f-disabled-2": "#3B352E",
+          "f-disabled-2": colorDarkCard,
+          // backgrounds:
+          "bg-primary": colorDarkBg,
+          "bg-secondary": colorDarkCard,
+          "bg-tertiary": colorDarkBg,
+          "bg-card": colorDarkCard,
         },
       },
       { defaultTheme: "light" }
@@ -108,33 +135,33 @@ module.exports = {
         ".mas-banner": {
           fontSize: "42px",
           fontWeight: "700",
-          fontFamily: theme("fontFamily.serif"),
+          fontFamily: theme("fontFamily.display"),
           lineHeight: "1.2",
           letterSpacing: "-0.02em",
         },
         ".mas-title": {
           fontSize: "36px",
           fontWeight: "700",
-          fontFamily: theme("fontFamily.serif"),
+          fontFamily: theme("fontFamily.display"),
           lineHeight: "1.3",
           letterSpacing: "-0.01em",
         },
         ".mas-subtitle": {
           fontSize: "24px",
           fontWeight: "600",
-          fontFamily: theme("fontFamily.serif"),
+          fontFamily: theme("fontFamily.display"),
           lineHeight: "1.4",
         },
         ".mas-h2": {
           fontSize: "20px",
           fontWeight: "600",
-          fontFamily: theme("fontFamily.serif"),
+          fontFamily: theme("fontFamily.display"),
           lineHeight: "1.4",
         },
         ".mas-h3": {
           fontSize: "16px",
           fontWeight: "600",
-          fontFamily: theme("fontFamily.serif"),
+          fontFamily: theme("fontFamily.display"),
           lineHeight: "1.5",
         },
         ".mas-buttons": {
@@ -158,13 +185,13 @@ module.exports = {
         ".mas-body": {
           fontSize: "16px",
           fontWeight: "400",
-          fontFamily: theme("fontFamily.serif"),
+          fontFamily: theme("fontFamily.sans"),
           lineHeight: "1.6",
         },
         ".mas-body2": {
           fontSize: "14px",
           fontWeight: "400",
-          fontFamily: theme("fontFamily.serif"),
+          fontFamily: theme("fontFamily.sans"),
           lineHeight: "1.6",
         },
         ".mas-caption": {
