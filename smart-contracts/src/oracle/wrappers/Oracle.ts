@@ -155,10 +155,16 @@ export class Oracle extends SmartContract {
   }
 
   async setMasOgAddress(
-    masOgConract = getContracts().masOg,
+    masOgContract = getContracts().masOg,
   ): Promise<Operation> {
-    return this.call('setMasOgAddress', new Args().addString(masOgConract), {
+    return this.call('setMasOgAddress', new Args().addString(masOgContract), {
       coins: Mas.fromString('1'),
     });
+  }
+
+  async getMasOgAddress(): Promise<string> {
+    const result = await this.provider.readStorage(this.address, ['MASOG_KEY']);
+    console.log(result);
+    return bytesToStr(result[0]);
   }
 }

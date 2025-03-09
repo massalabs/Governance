@@ -24,16 +24,11 @@ export class RollEntry implements Serializable {
     const args = new Args(data, offset);
 
     const address = args.next<StaticArray<u8>>();
-    if (address.isErr()) {
-      return new Result(0, 'Error deserializing address.');
-    }
+    if (address.isErr()) return new Result(0, 'Error deserializing address.');
+    this.address = address.unwrap();
 
     const rolls = args.next<StaticArray<u8>>();
-    if (rolls.isErr()) {
-      return new Result(0, 'Error deserializing rolls.');
-    }
-
-    this.address = address.unwrap();
+    if (rolls.isErr()) return new Result(0, 'Error deserializing rolls.');
     this.rolls = rolls.unwrap();
 
     return new Result(args.offset);

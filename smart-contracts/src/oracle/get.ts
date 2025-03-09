@@ -5,10 +5,9 @@ import { getStakers } from './helper';
 import { MasOg } from '../masog/wrapper/MasOg';
 
 const provider = await getProvider();
-const providerMainnet = await getProvider(true);
+const providerMainnet = await getProvider(undefined, true);
 const oracle = await Oracle.init(provider);
 const masOg = MasOg.buildnet(provider);
-const decimal = await masOg.decimals();
 
 const recordedCycles = await oracle.getRecordedCycles();
 const cycle = recordedCycles[recordedCycles.length - 1];
@@ -30,7 +29,7 @@ for (let i = 0; i < 5; i++) {
       {
         Staker: stakers[i][0],
         Rolls: stakers[i][1],
-        MasOg: balance / BigInt(decimal),
+        MasOg: balance,
       },
     ],
     ['Staker', 'Rolls', 'MasOg'],
@@ -38,4 +37,4 @@ for (let i = 0; i < 5; i++) {
 }
 
 const masOgTotalSupply = await masOg.totalSupply();
-console.log('Total supply of MasOg:', masOgTotalSupply / BigInt(decimal));
+console.log('Total supply of MasOg:', masOgTotalSupply);

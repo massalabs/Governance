@@ -5,6 +5,7 @@ import {
   MRC20,
   Operation,
   Args,
+  Mas,
 } from '@massalabs/massa-web3';
 import { contracts, getContracts } from '../../config';
 
@@ -27,5 +28,11 @@ export class MasOg extends MRC20 {
 
   async refresh(coins: bigint, maxCycles = 0n): Promise<Operation> {
     return this.call('refresh', new Args().addI32(maxCycles), { coins });
+  }
+
+  async upgradeSC(bytecode: Uint8Array): Promise<Operation> {
+    return this.call('upgradeSC', bytecode, {
+      coins: Mas.fromString('1'),
+    });
   }
 }

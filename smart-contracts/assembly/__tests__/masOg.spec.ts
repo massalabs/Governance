@@ -5,7 +5,6 @@ import {
   byteToU8,
 } from '@massalabs/as-types';
 import {
-  changeCallStack,
   resetStorage,
   Storage,
   mockAdminContext,
@@ -29,6 +28,7 @@ import {
 } from '../contracts/rolls-oracle';
 import { RollEntry } from '../contracts/serializable/roll-entry';
 import { getRollsArgs } from './utils';
+import { setCallStack } from './helpers';
 
 const masOgOwner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
 const oracleOwner = 'AU1wN8rn4SkwYSTDF3dHFY4U28KtsqKL1NnEjDZhHnHEy6cEQm51';
@@ -43,10 +43,6 @@ let oracleAddress = '';
 let masOgAddress = '';
 
 const nbCycles = 2;
-
-export function setCallStack(user: string, contract: string): void {
-  changeCallStack(user + ' , ' + contract);
-}
 
 describe('masOg Token Contract Tests', () => {
   beforeAll(() => {
@@ -85,7 +81,7 @@ describe('masOg Token Contract Tests', () => {
     expect(bytesToString(name([]))).toBe('MASOG');
     expect(bytesToString(symbol([]))).toBe('MASOG');
     expect(bytesToU256(totalSupply([]))).toBe(u256.Zero);
-    expect(byteToU8(decimals([]))).toBe(<u8>9);
+    expect(byteToU8(decimals([]))).toBe(<u8>0);
   });
 
   test('Refresh', () => {

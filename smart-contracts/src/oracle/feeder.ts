@@ -17,7 +17,7 @@ const BATCH_SIZE_DELETE = 4000;
 
 // Initialize providers and oracle
 const provider = await getProvider();
-const providerMainnet = await getProvider(true);
+const providerMainnet = await getProvider(undefined, true);
 const oracle = await Oracle.init(provider);
 
 // Log initial account info

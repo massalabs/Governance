@@ -11,7 +11,7 @@ export const contracts = {
   [NetworkName.Buildnet]: {
     masOg: 'AS1RBDkKmg4DNxH4niuUZaec7rXe6qcbmZi8UeTFCBYp9zwxmBrF',
     oracle: 'AS1yUyqvqoQhEw1BEm6k2P3gHz1hvr4mLy5BwCujnTdiBNjYLPAs',
-    governance: 'AS1GovernanceAddress',
+    governance: 'AS1jZnxHqt184vzMmGRmmznayoqvXiz1WzCQVfa3VYmUEHN9sMUx',
   },
 };
 

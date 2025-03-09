@@ -7,7 +7,7 @@ https://forum.massa.community/t/first-step-towards-decentralized-governance/160/
 
 1. **Roll Oracle**: This contract manages the recording and deletion of roll data for stakers.
 2. **Token Soulbond**: This contract will manage soulbound tokens, which are non-transferable tokens tied to a specific address. (Not yet developed)
-3. **Voting System**: This contract will manage a decentralized voting system. (Not yet developed)
+3. **Governance**: This contract will manage a decentralized governance system. (Not yet developed)
 
 ## Build
 

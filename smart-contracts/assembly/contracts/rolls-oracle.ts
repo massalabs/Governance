@@ -36,7 +36,6 @@ export function constructor(_: StaticArray<u8>): void {
 
   Storage.set(ORACLE_LAST_RECORDED_CYCLE, u64ToBytes(0));
 
-  generateEvent('Oracle Contract Initialized');
   transferRemaining(Context.transferredCoins());
 }
 

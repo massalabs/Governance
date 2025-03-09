@@ -1,5 +1,5 @@
 import { Mas } from '@massalabs/massa-web3';
-import { MasOg } from '../masog/wrapper/MasOg';
+import { MasOg } from './wrapper/MasOg';
 import { getProvider } from '../utils';
 
 const provider = await getProvider();
