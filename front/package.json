@@ -12,9 +12,9 @@
   "dependencies": {
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.1",
-    "@massalabs/massa-web3": "^5.1.2-dev.20250220165642",
-    "@massalabs/react-ui-kit": "^1.0.3-dev.20250210094928",
-    "@massalabs/wallet-provider": "^3.1.2-dev.20250218144940",
+    "@massalabs/massa-web3": "^5.1.2-dev",
+    "@massalabs/react-ui-kit": "^1.0.3-dev",
+    "@massalabs/wallet-provider": "^3.1.2-dev",
     "clsx": "^2.1.0",
     "date-fns": "^3.3.1",
     "react": "^18.2.0",

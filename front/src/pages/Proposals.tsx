@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
-import { useGovernanceStore } from "../store/governanceStore";
+import { useGovernanceStore } from "../store/useGovernanceStore";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { ConnectButton } from "../components/ConnectWalletPopup";
 import {

@@ -13,7 +13,7 @@ import {
 } from "@massalabs/massa-web3";
 import { U64_t } from "@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64";
 import { RollEntry } from "../serializable/RollEntry";
-import { contracts, getContracts } from "../config";
+import { getContracts } from "../config";
 
 export const ROLLS_TAG = strToBytes("ROLLS");
 const RECORDED_CYCLES_TAG = strToBytes("RECORDED_CYCLES");

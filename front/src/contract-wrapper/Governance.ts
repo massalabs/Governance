@@ -12,7 +12,7 @@ import {
 } from "@massalabs/massa-web3";
 import { Proposal } from "../serializable/Proposal";
 import { Vote } from "../serializable/Vote";
-import { contracts, getContracts } from "../config";
+import { getContracts } from "../config";
 
 export type Upgradable = SmartContract & {
   upgradeSC: (
@@ -24,7 +24,6 @@ export type Upgradable = SmartContract & {
 const UPDATE_PROPOSAL_TAG = strToBytes("UPDATE_PROPOSAL_TAG");
 const UPDATE_VOTE_TAG = strToBytes("UPDATE_VOTE_TAG");
 const UPDATE_COUNTER_TAG = strToBytes("UPDATE_PROPOSAL_COUNTER");
-const UPDATE_PROPOSAL_ID_BY_STATUS_TAG = strToBytes("PROPOSAL_BY_STATUS_TAG");
 
 export class Governance extends SmartContract implements Upgradable {
   static async init(provider: Provider | PublicProvider): Promise<Governance> {
@@ -43,12 +42,12 @@ export class Governance extends SmartContract implements Upgradable {
     proposal: Proposal,
     options?: ReadSCOptions
   ): Promise<Operation> {
-    return await this.call(
+    return this.call(
       "submitUpdateProposal",
       new Args().addSerializable(proposal),
       {
         ...options,
-        coins: Mas.fromString("1001"),
+        coins: Mas.fromString("1"),
       }
     );
   }
@@ -58,7 +57,7 @@ export class Governance extends SmartContract implements Upgradable {
    * @param vote - The vote to cast
    */
   async vote(vote: Vote, options?: ReadSCOptions): Promise<Operation> {
-    return await this.call("vote", new Args().addSerializable(vote), {
+    return this.call("vote", new Args().addSerializable(vote), {
       ...options,
     });
   }
@@ -67,7 +66,7 @@ export class Governance extends SmartContract implements Upgradable {
    * Refreshes proposal statuses
    */
   async refresh(options?: ReadSCOptions): Promise<Operation> {
-    return await this.call("refresh", new Args(), options);
+    return this.call("refresh", new Args(), options);
   }
 
   /**
@@ -78,11 +77,7 @@ export class Governance extends SmartContract implements Upgradable {
     proposalId: bigint,
     options?: ReadSCOptions
   ): Promise<Operation> {
-    return await this.call(
-      "deleteProposal",
-      new Args().addU64(proposalId),
-      options
-    );
+    return this.call("deleteProposal", new Args().addU64(proposalId), options);
   }
 
   /**
@@ -93,14 +88,10 @@ export class Governance extends SmartContract implements Upgradable {
     masogAddress: string = getContracts().masOg,
     options?: ReadSCOptions
   ): Promise<Operation> {
-    return await this.call(
-      "setMasOgContract",
-      new Args().addString(masogAddress),
-      {
-        ...options,
-        coins: Mas.fromString("1"),
-      }
-    );
+    return this.call("setMasOgContract", new Args().addString(masogAddress), {
+      ...options,
+      coins: Mas.fromString("1"),
+    });
   }
 
   /**

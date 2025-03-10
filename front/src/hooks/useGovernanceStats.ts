@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useContractStore } from "../store/contractStore";
+import { useContractStore } from "../store/useContractStore";
 import { toast } from "@massalabs/react-ui-kit";
 import { bytesToStr } from "@massalabs/massa-web3";
 import { useAccountStore } from "@massalabs/react-ui-kit";
@@ -33,11 +33,9 @@ export const useGovernanceStats = () => {
         setLoading(true);
         setError(null);
 
-        // Get total proposals from counter
-        const totalProposals = await governance.getCounter();
-
         // Get all proposals to calculate active ones and total votes
-        const proposals = await governance.getProposals();
+        const proposals = await governance.public.getProposals();
+        const totalProposals = BigInt(proposals.length);
         const activeProposals = proposals.filter(
           (p) => bytesToStr(p.status) === "votingStatus"
         ).length;
@@ -57,7 +55,9 @@ export const useGovernanceStats = () => {
         let userVotingPower = 0n;
 
         if (connectedAccount && masOg) {
-          userMasogBalance = await masOg.balanceOf(connectedAccount.address);
+          userMasogBalance = await masOg.public.balanceOf(
+            connectedAccount.address
+          );
           // For now, voting power is equal to MASOG balance
           userVotingPower = userMasogBalance;
         }

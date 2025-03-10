@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
-import { useGovernanceStore } from "../store/governanceStore";
+import { useGovernanceStore } from "../store/useGovernanceStore";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { ConnectButton } from "../components/ConnectWalletPopup";
 

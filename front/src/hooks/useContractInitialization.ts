@@ -3,7 +3,7 @@ import {
   useAccountStore as useUIKitAccountStore,
   toast,
 } from "@massalabs/react-ui-kit";
-import { useContractStore } from "../store/contractStore";
+import { useContractStore } from "../store/useContractStore";
 import useAccountSync from "./useAccountSync";
 
 export const useContractInitialization = () => {

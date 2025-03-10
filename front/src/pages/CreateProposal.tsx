@@ -1,14 +1,24 @@
 import { useState, useEffect } from "react";
-import { useGovernanceStore } from "../store/governanceStore";
-import { toast } from "@massalabs/react-ui-kit";
+import { useGovernanceStore } from "../store/useGovernanceStore";
+import {
+  toast,
+  useAccountStore,
+  useWriteSmartContract,
+} from "@massalabs/react-ui-kit";
 import { CreateProposalParams } from "../types/governance";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { useContractStore } from "@/store/useContractStore";
+import { Args, Mas } from "@massalabs/massa-web3";
+import { Proposal } from "@/serializable/Proposal";
 
 const REQUIRED_MASOG = 1000n;
 
 export default function CreateProposal() {
   const { userMasogBalance, fetchUserBalance } = useGovernanceStore();
   const hasEnoughMasog = userMasogBalance >= REQUIRED_MASOG;
+  const { connectedAccount } = useAccountStore();
+  const { callSmartContract } = useWriteSmartContract(connectedAccount!);
+  const { governance } = useContractStore();
 
   useEffect(() => {
     fetchUserBalance(true); // Force refresh the balance
@@ -26,18 +36,33 @@ export default function CreateProposal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submission started");
 
+    if (!connectedAccount) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
+
+    if (!governance) {
+      toast.error("Governance contract not initialized");
+      return;
+    }
+
+    console.log("hasEnoughMasog", hasEnoughMasog);
     if (!hasEnoughMasog) {
-      throw new Error(
+      toast.error(
         `You need at least ${REQUIRED_MASOG} MASOG to create a proposal`
       );
+      return;
     }
 
     try {
       setLoading(true);
       // Validate forum link
-      if (!formData.forumPostLink.startsWith("https://forum.massa.net")) {
-        throw new Error("Forum post link must be from forum.massa.net");
+      console.log("Forum link:", formData.forumPostLink);
+      if (!formData.forumPostLink.startsWith("https://forum.massa.community")) {
+        console.log("Invalid forum link");
+        throw new Error("Forum post link must be from forum.massa.community");
       }
 
       // Validate parameter change JSON
@@ -54,12 +79,33 @@ export default function CreateProposal() {
             );
           }
           formData.parameterChange = parsed;
+          console.log("Parameter change parsed:", parsed);
         } catch (err) {
+          console.log(err);
           throw new Error("Invalid JSON in parameter change");
         }
       }
 
-      // TODO: Implement proposal creation
+      console.log("Creating proposal with data:", formData);
+      const proposal = Proposal.create(
+        formData.title,
+        formData.forumPostLink,
+        formData.summary,
+        formData.parameterChange ? JSON.stringify(formData.parameterChange) : ""
+      );
+
+      await callSmartContract(
+        "submitUpdateProposal",
+        governance!.private.address,
+        new Args().addSerializable(proposal).serialize(),
+        {
+          success: "Proposal created successfully",
+          pending: "Creating proposal...",
+          error: "Failed to create proposal",
+        },
+        Mas.fromString("1001")
+      );
+
       toast.success("Proposal created successfully!");
       setFormData({
         title: "",
@@ -69,6 +115,7 @@ export default function CreateProposal() {
       });
       setParameterChangeInput("");
     } catch (err) {
+      console.error("Error creating proposal:", err);
       toast.error(
         err instanceof Error ? err.message : "Failed to create proposal"
       );
