@@ -35,6 +35,7 @@ export const useContractInitialization = () => {
       if (!isInitialized) {
         try {
           // @ts-ignore TODO: fix this version related issue
+
           initializeContracts(connectedAccount);
         } catch (error) {
           console.error("Failed to initialize contracts:", error);

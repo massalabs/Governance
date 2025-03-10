@@ -31,16 +31,8 @@ export class Governance extends SmartContract implements Upgradable {
     return new Governance(provider, getContracts().governance);
   }
 
-  static mainnet(provider: Provider | PublicProvider): Governance {
-    return new Governance(provider, contracts.mainnet.governance);
-  }
-
-  static buildnet(provider: Provider | PublicProvider): Governance {
-    return new Governance(provider, contracts.buildnet.governance);
-  }
-
-  static local(provider: Provider | PublicProvider): Governance {
-    return new Governance(provider, contracts.buildnet.governance);
+  static async initPublic(publicProvider: PublicProvider): Promise<Governance> {
+    return new Governance(publicProvider, getContracts().governance);
   }
 
   /**

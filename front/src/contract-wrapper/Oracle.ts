@@ -36,16 +36,8 @@ export class Oracle extends SmartContract {
     return new Oracle(provider, getContracts().oracle);
   }
 
-  static mainnet(provider: Provider | PublicProvider): Oracle {
-    return new Oracle(provider, contracts.mainnet.oracle);
-  }
-
-  static buildnet(provider: Provider | PublicProvider): Oracle {
-    return new Oracle(provider, contracts.buildnet.oracle);
-  }
-
-  static local(provider: Provider | PublicProvider): Oracle {
-    return new Oracle(provider, contracts.buildnet.oracle);
+  static async initPublic(publicProvider: PublicProvider): Promise<Oracle> {
+    return new Oracle(publicProvider, getContracts().oracle);
   }
 
   async feedCycle(

@@ -91,7 +91,7 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
 
     try {
       set({ loading: true, error: null });
-      const fetchedProposals = await governance.getProposals();
+      const fetchedProposals = await governance.public.getProposals();
 
       // Transform proposals to include readable status and format numbers
       const formattedProposals: FormattedProposal[] = fetchedProposals.map(
@@ -147,10 +147,10 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
       set({ loading: true, error: null });
 
       // Get total proposals from counter
-      const totalProposals = await governance.getCounter();
 
       // Get all proposals to calculate active ones and total votes
-      const proposals = await governance.getProposals();
+      const proposals = await governance.public.getProposals();
+      const totalProposals = BigInt(proposals.length);
       const activeProposals = proposals.filter(
         (p) => bytesToStr(p.status) === "votingStatus"
       ).length;
@@ -199,7 +199,9 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
 
     try {
       set({ loading: true, error: null });
-      const userMasogBalance = await masOg.balanceOf(connectedAccount.address);
+      const userMasogBalance = await masOg.public.balanceOf(
+        connectedAccount.address
+      );
       set({
         userMasogBalance,
         userVotingPower: userMasogBalance, // For now, voting power is equal to MASOG balance
