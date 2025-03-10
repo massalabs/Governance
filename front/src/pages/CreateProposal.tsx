@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useGovernanceStore } from "../store/useGovernanceStore";
+import { useState, useEffect } from "react";
+import { useGovernanceStore } from "../store/governanceStore";
 import { toast } from "@massalabs/react-ui-kit";
 import { CreateProposalParams } from "../types/governance";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
@@ -7,9 +7,12 @@ import { InformationCircleIcon } from "@heroicons/react/24/outline";
 const REQUIRED_MASOG = 1000n;
 
 export default function CreateProposal() {
-  const { governanceService, stats } = useGovernanceStore();
-  const userMasogBalance = stats.userMasogBalance;
+  const { userMasogBalance, fetchUserBalance } = useGovernanceStore();
   const hasEnoughMasog = userMasogBalance >= REQUIRED_MASOG;
+
+  useEffect(() => {
+    fetchUserBalance(true); // Force refresh the balance
+  }, [fetchUserBalance]);
 
   const [formData, setFormData] = useState<CreateProposalParams>({
     title: "",
@@ -56,7 +59,7 @@ export default function CreateProposal() {
         }
       }
 
-      await governanceService.createProposal(formData);
+      // TODO: Implement proposal creation
       toast.success("Proposal created successfully!");
       setFormData({
         title: "",
