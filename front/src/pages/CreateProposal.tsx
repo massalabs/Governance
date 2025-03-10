@@ -101,19 +101,19 @@ export default function CreateProposal() {
         className={`p-4 rounded-lg border ${
           hasEnoughMasog
             ? "bg-s-success/10 border-s-success/20"
-            : "bg-s-error/10 border-s-error/20"
+            : "bg-red-100 border-red-300"
         }`}
       >
         <div className="flex items-start gap-3">
           <InformationCircleIcon
             className={`h-5 w-5 mt-0.5 ${
-              hasEnoughMasog ? "text-s-success" : "text-s-error"
+              hasEnoughMasog ? "text-s-success" : "text-red-500"
             }`}
           />
           <div>
             <h2
               className={`text-sm font-medium mb-1 ${
-                hasEnoughMasog ? "text-s-success" : "text-s-error"
+                hasEnoughMasog ? "text-s-success" : "text-red-600"
               }`}
             >
               {hasEnoughMasog
@@ -121,7 +121,13 @@ export default function CreateProposal() {
                 : "Insufficient MASOG balance"}
             </h2>
             <p className="text-f-tertiary mas-body2">
-              Your balance: {userMasogBalance.toString()} MASOG
+              Your balance:{" "}
+              <span
+                className={!hasEnoughMasog ? "text-red-500 font-medium" : ""}
+              >
+                {userMasogBalance.toString()}
+              </span>{" "}
+              MASOG
               <br />
               Required balance: {REQUIRED_MASOG.toString()} MASOG
             </p>
