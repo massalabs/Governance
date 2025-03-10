@@ -106,7 +106,6 @@ export default function CreateProposal() {
         Mas.fromString("1001")
       );
 
-      toast.success("Proposal created successfully!");
       setFormData({
         title: "",
         forumPostLink: "",
@@ -116,9 +115,6 @@ export default function CreateProposal() {
       setParameterChangeInput("");
     } catch (err) {
       console.error("Error creating proposal:", err);
-      toast.error(
-        err instanceof Error ? err.message : "Failed to create proposal"
-      );
     } finally {
       setLoading(false);
     }
