@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { useUIStore } from "../store/useUIStore";
+import { useAccountStore } from "@massalabs/react-ui-kit";
 import ThemeToggle from "./ThemeToggle";
 import { ConnectButton } from "./ConnectWalletPopup";
 
 export default function Layout() {
   const { theme } = useUIStore();
+  const { connectedAccount } = useAccountStore();
 
   useEffect(() => {
     // Remove both theme classes first
@@ -22,20 +24,22 @@ export default function Layout() {
             <Link to="/" className="text-2xl font-bold text-brand mas-title">
               Governance
             </Link>
-            <div className="flex items-center space-x-4">
-              <Link
-                to="/proposals"
-                className="text-f-tertiary hover:text-brand transition-colors mas-menu-default"
-              >
-                Proposals
-              </Link>
-              <Link
-                to="/create"
-                className="text-f-tertiary hover:text-brand transition-colors mas-menu-default"
-              >
-                Create Proposal
-              </Link>
-            </div>
+            {connectedAccount && (
+              <div className="flex items-center space-x-4">
+                <Link
+                  to="/proposals"
+                  className="text-f-tertiary hover:text-brand transition-colors mas-menu-default"
+                >
+                  Proposals
+                </Link>
+                <Link
+                  to="/create"
+                  className="text-f-tertiary hover:text-brand transition-colors mas-menu-default"
+                >
+                  Create Proposal
+                </Link>
+              </div>
+            )}
           </div>
           <div className="flex items-center space-x-4">
             <ConnectButton />

@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
 import { useGovernanceStore } from "../store/governanceStore";
+import { useAccountStore } from "@massalabs/react-ui-kit";
+import { ConnectButton } from "../components/ConnectWalletPopup";
 
 export default function Home() {
   const {
@@ -14,13 +16,30 @@ export default function Home() {
     fetchStats,
     fetchUserBalance,
   } = useGovernanceStore();
+  const { connectedAccount } = useAccountStore();
 
   useEffect(() => {
-    const fetchData = async () => {
-      await Promise.all([fetchProposals(), fetchStats(), fetchUserBalance()]);
-    };
-    fetchData();
-  }, [fetchProposals, fetchStats, fetchUserBalance]);
+    if (connectedAccount) {
+      const fetchData = async () => {
+        await Promise.all([fetchProposals(), fetchStats(), fetchUserBalance()]);
+      };
+      fetchData();
+    }
+  }, [connectedAccount, fetchProposals, fetchStats, fetchUserBalance]);
+
+  if (!connectedAccount) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[80vh] space-y-6">
+        <h1 className="text-2xl font-bold text-f-primary mas-title">
+          Welcome to Massa Governance
+        </h1>
+        <p className="text-f-tertiary mas-body text-center max-w-md">
+          Connect your wallet to view and participate in governance proposals
+        </p>
+        <ConnectButton />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

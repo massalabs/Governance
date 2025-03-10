@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import { useGovernanceStore } from "../store/governanceStore";
+import { useAccountStore } from "@massalabs/react-ui-kit";
+import { ConnectButton } from "../components/ConnectWalletPopup";
 import {
-  CheckCircleIcon,
-  XCircleIcon,
   ClockIcon,
   CheckBadgeIcon,
   ChatBubbleLeftRightIcon,
@@ -39,10 +39,27 @@ const statusConfigs: Record<string, StatusConfig> = {
 
 export default function Proposals() {
   const { proposals, loading, fetchProposals } = useGovernanceStore();
+  const { connectedAccount } = useAccountStore();
 
   useEffect(() => {
-    fetchProposals();
-  }, [fetchProposals]);
+    if (connectedAccount) {
+      fetchProposals();
+    }
+  }, [fetchProposals, connectedAccount]);
+
+  if (!connectedAccount) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 space-y-6">
+        <h1 className="text-2xl font-bold text-f-primary mas-title">
+          Welcome to Governance
+        </h1>
+        <p className="text-f-tertiary mas-body text-center max-w-md">
+          Connect your wallet to view and participate in governance proposals
+        </p>
+        <ConnectButton />
+      </div>
+    );
+  }
 
   const isValidForumLink = (link: string) => {
     return link.startsWith("https://forum.massa.community/");

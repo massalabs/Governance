@@ -1,62 +1,72 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useStore } from "../store/useStore";
+import { useGovernanceStore } from "../store/useGovernanceStore";
+import { toast } from "@massalabs/react-ui-kit";
 import { CreateProposalParams } from "../types/governance";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
+const REQUIRED_MASOG = 1000n;
+
 export default function CreateProposal() {
-  const navigate = useNavigate();
-  const { account, votingPower, addProposal } = useStore();
+  const { governanceService, stats } = useGovernanceStore();
+  const userMasogBalance = stats.userMasogBalance;
+  const hasEnoughMasog = userMasogBalance >= REQUIRED_MASOG;
+
   const [formData, setFormData] = useState<CreateProposalParams>({
-    forumPostLink: "",
     title: "",
+    forumPostLink: "",
     summary: "",
     parameterChange: undefined,
   });
-  const [jsonInput, setJsonInput] = useState("");
-  const [jsonError, setJsonError] = useState<string | null>(null);
-  const [forumLinkError, setForumLinkError] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  const isValidForumLink = (link: string) => {
-    return link.startsWith("https://forum.massa.community/");
-  };
+  const [parameterChangeInput, setParameterChangeInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
+
+    if (!hasEnoughMasog) {
+      throw new Error(
+        `You need at least ${REQUIRED_MASOG} MASOG to create a proposal`
+      );
+    }
 
     try {
-      if (!account) {
-        throw new Error("Please connect your wallet first");
+      setLoading(true);
+      // Validate forum link
+      if (!formData.forumPostLink.startsWith("https://forum.massa.net")) {
+        throw new Error("Forum post link must be from forum.massa.net");
       }
 
-      if (votingPower < BigInt(1000)) {
-        throw new Error("Insufficient MASOG balance. Required: 1000");
-      }
-
-      if (!isValidForumLink(formData.forumPostLink)) {
-        throw new Error(
-          "Forum link must start with https://forum.massa.community/"
-        );
-      }
-
-      // Validate JSON one last time before submission
-      if (jsonInput && !jsonError) {
+      // Validate parameter change JSON
+      if (parameterChangeInput) {
         try {
-          const parsed = JSON.parse(jsonInput);
+          const parsed = JSON.parse(parameterChangeInput);
+          if (
+            typeof parsed !== "object" ||
+            !parsed.parameter ||
+            !parsed.value
+          ) {
+            throw new Error(
+              'Parameter change must be an object with "parameter" and "value" properties'
+            );
+          }
           formData.parameterChange = parsed;
         } catch (err) {
-          throw new Error("Invalid JSON format for parameter change");
+          throw new Error("Invalid JSON in parameter change");
         }
       }
 
-      const proposalId = await addProposal(formData);
-      navigate(`/proposals/${proposalId}`);
+      await governanceService.createProposal(formData);
+      toast.success("Proposal created successfully!");
+      setFormData({
+        title: "",
+        forumPostLink: "",
+        summary: "",
+        parameterChange: undefined,
+      });
+      setParameterChangeInput("");
     } catch (err) {
-      setError(
+      toast.error(
         err instanceof Error ? err.message : "Failed to create proposal"
       );
     } finally {
@@ -64,51 +74,13 @@ export default function CreateProposal() {
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    if (name === "parameterChange") {
-      setJsonInput(value);
-      if (value.trim() === "") {
-        setJsonError(null);
-        setFormData((prev) => ({ ...prev, parameterChange: undefined }));
-      } else {
-        try {
-          const parsed = JSON.parse(value);
-          setJsonError(null);
-          setFormData((prev) => ({ ...prev, parameterChange: parsed }));
-        } catch (err) {
-          setJsonError("Invalid JSON format");
-        }
-      }
-    } else if (name === "forumPostLink") {
-      setForumLinkError(
-        value && !isValidForumLink(value)
-          ? "Forum link must start with https://forum.massa.community/"
-          : null
-      );
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-  };
-
   const formatJson = () => {
     try {
-      const parsed = JSON.parse(jsonInput);
+      const parsed = JSON.parse(parameterChangeInput);
       const formatted = JSON.stringify(parsed, null, 2);
-      setJsonInput(formatted);
-      setJsonError(null);
-      setFormData((prev) => ({ ...prev, parameterChange: parsed }));
+      setParameterChangeInput(formatted);
     } catch (err) {
-      setJsonError("Cannot format invalid JSON");
+      toast.error("Cannot format invalid JSON");
     }
   };
 
@@ -122,11 +94,37 @@ export default function CreateProposal() {
         </p>
       </div>
 
-      {error && (
-        <div className="p-4 bg-s-error/10 text-s-error rounded-lg border border-s-error/20 mas-body2">
-          {error}
+      <div
+        className={`p-4 rounded-lg border ${
+          hasEnoughMasog
+            ? "bg-s-success/10 border-s-success/20"
+            : "bg-s-error/10 border-s-error/20"
+        }`}
+      >
+        <div className="flex items-start gap-3">
+          <InformationCircleIcon
+            className={`h-5 w-5 mt-0.5 ${
+              hasEnoughMasog ? "text-s-success" : "text-s-error"
+            }`}
+          />
+          <div>
+            <h2
+              className={`text-sm font-medium mb-1 ${
+                hasEnoughMasog ? "text-s-success" : "text-s-error"
+              }`}
+            >
+              {hasEnoughMasog
+                ? "You have enough MASOG to create a proposal"
+                : "Insufficient MASOG balance"}
+            </h2>
+            <p className="text-f-tertiary mas-body2">
+              Your balance: {userMasogBalance.toString()} MASOG
+              <br />
+              Required balance: {REQUIRED_MASOG.toString()} MASOG
+            </p>
+          </div>
         </div>
-      )}
+      </div>
 
       <div className="bg-secondary border border-border rounded-lg shadow-sm divide-y divide-border">
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -146,7 +144,9 @@ export default function CreateProposal() {
                 name="title"
                 id="title"
                 value={formData.title}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, title: e.target.value }))
+                }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg text-f-primary focus:outline-none focus:ring-2 focus:ring-brand/30 mas-body"
                 required
                 maxLength={100}
@@ -166,18 +166,16 @@ export default function CreateProposal() {
                 name="forumPostLink"
                 id="forumPostLink"
                 value={formData.forumPostLink}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 bg-background border rounded-lg text-f-primary focus:outline-none focus:ring-2 focus:ring-brand/30 mas-body ${
-                  forumLinkError ? "border-s-error" : "border-border"
-                }`}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    forumPostLink: e.target.value,
+                  }))
+                }
+                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-f-primary focus:outline-none focus:ring-2 focus:ring-brand/30 mas-body"
                 required
-                placeholder="https://forum.massa.community/your-proposal"
+                placeholder="https://forum.massa.net/..."
               />
-              {forumLinkError && (
-                <p className="mt-1 text-s-error mas-caption">
-                  {forumLinkError}
-                </p>
-              )}
             </div>
 
             <div>
@@ -192,7 +190,9 @@ export default function CreateProposal() {
                 id="summary"
                 rows={4}
                 value={formData.summary}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, summary: e.target.value }))
+                }
                 className="w-full px-4 py-2 bg-background border border-border rounded-lg text-f-primary focus:outline-none focus:ring-2 focus:ring-brand/30 mas-body resize-none"
                 required
                 maxLength={500}
@@ -235,24 +235,15 @@ export default function CreateProposal() {
                   name="parameterChange"
                   id="parameterChange"
                   rows={8}
-                  value={jsonInput}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 bg-background border rounded-lg font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand/30 ${
-                    jsonError
-                      ? "border-s-error text-s-error"
-                      : "border-border text-f-primary"
-                  }`}
+                  value={parameterChangeInput}
+                  onChange={(e) => setParameterChangeInput(e.target.value)}
+                  className="w-full px-4 py-3 bg-background border border-border rounded-lg font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand/30 text-f-primary"
                   placeholder='{
-  "parameter": "value",
-  "nested": {
-    "key": "value"
-  }
+  "parameter": "example_param",
+  "value": "example_value"
 }'
                   spellCheck="false"
                 />
-                {jsonError && (
-                  <p className="mt-1 text-s-error mas-caption">{jsonError}</p>
-                )}
               </div>
             </div>
           </div>
@@ -263,17 +254,17 @@ export default function CreateProposal() {
               <InformationCircleIcon className="h-5 w-5" />
               <div className="mas-body2">
                 <p>Cost: 1000 MAS</p>
-                <p>Required MASOG Balance: 1000</p>
+                <p>Required MASOG Balance: {REQUIRED_MASOG.toString()}</p>
               </div>
             </div>
             <button
               type="submit"
               className={`px-6 py-2 rounded-lg mas-buttons transition-all duration-200 ${
-                loading || !account || votingPower < BigInt(1000)
+                loading || !hasEnoughMasog
                   ? "bg-tertiary text-f-tertiary cursor-not-allowed"
                   : "bg-brand text-neutral hover:opacity-90 active-button"
               }`}
-              disabled={loading || !account || votingPower < BigInt(1000)}
+              disabled={loading || !hasEnoughMasog}
             >
               {loading ? "Creating..." : "Create Proposal"}
             </button>
