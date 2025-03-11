@@ -1,9 +1,6 @@
 import { create } from "zustand";
 import { useContractStore } from "./useContractStore";
-import {
-  useAccountStore,
-  useWriteSmartContract,
-} from "@massalabs/react-ui-kit";
+import { useAccountStore } from "@massalabs/react-ui-kit";
 import { bytesToStr } from "@massalabs/massa-web3";
 import { toast } from "@massalabs/react-ui-kit";
 
@@ -62,26 +59,27 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
   lastBalanceFetch: null,
 
   fetchProposals: async (force = false) => {
-    const state = get();
+    // const state = get();
     const now = Date.now();
 
-    // If we have data and it's not stale, and we're not forcing a refresh, return early
-    if (
-      !force &&
-      state.proposals.length > 0 &&
-      state.lastProposalsFetch &&
-      now - state.lastProposalsFetch < CACHE_DURATION
-    ) {
-      return;
-    }
+    // // If we have data and it's not stale, and we're not forcing a refresh, return early
+    // if (
+    //   !force &&
+    //   state.proposals.length > 0 &&
+    //   state.lastProposalsFetch &&
+    //   now - state.lastProposalsFetch < CACHE_DURATION
+    // ) {
+    //   return;
+    // }
 
     const { governance } = useContractStore.getState();
+    console.log(1, governance);
     if (!governance) return;
 
     try {
       set({ loading: true, error: null });
       const fetchedProposals = await governance.public.getProposals();
-
+      console.log(fetchedProposals);
       // Transform proposals to include readable status and format numbers
       const formattedProposals: FormattedProposal[] = fetchedProposals.map(
         (p) => ({

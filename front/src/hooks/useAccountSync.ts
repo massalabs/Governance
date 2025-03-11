@@ -21,26 +21,40 @@ const useAccountSync = () => {
     EMPTY_ACCOUNT
   );
 
-  const getStoredAccount = useCallback(async (address: string) => {
-    const wallets = await getWallets();
-    for (const wallet of wallets) {
-      const accounts = await wallet.accounts();
-      const matchingAccount = accounts.find((a) => a.address === address);
-      if (matchingAccount) {
-        return { account: matchingAccount, wallet, wallets };
+  const getStoredAccount = useCallback(
+    async (address: string, providerName: string) => {
+      try {
+        const wallets = await getWallets();
+        const targetWallet = wallets.find((w) => w.name() === providerName);
+
+        if (targetWallet) {
+          const accounts = await targetWallet.accounts();
+          const matchingAccount = accounts.find((a) => a.address === address);
+          if (matchingAccount) {
+            return { account: matchingAccount, wallet: targetWallet, wallets };
+          }
+        }
+        return null;
+      } catch (error) {
+        console.error("Error getting stored account:", error);
+        return null;
       }
-    }
-  }, []);
+    },
+    []
+  );
 
   const setAccountFromSaved = useCallback(async () => {
-    if (!savedAccount.address) return;
+    if (!savedAccount.address || !savedAccount.providerName) return;
 
-    const stored = await getStoredAccount(savedAccount.address);
+    const stored = await getStoredAccount(
+      savedAccount.address,
+      savedAccount.providerName
+    );
     if (stored) {
-      // @ts-ignore TODO: fix version mismatch between UI Kit and wallet-provider
-      setCurrentWallet(stored.wallet, stored.account);
+      // @ts-ignore Version mismatch between react-ui-kit and wallet-provider
+      await setCurrentWallet(stored.wallet, stored.account);
     }
-  }, [savedAccount.address, getStoredAccount, setCurrentWallet]);
+  }, [savedAccount, getStoredAccount, setCurrentWallet]);
 
   useEffect(() => {
     const shouldUpdateSavedAccount =

@@ -8,7 +8,7 @@ import { Governance } from "../contract-wrapper/Governance";
 import { Oracle } from "../contract-wrapper/Oracle";
 import { MasOg } from "../contract-wrapper/MasOg";
 
-interface ContractPair<T> {
+export interface ContractPair<T> {
   private: T;
   public: T;
 }

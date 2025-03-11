@@ -4,7 +4,6 @@ import {
   toast,
 } from "@massalabs/react-ui-kit";
 import { useContractStore } from "../store/useContractStore";
-import useAccountSync from "./useAccountSync";
 
 export const useContractInitialization = () => {
   const {
@@ -14,9 +13,6 @@ export const useContractInitialization = () => {
   } = useUIKitAccountStore();
   const { initializeContracts, resetContracts, isInitialized } =
     useContractStore();
-
-  // Initialize account sync
-  useAccountSync();
 
   // Initialize or reset contracts based on wallet connection
   useEffect(() => {
