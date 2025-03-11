@@ -22,7 +22,7 @@ export const useContractInitialization = () => {
     }
 
     if (connectedAccount && walletNetwork) {
-      // You can add network validation here if needed
+      // Add network validation here if needed
       // if (walletNetwork.name !== expectedNetwork) {
       //   toast.error(`Please switch your wallet to ${expectedNetwork} network`);
       //   return;
