@@ -17,29 +17,43 @@ interface StatusConfig {
 }
 
 const statusConfigs: Record<string, StatusConfig> = {
-  votingStatus: {
+  VOTING: {
     icon: ClockIcon,
     color: "text-brand",
     bgColor: "bg-brand/10",
     label: "Voting",
   },
-  executedStatus: {
+  ACTIVE: {
+    icon: ClockIcon,
+    color: "text-yellow-500",
+    bgColor: "bg-yellow-500/10",
+    label: "Active",
+  },
+  EXECUTED: {
     icon: CheckBadgeIcon,
     color: "text-s-success",
     bgColor: "bg-s-success/10",
     label: "Executed",
   },
-  discussionStatus: {
-    icon: ChatBubbleLeftRightIcon,
-    color: "text-f-tertiary",
-    bgColor: "bg-f-tertiary/10",
-    label: "Discussion",
+  EXPIRED: {
+    icon: ClockIcon,
+    color: "text-gray-500",
+    bgColor: "bg-gray-500/10",
+    label: "Expired",
+  },
+  CANCELLED: {
+    icon: CheckBadgeIcon,
+    color: "text-s-error",
+    bgColor: "bg-s-error/10",
+    label: "Cancelled",
   },
 };
 
 export default function Proposals() {
   const { proposals, loading, fetchProposals } = useGovernanceStore();
   const { connectedAccount } = useAccountStore();
+
+  console.log("First proposal:", proposals);
 
   useEffect(() => {
     if (connectedAccount) {
@@ -88,11 +102,18 @@ export default function Proposals() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {proposals.map((proposal) => {
-            const statusConfig = statusConfigs[proposal.status] || {
+            console.log("Proposal status:", {
+              original: proposal.status,
+              normalized: proposal.status.toUpperCase(),
+              availableConfigs: Object.keys(statusConfigs),
+              matchedConfig: statusConfigs[proposal.status.toUpperCase()],
+            });
+            const normalizedStatus = proposal.status.toUpperCase();
+            const statusConfig = statusConfigs[normalizedStatus] || {
               icon: ClockIcon,
               color: "text-f-tertiary",
               bgColor: "bg-f-tertiary/10",
-              label: proposal.status.replace("Status", ""),
+              label: proposal.status,
             };
             const StatusIcon = statusConfig.icon;
             const statusColor = statusConfig.color;

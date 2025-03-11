@@ -26,7 +26,8 @@
         "masog:upgrade-contract": "npm run build && tsx src/masog/upgrade-contract.ts",
         "governance:submit-proposal": "tsx src/governance/submit-proposal.ts",
         "governance:upgrade-contract": "npm run build && tsx src/governance/upgrade-contract.ts",
-        "governance:e2e": "tsx src/governance/e2e-test.ts"
+        "governance:e2e": "tsx src/governance/e2e-test.ts",
+        "governance:next-status": "tsx src/governance/next-status.ts"
     },
     "keywords": [],
     "author": "",

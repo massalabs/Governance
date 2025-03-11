@@ -11,7 +11,11 @@ import {
   _onlyOwner,
   _setOwner,
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
-import { UPDATE_PROPOSAL_COUNTER_TAG } from './governance-internals/keys';
+import {
+  proposalKey,
+  UPDATE_PROPOSAL_COUNTER_TAG,
+  votingStatus,
+} from './governance-internals/keys';
 import { MASOG_KEY } from './rolls-oracle';
 import { Proposal } from './serializable/proposal';
 import { Vote } from './serializable/vote';
@@ -115,6 +119,28 @@ export function deleteProposal(binaryArgs: StaticArray<u8>): void {
   _deleteProposal(proposalId);
 
   transferRemaining(initialBalance);
+}
+
+export function nextStatus(binaryArgs: StaticArray<u8>): void {
+  _onlyOwner();
+  // Update the status of a proposal to next status
+  const args = new Args(binaryArgs);
+  const proposalId = args.nextU64().expect('Proposal ID is required');
+
+  // get Proposal
+  assert(Storage.has(proposalKey(proposalId)), 'Proposal does not exist');
+  const proposal = Proposal.getById(proposalId);
+  proposal.setStatus(votingStatus).save();
+
+  // if (proposal.status === discussionStatus) {
+  //   proposal.setStatus(votingStatus).save();
+  // } else if (proposal.status === votingStatus) {
+  //   if (proposal.positiveVoteVolume > proposal.negativeVoteVolume) {
+  //     proposal.setStatus(acceptedStatus).save();
+  //   } else {
+  //     proposal.setStatus(rejectedStatus).save();
+  //   }
+  // }
 }
 
 export {
