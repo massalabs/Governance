@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef } from "react";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { useLocalStorage } from "@massalabs/react-ui-kit/src/lib/util/hooks/useLocalStorage";
 import { getWallets } from "@massalabs/wallet-provider";
+import { useContractStore } from "../store/useContractStore";
+import { useGovernanceStore } from "../store/useGovernanceStore";
 
 type SavedAccount = {
   address: string;
@@ -15,6 +17,8 @@ const EMPTY_ACCOUNT: SavedAccount = {
 
 const useAccountSync = () => {
   const { connectedAccount, setCurrentWallet } = useAccountStore();
+  const { initializeContracts } = useContractStore();
+  const { fetchProposals, fetchStats } = useGovernanceStore();
 
   const [savedAccount, setSavedAccount] = useLocalStorage<SavedAccount>(
     "saved-account",
@@ -51,10 +55,24 @@ const useAccountSync = () => {
       savedAccount.providerName
     );
     if (stored) {
-      // @ts-ignore Version mismatch between react-ui-kit and wallet-provider
-      await setCurrentWallet(stored.wallet, stored.account);
+      try {
+        // @ts-ignore Version mismatch between react-ui-kit and wallet-provider
+        await setCurrentWallet(stored.wallet, stored.account);
+        await initializeContracts(stored.account);
+        // Fetch initial governance data
+        await Promise.all([fetchProposals(), fetchStats()]);
+      } catch (error) {
+        console.error("Error initializing contracts:", error);
+      }
     }
-  }, [savedAccount, getStoredAccount, setCurrentWallet]);
+  }, [
+    savedAccount,
+    getStoredAccount,
+    setCurrentWallet,
+    initializeContracts,
+    fetchProposals,
+    fetchStats,
+  ]);
 
   useEffect(() => {
     const shouldUpdateSavedAccount =
