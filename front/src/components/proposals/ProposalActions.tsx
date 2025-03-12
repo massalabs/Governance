@@ -25,7 +25,7 @@ export function ProposalActions({
     return (
       <div className="flex items-center gap-2 text-s-success">
         <CheckCircleIcon className="h-5 w-5" />
-        <span className="mas-caption">Already Voted</span>
+        <span className="mas-caption">You already voted</span>
       </div>
     );
   }
