@@ -15,6 +15,20 @@ export interface CreateProposalParams {
   };
 }
 
+export interface FormattedProposal {
+  id: bigint;
+  title: string;
+  forumPostLink: string;
+  summary: string;
+  parameterChange: string;
+  status: string;
+  owner: string;
+  creationTimestamp: bigint;
+  positiveVoteVolume: bigint;
+  negativeVoteVolume: bigint;
+  blankVoteVolume: bigint;
+}
+
 export interface Proposal {
   id: bigint;
   creator: string;

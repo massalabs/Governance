@@ -3,7 +3,7 @@ import { Outlet, Link } from "react-router-dom";
 import { useUIStore } from "../store/useUIStore";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import ThemeToggle from "./ThemeToggle";
-import { ConnectButton } from "./ConnectWalletPopup";
+import { ConnectButton } from "./connect-wallet-popup";
 
 export default function Layout() {
   const { theme } = useUIStore();

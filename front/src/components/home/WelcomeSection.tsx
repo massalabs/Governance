@@ -1,4 +1,4 @@
-import { ConnectButton } from "../ConnectWalletPopup";
+import { ConnectButton } from "../connect-wallet-popup";
 
 interface WelcomeSectionProps {
   isConnected: boolean;
