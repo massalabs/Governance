@@ -233,8 +233,14 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
 
       const votesMap: { [proposalId: string]: Vote } = {};
       votes.forEach((vote) => {
-        votesMap[vote.proposalId.toString()] = vote;
+        votesMap[vote.id.toString()] = {
+          proposalId: vote.id,
+          value: vote.value,
+          comment: new Uint8Array(),
+        };
       });
+
+      console.log(votesMap);
 
       set({
         userVotes: votesMap,

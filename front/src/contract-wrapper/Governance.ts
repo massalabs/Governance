@@ -150,8 +150,8 @@ export class Governance extends SmartContract implements Upgradable {
         (id) =>
           new Uint8Array([
             ...UPDATE_VOTE_TAG,
-            ...strToBytes(address),
             ...U64.toBytes(id),
+            ...strToBytes(address),
           ])
       )
     );
