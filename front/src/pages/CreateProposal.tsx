@@ -21,7 +21,7 @@ export default function CreateProposal() {
   const { governance } = useContractStore();
 
   useEffect(() => {
-    fetchUserBalance(true); // Force refresh the balance
+    fetchUserBalance(); // Force refresh the balance
   }, [fetchUserBalance]);
 
   const [formData, setFormData] = useState<CreateProposalParams>({
@@ -36,21 +36,19 @@ export default function CreateProposal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submission started");
 
     if (!connectedAccount) {
-      toast.error("Please connect your wallet first");
+      console.error("Please connect your wallet first");
       return;
     }
 
     if (!governance) {
-      toast.error("Governance contract not initialized");
+      console.error("Governance contract not initialized");
       return;
     }
 
-    console.log("hasEnoughMasog", hasEnoughMasog);
     if (!hasEnoughMasog) {
-      toast.error(
+      console.error(
         `You need at least ${REQUIRED_MASOG} MASOG to create a proposal`
       );
       return;
@@ -59,9 +57,7 @@ export default function CreateProposal() {
     try {
       setLoading(true);
       // Validate forum link
-      console.log("Forum link:", formData.forumPostLink);
       if (!formData.forumPostLink.startsWith("https://forum.massa.community")) {
-        console.log("Invalid forum link");
         throw new Error("Forum post link must be from forum.massa.community");
       }
 
@@ -79,14 +75,12 @@ export default function CreateProposal() {
             );
           }
           formData.parameterChange = parsed;
-          console.log("Parameter change parsed:", parsed);
         } catch (err) {
-          console.log(err);
+          console.error(err);
           throw new Error("Invalid JSON in parameter change");
         }
       }
 
-      console.log("Creating proposal with data:", formData);
       const proposal = Proposal.create(
         formData.title,
         formData.forumPostLink,
@@ -126,7 +120,7 @@ export default function CreateProposal() {
       const formatted = JSON.stringify(parsed, null, 2);
       setParameterChangeInput(formatted);
     } catch (err) {
-      toast.error("Cannot format invalid JSON");
+      console.error("Cannot format invalid JSON");
     }
   };
 

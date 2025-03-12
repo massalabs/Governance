@@ -7,6 +7,7 @@ import {
   ClockIcon,
   CheckBadgeIcon,
   ChatBubbleLeftRightIcon,
+  CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import { Address } from "@massalabs/massa-web3";
 import VoteModal from "../components/VoteModal";
@@ -70,18 +71,26 @@ const statusConfigs: Record<string, StatusConfig> = {
 };
 
 export default function Proposals() {
-  const { proposals, loading, fetchProposals, userMasogBalance } =
-    useGovernanceStore();
+  const {
+    proposals,
+    loading,
+    fetchProposals,
+    userMasogBalance,
+    userVotes,
+    fetchUserVotes,
+  } = useGovernanceStore();
   const { connectedAccount } = useAccountStore();
   const { openVoteModal } = useUIStore();
 
-  console.log("First proposal:", proposals);
-
   useEffect(() => {
-    if (connectedAccount) {
-      fetchProposals();
-    }
-  }, [fetchProposals, connectedAccount]);
+    const fetchData = async () => {
+      if (connectedAccount) {
+        await Promise.all([fetchProposals(), fetchUserVotes()]);
+        console.log("User votes:", userVotes); // Debug log
+      }
+    };
+    fetchData();
+  }, [fetchProposals, fetchUserVotes, connectedAccount, userVotes]);
 
   if (!connectedAccount) {
     return (
@@ -124,12 +133,6 @@ export default function Proposals() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {proposals.map((proposal) => {
-            console.log("Proposal status:", {
-              original: proposal.status,
-              normalized: proposal.status.toUpperCase(),
-              availableConfigs: Object.keys(statusConfigs),
-              matchedConfig: statusConfigs[proposal.status.toUpperCase()],
-            });
             const normalizedStatus = proposal.status.toUpperCase();
             const statusConfig = statusConfigs[normalizedStatus] || {
               icon: ClockIcon,
@@ -144,6 +147,12 @@ export default function Proposals() {
             const hasValidForumLink = isValidForumLink(proposal.forumPostLink);
             const canVote =
               normalizedStatus === "VOTING" && userMasogBalance >= 1n;
+            const hasVoted = userVotes[proposal.id.toString()] !== undefined;
+            console.log(`Proposal ${proposal.id.toString()} vote status:`, {
+              hasVoted,
+              userVotes,
+              proposalId: proposal.id.toString(),
+            });
 
             return (
               <div
@@ -296,7 +305,12 @@ export default function Proposals() {
                   <div className="flex justify-end pt-4 border-t border-border">
                     {normalizedStatus === "VOTING" && (
                       <>
-                        {canVote ? (
+                        {hasVoted ? (
+                          <div className="flex items-center gap-2 text-s-success">
+                            <CheckCircleIcon className="h-5 w-5" />
+                            <span className="mas-caption">Already Voted</span>
+                          </div>
+                        ) : canVote ? (
                           <button
                             onClick={() => openVoteModal(proposal.id)}
                             className="px-4 py-2 bg-brand text-neutral rounded-lg hover:opacity-90 active-button mas-buttons"

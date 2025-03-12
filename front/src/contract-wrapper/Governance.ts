@@ -9,6 +9,7 @@ import {
   Mas,
   strToBytes,
   U64,
+  I32,
 } from "@massalabs/massa-web3";
 import { Proposal } from "../serializable/Proposal";
 import { Vote } from "../serializable/Vote";
@@ -139,21 +140,32 @@ export class Governance extends SmartContract implements Upgradable {
    * Gets all votes for a specific address
    * @param address - The address to get votes for
    */
-  async getVotes(address: string, final = false): Promise<Vote[]> {
-    const keys = await this.provider.getStorageKeys(
-      this.address,
-      new Args().addUint8Array(UPDATE_VOTE_TAG).addString(address).serialize()
+  async getVotes(
+    address: string,
+    ids: bigint[],
+    final = false
+  ): Promise<{ id: bigint; value: bigint }[]> {
+    const keys = await Promise.all(
+      ids.map(
+        (id) =>
+          new Uint8Array([
+            ...UPDATE_VOTE_TAG,
+            ...strToBytes(address),
+            ...U64.toBytes(id),
+          ])
+      )
     );
 
     const values = await this.provider.readStorage(this.address, keys, final);
 
     return values
-      .filter((value) => value !== null)
-      .map((value) => {
-        const vote = new Vote();
-        vote.deserialize(value as Uint8Array, 0);
-        return vote;
-      });
+      .map((value, index) => {
+        if (value === null) {
+          return null;
+        }
+        return { id: ids[index], value: I32.fromBytes(value) };
+      })
+      .filter((value) => value !== null);
   }
 
   /**

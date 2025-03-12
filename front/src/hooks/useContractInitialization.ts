@@ -24,7 +24,7 @@ export const useContractInitialization = () => {
     if (connectedAccount && walletNetwork) {
       // Add network validation here if needed
       // if (walletNetwork.name !== expectedNetwork) {
-      //   toast.error(`Please switch your wallet to ${expectedNetwork} network`);
+      //   console.error(`Please switch your wallet to ${expectedNetwork} network`);
       //   return;
       // }
 
@@ -35,7 +35,7 @@ export const useContractInitialization = () => {
           initializeContracts(connectedAccount);
         } catch (error) {
           console.error("Failed to initialize contracts:", error);
-          toast.error(
+          console.error(
             "Failed to initialize contracts. Please try reconnecting your wallet."
           );
         }

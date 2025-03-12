@@ -20,7 +20,6 @@ export default function Home() {
 
   useEffect(() => {
     if (connectedAccount) {
-      console.log(connectedAccount);
       const fetchData = async () => {
         await Promise.all([fetchProposals(), fetchStats(), fetchUserBalance()]);
       };

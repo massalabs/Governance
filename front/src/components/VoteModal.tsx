@@ -5,7 +5,6 @@ import { useGovernanceStore } from "../store/useGovernanceStore";
 import { useContractStore } from "../store/useContractStore";
 import {
   useAccountStore,
-  toast,
   useWriteSmartContract,
 } from "@massalabs/react-ui-kit";
 import { Vote } from "../serializable/Vote";

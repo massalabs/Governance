@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { useContractStore } from "./useContractStore";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { bytesToStr } from "@massalabs/massa-web3";
-import { toast } from "@massalabs/react-ui-kit";
 
 interface FormattedProposal {
   id: bigint;
@@ -25,19 +24,28 @@ interface GovernanceStats {
   totalVotes: bigint;
 }
 
+interface Vote {
+  proposalId: bigint;
+  value: bigint;
+  comment: Uint8Array;
+}
+
 interface GovernanceState {
   proposals: FormattedProposal[];
   stats: GovernanceStats;
   userMasogBalance: bigint;
   userVotingPower: bigint;
+  userVotes: { [proposalId: string]: Vote };
   loading: boolean;
   error: string | null;
   lastProposalsFetch: number | null;
   lastStatsFetch: number | null;
   lastBalanceFetch: number | null;
-  fetchProposals: (force?: boolean) => Promise<void>;
-  fetchStats: (force?: boolean) => Promise<void>;
-  fetchUserBalance: (force?: boolean) => Promise<void>;
+  lastVotesFetch: number | null;
+  fetchProposals: () => Promise<void>;
+  fetchStats: () => Promise<void>;
+  fetchUserBalance: () => Promise<void>;
+  fetchUserVotes: () => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -54,14 +62,21 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
   },
   userMasogBalance: 0n,
   userVotingPower: 0n,
+  userVotes: {},
   loading: false,
   error: null,
   lastProposalsFetch: null,
   lastStatsFetch: null,
   lastBalanceFetch: null,
+  lastVotesFetch: null,
 
   fetchProposals: async () => {
     const now = Date.now();
+    const lastFetch = get().lastProposalsFetch;
+
+    if (lastFetch && now - lastFetch < CACHE_DURATION) {
+      return;
+    }
 
     const { governance } = useContractStore.getState();
     if (!governance) return;
@@ -69,7 +84,6 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
     try {
       set({ loading: true, error: null });
       const fetchedProposals = await governance.public.getProposals();
-      console.log(fetchedProposals);
       // Transform proposals to include readable status and format numbers
       const formattedProposals: FormattedProposal[] = fetchedProposals.map(
         (p) => ({
@@ -98,7 +112,7 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
       const errorMessage =
         err instanceof Error ? err.message : "Failed to fetch proposals";
       set({ error: errorMessage });
-      toast.error(errorMessage);
+      console.error(errorMessage);
     } finally {
       set({ loading: false });
     }
@@ -155,7 +169,7 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
       const errorMessage =
         err instanceof Error ? err.message : "Failed to fetch governance stats";
       set({ error: errorMessage });
-      toast.error(errorMessage);
+      console.error(errorMessage);
     } finally {
       set({ loading: false });
     }
@@ -192,17 +206,54 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
       const errorMessage =
         err instanceof Error ? err.message : "Failed to fetch user balance";
       set({ error: errorMessage });
-      toast.error(errorMessage);
+      console.error(errorMessage);
     } finally {
       set({ loading: false });
     }
   },
 
+  fetchUserVotes: async () => {
+    const now = Date.now();
+    const lastFetch = get().lastVotesFetch;
+
+    if (lastFetch && now - lastFetch < CACHE_DURATION) {
+      return;
+    }
+
+    const { governance } = useContractStore.getState();
+    const { connectedAccount } = useAccountStore.getState();
+    if (!governance || !connectedAccount) return;
+    try {
+      // Get all proposal IDs from the current proposals
+      const proposalIds = get().proposals.map((p) => p.id);
+      const votes = await governance.public.getVotes(
+        connectedAccount.address,
+        proposalIds
+      );
+
+      const votesMap: { [proposalId: string]: Vote } = {};
+      votes.forEach((vote) => {
+        votesMap[vote.proposalId.toString()] = vote;
+      });
+
+      set({
+        userVotes: votesMap,
+        lastVotesFetch: now,
+      });
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch user votes";
+      set({ error: errorMessage });
+      console.error(errorMessage);
+    }
+  },
+
   refresh: async () => {
     await Promise.all([
-      get().fetchProposals(true),
-      get().fetchStats(true),
-      get().fetchUserBalance(true),
+      get().fetchProposals(),
+      get().fetchStats(),
+      get().fetchUserBalance(),
+      get().fetchUserVotes(),
     ]);
   },
 }));
@@ -211,12 +262,15 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
 useAccountStore.subscribe((state) => {
   const connectedAccount = state.connectedAccount;
   if (connectedAccount) {
-    useGovernanceStore.getState().fetchUserBalance(true);
+    useGovernanceStore.getState().fetchUserBalance();
+    useGovernanceStore.getState().fetchUserVotes();
   } else {
     // Reset user-related data when account is disconnected
     useGovernanceStore.setState({
       userMasogBalance: 0n,
       userVotingPower: 0n,
+      userVotes: {}, // Clear votes when disconnected
+      lastVotesFetch: null,
     });
   }
 });
