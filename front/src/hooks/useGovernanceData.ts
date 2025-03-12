@@ -9,20 +9,20 @@ export function useGovernanceData() {
     proposals,
     userMasogBalance,
     userVotingPower,
-    fetchProposals,
-    fetchStats,
-    fetchUserBalance,
+    fetchPublicData,
+    fetchUserData,
   } = useGovernanceStore();
   const { connectedAccount } = useAccountStore();
 
   useEffect(() => {
-    if (connectedAccount) {
-      const fetchData = async () => {
-        await Promise.all([fetchProposals(), fetchStats(), fetchUserBalance()]);
-      };
-      fetchData();
-    }
-  }, [connectedAccount, fetchProposals, fetchStats, fetchUserBalance]);
+    const fetchData = async () => {
+      await fetchPublicData();
+      if (connectedAccount) {
+        await fetchUserData();
+      }
+    };
+    fetchData();
+  }, [connectedAccount, fetchPublicData, fetchUserData]);
 
   return {
     stats,

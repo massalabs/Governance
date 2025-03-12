@@ -42,10 +42,8 @@ interface GovernanceState {
   lastStatsFetch: number | null;
   lastBalanceFetch: number | null;
   lastVotesFetch: number | null;
-  fetchProposals: () => Promise<void>;
-  fetchStats: () => Promise<void>;
-  fetchUserBalance: () => Promise<void>;
-  fetchUserVotes: () => Promise<void>;
+  fetchPublicData: () => Promise<void>;
+  fetchUserData: () => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -70,7 +68,7 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
   lastBalanceFetch: null,
   lastVotesFetch: null,
 
-  fetchProposals: async () => {
+  fetchPublicData: async () => {
     const now = Date.now();
     const lastFetch = get().lastProposalsFetch;
 
@@ -84,9 +82,9 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
     try {
       set({ loading: true, error: null });
       const fetchedProposals = await governance.public.getProposals();
-      // Transform proposals to include readable status and format numbers
+
       const formattedProposals: FormattedProposal[] = fetchedProposals.map(
-        (p) => ({
+        (p: any) => ({
           id: p.id,
           title: bytesToStr(p.title),
           forumPostLink: bytesToStr(p.forumPostLink),
@@ -101,182 +99,118 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
         })
       );
 
-      // Sort by ID in descending order (newest first)
       formattedProposals.sort((a, b) => Number(b.id - a.id));
 
-      set({
-        proposals: formattedProposals,
-        lastProposalsFetch: now,
-      });
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to fetch proposals";
-      set({ error: errorMessage });
-      console.error(errorMessage);
-    } finally {
-      set({ loading: false });
-    }
-  },
-
-  fetchStats: async (force = false) => {
-    const state = get();
-    const now = Date.now();
-
-    // If we have data and it's not stale, and we're not forcing a refresh, return early
-    if (
-      !force &&
-      state.lastStatsFetch &&
-      now - state.lastStatsFetch < CACHE_DURATION
-    ) {
-      return;
-    }
-
-    const { governance } = useContractStore.getState();
-    if (!governance) return;
-
-    try {
-      set({ loading: true, error: null });
-
-      // Get all proposals to calculate active ones and total votes
-      const proposals = await governance.public.getProposals();
-      const totalProposals = BigInt(proposals.length);
-      const votingProposals = proposals.filter(
-        (p) => bytesToStr(p.status) === "VOTING"
+      // Calculate stats from the proposals
+      const totalProposals = BigInt(formattedProposals.length);
+      const votingProposals = formattedProposals.filter(
+        (p) => p.status.toUpperCase() === "VOTING"
       ).length;
-
-      const discussionProposals = proposals.filter(
-        (p) => bytesToStr(p.status) === "DISCUSSION"
+      const discussionProposals = formattedProposals.filter(
+        (p) => p.status.toUpperCase() === "DISCUSSION"
       ).length;
-
-      // Calculate total votes
-      // TODO: Get total votes from the contract
-      const totalVotes = proposals.reduce(
+      const totalVotes = formattedProposals.reduce(
         (acc, p) =>
           acc + p.positiveVoteVolume + p.negativeVoteVolume + p.blankVoteVolume,
         0n
       );
 
       set({
+        proposals: formattedProposals,
         stats: {
           totalProposals,
           votingProposals: BigInt(votingProposals),
           discussionProposals: BigInt(discussionProposals),
           totalVotes,
         },
+        lastProposalsFetch: now,
         lastStatsFetch: now,
       });
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to fetch governance stats";
-      set({ error: errorMessage });
-      console.error(errorMessage);
+      console.error("Failed to fetch public data:", err);
     } finally {
       set({ loading: false });
     }
   },
 
-  fetchUserBalance: async (force = false) => {
-    const state = get();
-    const now = Date.now();
-
-    // If we have data and it's not stale, and we're not forcing a refresh, return early
-    if (
-      !force &&
-      state.lastBalanceFetch &&
-      now - state.lastBalanceFetch < BALANCE_CACHE_DURATION
-    ) {
-      return;
-    }
-
-    const { masOg } = useContractStore.getState();
+  fetchUserData: async () => {
     const { connectedAccount } = useAccountStore.getState();
-    if (!connectedAccount || !masOg) return;
+    const { governance, masOg } = useContractStore.getState();
+    if (!connectedAccount || !governance || !masOg) return;
 
     try {
-      set({ loading: true, error: null });
-      const userMasogBalance = await masOg.public.balanceOf(
-        connectedAccount.address
-      );
-      set({
-        userMasogBalance,
-        userVotingPower: userMasogBalance, // For now, voting power is equal to MASOG balance
-        lastBalanceFetch: now,
-      });
+      // Fetch user balance
+      const now = Date.now();
+      const lastBalanceFetch = get().lastBalanceFetch;
+      if (
+        !lastBalanceFetch ||
+        now - lastBalanceFetch >= BALANCE_CACHE_DURATION
+      ) {
+        const userMasogBalance = await masOg.public.balanceOf(
+          connectedAccount.address
+        );
+        set({
+          userMasogBalance,
+          userVotingPower: userMasogBalance,
+          lastBalanceFetch: now,
+        });
+      }
+
+      // Fetch user votes
+      const lastVotesFetch = get().lastVotesFetch;
+      if (!lastVotesFetch || now - lastVotesFetch >= CACHE_DURATION) {
+        const proposalIds = get().proposals.map((p) => p.id);
+        const votes = await governance.public.getVotes(
+          connectedAccount.address,
+          proposalIds
+        );
+
+        const votesMap: { [proposalId: string]: Vote } = {};
+        votes.forEach((vote) => {
+          votesMap[vote.id.toString()] = {
+            proposalId: vote.id,
+            value: vote.value,
+            comment: new Uint8Array(),
+          };
+        });
+
+        set({
+          userVotes: votesMap,
+          lastVotesFetch: now,
+        });
+      }
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to fetch user balance";
-      set({ error: errorMessage });
-      console.error(errorMessage);
-    } finally {
-      set({ loading: false });
-    }
-  },
-
-  fetchUserVotes: async () => {
-    const now = Date.now();
-    const lastFetch = get().lastVotesFetch;
-
-    if (lastFetch && now - lastFetch < CACHE_DURATION) {
-      return;
-    }
-
-    const { governance } = useContractStore.getState();
-    const { connectedAccount } = useAccountStore.getState();
-    if (!governance || !connectedAccount) return;
-    try {
-      // Get all proposal IDs from the current proposals
-      const proposalIds = get().proposals.map((p) => p.id);
-      const votes = await governance.public.getVotes(
-        connectedAccount.address,
-        proposalIds
-      );
-
-      const votesMap: { [proposalId: string]: Vote } = {};
-      votes.forEach((vote) => {
-        votesMap[vote.id.toString()] = {
-          proposalId: vote.id,
-          value: vote.value,
-          comment: new Uint8Array(),
-        };
-      });
-
-      console.log(votesMap);
-
-      set({
-        userVotes: votesMap,
-        lastVotesFetch: now,
-      });
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to fetch user votes";
-      set({ error: errorMessage });
-      console.error(errorMessage);
+      console.error("Failed to fetch user data:", err);
     }
   },
 
   refresh: async () => {
-    await Promise.all([
-      get().fetchProposals(),
-      get().fetchStats(),
-      get().fetchUserBalance(),
-      get().fetchUserVotes(),
-    ]);
+    await get().fetchPublicData();
+    const { connectedAccount } = useAccountStore.getState();
+    if (connectedAccount) {
+      await get().fetchUserData();
+    }
   },
 }));
 
-// Subscribe to account changes
+// Initialize public data when the store is created
+useContractStore.subscribe((state) => {
+  if (state.governance) {
+    useGovernanceStore.getState().fetchPublicData();
+  }
+});
+
+// Subscribe to account changes for user data
 useAccountStore.subscribe((state) => {
-  const connectedAccount = state.connectedAccount;
-  if (connectedAccount) {
-    useGovernanceStore.getState().fetchUserBalance();
-    useGovernanceStore.getState().fetchUserVotes();
+  if (state.connectedAccount) {
+    useGovernanceStore.getState().fetchUserData();
   } else {
-    // Reset user-related data when account is disconnected
     useGovernanceStore.setState({
       userMasogBalance: 0n,
       userVotingPower: 0n,
-      userVotes: {}, // Clear votes when disconnected
+      userVotes: {},
       lastVotesFetch: null,
+      lastBalanceFetch: null,
     });
   }
 });

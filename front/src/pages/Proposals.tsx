@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
+
 import { useGovernanceStore } from "../store/useGovernanceStore";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { ConnectButton } from "../components/connect-wallet-popup";
@@ -7,24 +7,9 @@ import VoteModal from "../components/VoteModal";
 import { ProposalCard } from "../components/proposals/ProposalCard";
 
 export default function Proposals() {
-  const {
-    proposals,
-    loading,
-    fetchProposals,
-    userMasogBalance,
-    userVotes,
-    fetchUserVotes,
-  } = useGovernanceStore();
+  const { proposals, loading, userMasogBalance, userVotes } =
+    useGovernanceStore();
   const { connectedAccount } = useAccountStore();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (connectedAccount) {
-        await Promise.all([fetchProposals(), fetchUserVotes()]);
-      }
-    };
-    fetchData();
-  }, [fetchProposals, fetchUserVotes, connectedAccount]);
 
   if (!connectedAccount) {
     return (

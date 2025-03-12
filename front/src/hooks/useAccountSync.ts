@@ -18,7 +18,7 @@ const EMPTY_ACCOUNT: SavedAccount = {
 const useAccountSync = () => {
   const { connectedAccount, setCurrentWallet } = useAccountStore();
   const { initializeContracts } = useContractStore();
-  const { fetchProposals, fetchStats } = useGovernanceStore();
+  const { fetchPublicData } = useGovernanceStore();
 
   const [savedAccount, setSavedAccount] = useLocalStorage<SavedAccount>(
     "saved-account",
@@ -60,7 +60,7 @@ const useAccountSync = () => {
         await setCurrentWallet(stored.wallet, stored.account);
         await initializeContracts(stored.account);
         // Fetch initial governance data
-        await Promise.all([fetchProposals(), fetchStats()]);
+        await fetchPublicData();
       } catch (error) {
         console.error("Error initializing contracts:", error);
       }
@@ -70,8 +70,7 @@ const useAccountSync = () => {
     getStoredAccount,
     setCurrentWallet,
     initializeContracts,
-    fetchProposals,
-    fetchStats,
+    fetchPublicData,
   ]);
 
   useEffect(() => {
