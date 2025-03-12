@@ -66,10 +66,10 @@ export default function Home() {
 
         <div className="bg-secondary border border-border p-6 rounded-lg shadow-sm">
           <h2 className="text-lg font-semibold text-f-primary mb-2 mas-h2">
-            Active Proposals
+            Pending
           </h2>
           <p className="text-3xl font-bold text-brand">
-            {loading ? "..." : stats.activeProposals.toString()}
+            {loading ? "..." : stats.votingProposals.toString()}
           </p>
         </div>
 

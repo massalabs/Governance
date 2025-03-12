@@ -61,7 +61,7 @@ export interface ProposalSort {
 
 export interface GovernanceStats {
   totalProposals: bigint;
-  activeProposals: bigint;
+  votingProposals: bigint;
   totalVotes: bigint;
   totalMasogSupply: bigint;
   userMasogBalance: bigint;

@@ -131,16 +131,6 @@ export function nextStatus(binaryArgs: StaticArray<u8>): void {
   assert(Storage.has(proposalKey(proposalId)), 'Proposal does not exist');
   const proposal = Proposal.getById(proposalId);
   proposal.setStatus(votingStatus).save();
-
-  // if (proposal.status === discussionStatus) {
-  //   proposal.setStatus(votingStatus).save();
-  // } else if (proposal.status === votingStatus) {
-  //   if (proposal.positiveVoteVolume > proposal.negativeVoteVolume) {
-  //     proposal.setStatus(acceptedStatus).save();
-  //   } else {
-  //     proposal.setStatus(rejectedStatus).save();
-  //   }
-  // }
 }
 
 export {

@@ -20,7 +20,8 @@ interface FormattedProposal {
 
 interface GovernanceStats {
   totalProposals: bigint;
-  activeProposals: bigint;
+  votingProposals: bigint;
+  discussionProposals: bigint;
   totalVotes: bigint;
 }
 
@@ -47,7 +48,8 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
   proposals: [],
   stats: {
     totalProposals: 0n,
-    activeProposals: 0n,
+    votingProposals: 0n,
+    discussionProposals: 0n,
     totalVotes: 0n,
   },
   userMasogBalance: 0n,
@@ -58,22 +60,10 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
   lastStatsFetch: null,
   lastBalanceFetch: null,
 
-  fetchProposals: async (force = false) => {
-    // const state = get();
+  fetchProposals: async () => {
     const now = Date.now();
 
-    // // If we have data and it's not stale, and we're not forcing a refresh, return early
-    // if (
-    //   !force &&
-    //   state.proposals.length > 0 &&
-    //   state.lastProposalsFetch &&
-    //   now - state.lastProposalsFetch < CACHE_DURATION
-    // ) {
-    //   return;
-    // }
-
     const { governance } = useContractStore.getState();
-    console.log(1, governance);
     if (!governance) return;
 
     try {
@@ -133,16 +123,19 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
     try {
       set({ loading: true, error: null });
 
-      // Get total proposals from counter
-
       // Get all proposals to calculate active ones and total votes
       const proposals = await governance.public.getProposals();
       const totalProposals = BigInt(proposals.length);
-      const activeProposals = proposals.filter(
-        (p) => bytesToStr(p.status) === "votingStatus"
+      const votingProposals = proposals.filter(
+        (p) => bytesToStr(p.status) === "VOTING"
+      ).length;
+
+      const discussionProposals = proposals.filter(
+        (p) => bytesToStr(p.status) === "DISCUSSION"
       ).length;
 
       // Calculate total votes
+      // TODO: Get total votes from the contract
       const totalVotes = proposals.reduce(
         (acc, p) =>
           acc + p.positiveVoteVolume + p.negativeVoteVolume + p.blankVoteVolume,
@@ -152,7 +145,8 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
       set({
         stats: {
           totalProposals,
-          activeProposals: BigInt(activeProposals),
+          votingProposals: BigInt(votingProposals),
+          discussionProposals: BigInt(discussionProposals),
           totalVotes,
         },
         lastStatsFetch: now,

@@ -8,6 +8,26 @@ import {
   CheckBadgeIcon,
   ChatBubbleLeftRightIcon,
 } from "@heroicons/react/24/outline";
+import { Address } from "@massalabs/massa-web3";
+import VoteModal from "../components/VoteModal";
+import { useUIStore } from "../store/useUIStore";
+
+export const truncateAddress = (
+  address?: string,
+  startLength = 6,
+  endLength = 4
+) => {
+  if (!address) return "";
+  return `${address.slice(0, startLength)}...${address.slice(-endLength)}`;
+};
+
+export const isValidAddress = (address: string): boolean => {
+  try {
+    return Address.fromString(address).isEOA;
+  } catch (error) {
+    return false;
+  }
+};
 
 interface StatusConfig {
   icon: typeof ClockIcon;
@@ -50,8 +70,10 @@ const statusConfigs: Record<string, StatusConfig> = {
 };
 
 export default function Proposals() {
-  const { proposals, loading, fetchProposals } = useGovernanceStore();
+  const { proposals, loading, fetchProposals, userMasogBalance } =
+    useGovernanceStore();
   const { connectedAccount } = useAccountStore();
+  const { openVoteModal } = useUIStore();
 
   console.log("First proposal:", proposals);
 
@@ -120,6 +142,8 @@ export default function Proposals() {
             const statusBgColor = statusConfig.bgColor;
             const statusLabel = statusConfig.label;
             const hasValidForumLink = isValidForumLink(proposal.forumPostLink);
+            const canVote =
+              normalizedStatus === "VOTING" && userMasogBalance >= 1n;
 
             return (
               <div
@@ -152,7 +176,7 @@ export default function Proposals() {
 
                   {/* Basic Info Section */}
                   <div className="flex items-center gap-4 text-f-tertiary mas-caption">
-                    <span>Created by: {proposal.owner}</span>
+                    <span>Created by: {truncateAddress(proposal.owner)}</span>
                     <span>•</span>
                     <span>
                       {new Date(
@@ -270,12 +294,24 @@ export default function Proposals() {
 
                   {/* Action Section */}
                   <div className="flex justify-end pt-4 border-t border-border">
-                    <Link
-                      to={`/proposals/${proposal.id}`}
-                      className="px-4 py-2 bg-secondary text-f-primary rounded-lg hover:bg-tertiary active-button mas-buttons"
-                    >
-                      View Details
-                    </Link>
+                    {normalizedStatus === "VOTING" && (
+                      <>
+                        {canVote ? (
+                          <button
+                            onClick={() => openVoteModal(proposal.id)}
+                            className="px-4 py-2 bg-brand text-neutral rounded-lg hover:opacity-90 active-button mas-buttons"
+                          >
+                            Vote
+                          </button>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span className="text-s-error mas-caption">
+                              Minimum 1 MASOG required to vote
+                            </span>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -283,6 +319,7 @@ export default function Proposals() {
           })}
         </div>
       )}
+      <VoteModal />
     </div>
   );
 }
