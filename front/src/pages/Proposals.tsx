@@ -1,15 +1,34 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 import { useGovernanceStore } from "../store/useGovernanceStore";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { ConnectButton } from "../components/connect-wallet-popup";
 import VoteModal from "../components/VoteModal";
 import { ProposalCard } from "../components/proposals/ProposalCard";
+import { ProposalFilters } from "../components/proposals/ProposalFilters";
+import { ProposalStatus } from "../types/governance";
+import { useGovernanceData } from "../hooks/useGovernanceData";
 
 export default function Proposals() {
-  const { proposals, loading, userMasogBalance, userVotes } =
-    useGovernanceStore();
+  const { loading, userMasogBalance, userVotes } = useGovernanceStore();
+
   const { connectedAccount } = useAccountStore();
+
+  const { proposals: allProposals } = useGovernanceData();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<ProposalStatus | "all">(
+    "all"
+  );
+
+  const filteredProposals = allProposals.filter((proposal) => {
+    const matchesSearch = proposal.title
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      selectedStatus === "all" || proposal.status === selectedStatus;
+    return matchesSearch && matchesStatus;
+  });
 
   if (!connectedAccount) {
     return (
@@ -37,17 +56,24 @@ export default function Proposals() {
         </Link>
       </div>
 
+      <ProposalFilters
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        selectedStatus={selectedStatus}
+        onStatusChange={setSelectedStatus}
+      />
+
       {loading ? (
         <div className="text-center py-8 text-f-tertiary">
           Loading proposals...
         </div>
-      ) : proposals.length === 0 ? (
+      ) : filteredProposals.length === 0 ? (
         <div className="text-center py-8 text-f-tertiary">
-          No proposals found
+          No proposals found matching your criteria.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {proposals.map((proposal) => (
+          {filteredProposals.map((proposal) => (
             <ProposalCard
               key={proposal.id.toString()}
               proposal={proposal}
