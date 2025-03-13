@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { CreateProposalParams } from "../types/governance";
 import { Proposal } from "../serializable/Proposal";
+import {
+  useAccountStore,
+  useWriteSmartContract,
+} from "@massalabs/react-ui-kit";
 
 export const REQUIRED_MASOG = 1000n;
 
@@ -12,6 +16,8 @@ export function useCreateProposal() {
   });
   const [parameterChangeInput, setParameterChangeInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const { connectedAccount } = useAccountStore();
+  const { callSmartContract } = useWriteSmartContract(connectedAccount!);
 
   // Mock values for now - these should be fetched from your wallet/chain
   const userMasogBalance = 2000n;
@@ -39,9 +45,6 @@ export function useCreateProposal() {
         formData.summary,
         parameterChangeInput || "{}"
       );
-
-      // Implementation for submitting proposal would go here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Mock delay
     } finally {
       setLoading(false);
     }

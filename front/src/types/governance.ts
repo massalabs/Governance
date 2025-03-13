@@ -22,8 +22,6 @@ export interface FormattedProposal {
   forumPostLink?: string;
   owner: string;
   creationTimestamp: bigint;
-  endTimestamp: bigint;
-  requiredScore: bigint;
   positiveVoteVolume: bigint;
   negativeVoteVolume: bigint;
   blankVoteVolume: bigint;

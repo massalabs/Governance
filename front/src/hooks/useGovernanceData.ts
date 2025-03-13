@@ -5,10 +5,13 @@ import {
 } from "@massalabs/react-ui-kit";
 import { useContractStore } from "../store/useContractStore";
 import { bytesToStr, Args, Mas, strToBytes } from "@massalabs/massa-web3";
-import { FormattedProposal, GovernanceStats } from "../types/governance";
+import {
+  FormattedProposal,
+  GovernanceStats,
+  ProposalStatus,
+} from "../types/governance";
 import { Vote } from "../serializable/Vote";
 import { Proposal } from "../serializable/Proposal";
-import { useState, useEffect } from "react";
 import { mockProposals } from "../mocks/proposals";
 
 // Query keys
@@ -27,7 +30,7 @@ const formatProposal = (p: Proposal): FormattedProposal => ({
   forumPostLink: bytesToStr(p.forumPostLink),
   summary: bytesToStr(p.summary),
   parameterChange: bytesToStr(p.parameterChange),
-  status: bytesToStr(p.status),
+  status: bytesToStr(p.status) as ProposalStatus,
   owner: bytesToStr(p.owner),
   creationTimestamp: p.creationTimestamp,
   positiveVoteVolume: p.positiveVoteVolume,
