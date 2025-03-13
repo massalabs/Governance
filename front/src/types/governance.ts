@@ -1,8 +1,8 @@
 export enum ProposalStatus {
-  ACTIVE = "ACTIVE",
-  EXECUTED = "EXECUTED",
-  EXPIRED = "EXPIRED",
-  CANCELLED = "CANCELLED",
+  DISCUSSION = "DISCUSSION",
+  VOTING = "VOTING",
+  ACCEPTED = "ACCEPTED",
+  REJECTED = "REJECTED",
 }
 
 export interface CreateProposalParams {
@@ -74,10 +74,10 @@ export interface ProposalSort {
 }
 
 export interface GovernanceStats {
-  totalProposals: bigint;
-  votingProposals: bigint;
-  totalVotes: bigint;
-  totalMasogSupply: bigint;
-  userMasogBalance: bigint;
-  userVotingPower: bigint;
+  totalProposals: bigint | null;
+  votingProposals: bigint | null;
+  totalVotes: bigint | null;
+  totalMasogSupply: bigint | null;
+  userMasogBalance: bigint | null;
+  userVotingPower: bigint | null;
 }

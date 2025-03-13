@@ -35,19 +35,23 @@ const formatProposal = (p: Proposal): FormattedProposal => ({
 
 const calculateStats = (
   proposals: FormattedProposal[],
-  totalMasogSupply: bigint,
-  userBalance: bigint = 0n
+  totalMasogSupply: bigint | null,
+  userBalance: bigint | null = null
 ): GovernanceStats => ({
-  totalProposals: BigInt(proposals.length),
-  votingProposals: BigInt(
-    proposals.filter((p) => p.status.toUpperCase() === "VOTING").length
-  ),
-  totalVotes: proposals.reduce(
-    (acc, p) =>
-      acc + p.positiveVoteVolume + p.negativeVoteVolume + p.blankVoteVolume,
-    0n
-  ),
-  totalMasogSupply,
+  totalProposals: proposals ? BigInt(proposals.length) : null,
+  votingProposals: proposals
+    ? BigInt(
+        proposals.filter((p) => p.status.toUpperCase() === "VOTING").length
+      )
+    : null,
+  totalVotes: proposals
+    ? proposals.reduce(
+        (acc, p) =>
+          acc + p.positiveVoteVolume + p.negativeVoteVolume + p.blankVoteVolume,
+        0n
+      )
+    : null,
+  totalMasogSupply: totalMasogSupply,
   userMasogBalance: userBalance,
   userVotingPower: userBalance, // Same as balance for now
 });
@@ -182,21 +186,32 @@ export const useVoteMutation = () => {
 // Main hook that combines all the data
 export function useGovernanceData() {
   const { connectedAccount } = useAccountStore();
-  const { governance, masOg, isInitialized } = useContractStore();
+  const { masOg } = useContractStore();
   const queryClient = useQueryClient();
 
-  const { data: proposals = [], isLoading } = useProposals();
-  const { data: userBalance = 0n } = useUserBalance();
-  const { data: userVotes = {} } = useUserVotes(proposals);
+  const { data: proposals = [], isLoading: isLoadingProposals } =
+    useProposals();
+
+  const { data: userBalance, isLoading: isLoadingBalance } = useUserBalance();
+
+  const { data: userVotes = {}, isLoading: isLoadingVotes } =
+    useUserVotes(proposals);
 
   // Get total supply for stats
-  const { data: totalMasogSupply = 0n } = useQuery({
+  const { data: totalMasogSupply, isLoading: isLoadingSupply } = useQuery({
     queryKey: [...governanceKeys.all, "totalSupply"],
-    queryFn: async () => (await masOg?.public?.totalSupply()) ?? 0n,
+    queryFn: async () => (await masOg?.public?.totalSupply()) ?? null,
     enabled: !!masOg?.public,
   });
 
-  const stats = calculateStats(proposals, totalMasogSupply, userBalance);
+  const isLoading =
+    isLoadingProposals || isLoadingBalance || isLoadingVotes || isLoadingSupply;
+
+  const stats = calculateStats(
+    isLoadingProposals ? [] : proposals,
+    isLoadingSupply ? null : totalMasogSupply ?? null,
+    isLoadingBalance ? null : userBalance ?? null
+  );
 
   const refresh = () => {
     console.log("[Debug] Manually refreshing queries...");
@@ -204,12 +219,12 @@ export function useGovernanceData() {
   };
 
   return {
-    proposals,
+    proposals: isLoadingProposals ? [] : proposals,
     stats,
     loading: isLoading,
-    userMasogBalance: userBalance,
-    userVotingPower: userBalance,
-    userVotes,
+    userMasogBalance: isLoadingBalance ? null : userBalance ?? null,
+    userVotingPower: isLoadingBalance ? null : userBalance ?? null,
+    userVotes: isLoadingVotes ? {} : userVotes,
     connectedAccount,
     refresh,
   };

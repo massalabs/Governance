@@ -1,7 +1,7 @@
 interface VotingPowerSectionProps {
   loading: boolean;
-  userMasogBalance: bigint;
-  userVotingPower: bigint;
+  userMasogBalance: bigint | null;
+  userVotingPower: bigint | null;
 }
 
 export function VotingPowerSection({
@@ -9,22 +9,27 @@ export function VotingPowerSection({
   userMasogBalance,
   userVotingPower,
 }: VotingPowerSectionProps) {
+  const formatValue = (value: bigint | null) => {
+    if (loading || value === null) return "...";
+    return value.toString();
+  };
+
   return (
     <section className="bg-secondary border border-border p-6 rounded-lg shadow-sm">
-      <h2 className="text-2xl font-bold text-f-primary mb-4 mas-subtitle">
+      <h2 className="text-lg font-semibold text-f-primary mb-4 mas-h2">
         Your Voting Power
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <p className="text-f-tertiary mb-2 mas-body">MASOG Balance</p>
-          <p className="text-xl font-semibold text-f-primary mas-h3">
-            {loading ? "..." : `${userMasogBalance.toString()} MASOG`}
+          <h3 className="text-sm text-f-tertiary mb-2 mas-h3">MASOG Balance</h3>
+          <p className="text-2xl font-bold text-brand">
+            {formatValue(userMasogBalance)}
           </p>
         </div>
         <div>
-          <p className="text-f-tertiary mb-2 mas-body">Voting Power</p>
-          <p className="text-xl font-semibold text-f-primary mas-h3">
-            {loading ? "..." : userVotingPower.toString()}
+          <h3 className="text-sm text-f-tertiary mb-2 mas-h3">Voting Power</h3>
+          <p className="text-2xl font-bold text-brand">
+            {formatValue(userVotingPower)}
           </p>
         </div>
       </div>

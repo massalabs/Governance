@@ -1,4 +1,4 @@
-import { Input, Button } from "@massalabs/react-ui-kit";
+import { Input } from "@massalabs/react-ui-kit";
 import { ProposalStatus } from "../../types/governance";
 import {
   MagnifyingGlassIcon,

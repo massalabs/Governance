@@ -7,7 +7,7 @@ import { VoteProgress } from "./VoteProgress";
 
 interface ProposalCardProps {
   proposal: FormattedProposal;
-  userMasogBalance: bigint;
+  userMasogBalance: bigint | null;
   hasVoted: boolean;
 }
 
@@ -17,6 +17,7 @@ export function ProposalCard({
   hasVoted,
 }: ProposalCardProps) {
   const isVoting = proposal.status === "VOTING";
+  const canVote = (userMasogBalance ?? 0n) >= 1n;
 
   return (
     <div className="bg-secondary border border-border rounded-lg shadow-sm overflow-hidden">
@@ -34,10 +35,7 @@ export function ProposalCard({
             status={proposal.status}
             proposalId={proposal.id}
             hasVoted={hasVoted}
-            canVote={
-              proposal.status.toUpperCase() === "VOTING" &&
-              userMasogBalance >= 1n
-            }
+            canVote={canVote}
           />
         </div>
       </div>

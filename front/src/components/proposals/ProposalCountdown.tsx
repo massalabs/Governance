@@ -1,6 +1,5 @@
 import { FormattedProposal, ProposalStatus } from "../../types/governance";
 import { useEffect, useState } from "react";
-import { useContractStore } from "../../store/useContractStore";
 
 interface ProposalCountdownProps {
   proposal: FormattedProposal;
@@ -11,12 +10,11 @@ const VOTING_PERIOD = 4 * 7 * 24 * 60 * 60 * 1000; // 4 weeks in milliseconds
 
 export function ProposalCountdown({ proposal }: ProposalCountdownProps) {
   const [remainingTime, setRemainingTime] = useState<string>("");
-  const { masOg } = useContractStore();
 
   useEffect(() => {
     const calculateRemainingTime = () => {
       const now = Date.now();
-      const creationTime = Number(proposal.createdAt) * 1000; // Convert to milliseconds
+      const creationTime = Number(proposal.creationTimestamp) * 1000; // Convert to milliseconds
       let endTime: number;
       let nextPhase: string;
 
@@ -50,7 +48,7 @@ export function ProposalCountdown({ proposal }: ProposalCountdownProps) {
     const interval = setInterval(calculateRemainingTime, 60000); // Update every minute
 
     return () => clearInterval(interval);
-  }, [proposal.status, proposal.createdAt]);
+  }, [proposal.status, proposal.creationTimestamp]);
 
   if (
     !remainingTime ||
