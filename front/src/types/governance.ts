@@ -18,15 +18,17 @@ export interface CreateProposalParams {
 export interface FormattedProposal {
   id: bigint;
   title: string;
-  forumPostLink: string;
   summary: string;
-  parameterChange: string;
-  status: string;
+  forumPostLink?: string;
   owner: string;
   creationTimestamp: bigint;
+  endTimestamp: bigint;
+  requiredScore: bigint;
   positiveVoteVolume: bigint;
   negativeVoteVolume: bigint;
   blankVoteVolume: bigint;
+  status: ProposalStatus;
+  parameterChange?: any;
 }
 
 export interface Proposal {

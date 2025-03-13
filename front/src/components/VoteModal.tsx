@@ -41,7 +41,7 @@ export default function VoteModal() {
 
   return (
     <Transition appear show={isVoteModalOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={closeVoteModal}>
+      <Dialog as="div" className="relative z-50" onClose={closeVoteModal}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"

@@ -11,6 +11,15 @@ export default {
       fontFamily: {
         caveat: ["Caveat", "cursive"],
       },
+      keyframes: {
+        shimmer: {
+          "0%": { backgroundPosition: "0 0" },
+          "100%": { backgroundPosition: "100% 100%" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 2s linear infinite",
+      },
     },
   },
   presets: [require("./src/themes/default.js")],

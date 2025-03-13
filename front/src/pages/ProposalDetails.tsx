@@ -5,18 +5,26 @@ import { VoteDistribution } from "../components/proposals/VoteDistribution";
 import { VoteProgress } from "../components/proposals/VoteProgress";
 import { ProposalActions } from "../components/proposals/ProposalActions";
 import { useGovernanceData } from "../hooks/useGovernanceData";
+import { useMasogTotalSupply } from "../hooks/useMasogData";
 import { truncateAddress } from "../utils/address";
 import {
   ChatBubbleLeftRightIcon,
   ArrowLeftIcon,
+  CalendarIcon,
+  UserIcon,
+  CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
+import VoteModal from "../components/VoteModal";
+import { useUIStore } from "../store/useUIStore";
 
 export default function ProposalDetails() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const { connectedAccount } = useAccountStore();
   const { proposals, loading, userMasogBalance, userVotes } =
     useGovernanceData();
+  const { data: totalSupply } = useMasogTotalSupply();
+  const { openVoteModal } = useUIStore();
 
   const proposal = proposals.find((p) => p.id.toString() === id);
 
@@ -34,7 +42,7 @@ export default function ProposalDetails() {
     );
   }
 
-  if (loading) {
+  if (loading || !totalSupply) {
     return (
       <div className="text-center py-8 text-f-tertiary">
         Loading proposal...
@@ -53,102 +61,210 @@ export default function ProposalDetails() {
   const canVote = (userMasogBalance ?? 0n) >= 1n;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <Link
-        to="/proposals"
-        className="inline-flex items-center text-brand hover:opacity-80 mb-6"
-      >
-        <ArrowLeftIcon className="h-4 w-4 mr-1" />
-        Back to Proposals
-      </Link>
+    <div className="max-w-4xl mx-auto space-y-8">
+      {/* Top Bar with Back Button and Vote Button */}
+      <div className="flex justify-between items-center">
+        <Link
+          to="/proposals"
+          className="inline-flex items-center gap-2 text-f-tertiary hover:text-f-primary transition-colors"
+        >
+          <ArrowLeftIcon className="h-5 w-5" />
+          <span>Back to Proposals</span>
+        </Link>
+      </div>
 
-      <div className="bg-secondary border border-border rounded-lg p-6 space-y-6">
-        {/* Header */}
-        <div className="space-y-4">
-          <div className="flex items-start justify-between">
-            <h1 className="text-2xl font-bold text-f-primary mas-title">
-              {proposal.title}
-            </h1>
-            <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${
-                proposal.status === "VOTING"
-                  ? "bg-brand/10 text-brand"
-                  : proposal.status === "EXECUTED"
-                  ? "bg-s-success/10 text-s-success"
-                  : "bg-f-tertiary/10 text-f-tertiary"
-              }`}
-            >
+      {/* Header Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-f-tertiary">
+            <span className="px-2 py-1 rounded-full bg-secondary text-brand">
               {proposal.status}
             </span>
-          </div>
-
-          <div className="flex items-center gap-2 text-f-tertiary mas-caption">
-            <span>Created by: {truncateAddress(proposal.owner)}</span>
             <span>•</span>
             <span>
+              Created{" "}
               {new Date(
                 Number(proposal.creationTimestamp)
               ).toLocaleDateString()}
             </span>
-            {proposal.forumPostLink && (
-              <>
-                <span>•</span>
-                <a
-                  href={proposal.forumPostLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-brand hover:opacity-80"
-                >
-                  <ChatBubbleLeftRightIcon className="h-4 w-4" />
-                  <span>Forum Discussion</span>
-                </a>
-              </>
-            )}
           </div>
         </div>
+        <h1 className="text-3xl font-bold text-f-primary">{proposal.title}</h1>
+        <div className="flex items-center gap-4 text-sm text-f-tertiary">
+          <div className="flex items-center gap-1.5">
+            <UserIcon className="h-4 w-4" />
+            <span>{truncateAddress(proposal.owner)}</span>
+          </div>
+          {proposal.forumPostLink && (
+            <a
+              href={proposal.forumPostLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-brand hover:opacity-80 transition-opacity"
+            >
+              <ChatBubbleLeftRightIcon className="h-4 w-4" />
+              <span>Forum Discussion</span>
+            </a>
+          )}
+        </div>
+      </div>
 
-        {/* Description */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-f-primary mas-h2">
-            Description
-          </h2>
-          <div className="prose prose-invert max-w-none">
-            <p className="text-f-tertiary mas-body whitespace-pre-wrap">
+      {/* Main Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column - Proposal Content */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Summary */}
+          <div className="bg-secondary rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-f-primary mb-4">
+              Summary
+            </h2>
+            <p className="text-f-tertiary whitespace-pre-wrap">
               {proposal.summary}
             </p>
           </div>
+
+          {/* Parameter Changes */}
+          {proposal.parameterChange && (
+            <div className="bg-secondary rounded-lg p-6">
+              <h2 className="text-xl font-semibold text-f-primary mb-4">
+                Parameter Changes
+              </h2>
+              <div className="space-y-4">
+                {(() => {
+                  try {
+                    const changes = JSON.parse(proposal.parameterChange);
+                    return (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-f-tertiary">Parameter:</span>
+                          <span className="text-f-primary font-medium">
+                            {changes.parameter}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-f-tertiary">New Value:</span>
+                          <span className="text-f-primary font-medium">
+                            {typeof changes.value === "string" &&
+                            changes.value.startsWith("{")
+                              ? JSON.stringify(
+                                  JSON.parse(changes.value),
+                                  null,
+                                  2
+                                )
+                              : changes.value}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  } catch (e) {
+                    return (
+                      <div className="text-f-tertiary">
+                        Invalid parameter change format
+                      </div>
+                    );
+                  }
+                })()}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Voting Progress */}
-        {isVoting && (
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-f-primary mas-h2">
-              Voting Progress
-            </h2>
+        {/* Right Column - Voting Status */}
+        <div className="space-y-6">
+          {/* Vote Action */}
+          {isVoting && (
+            <div className="bg-secondary rounded-lg p-6">
+              <div className="flex flex-col items-center gap-4">
+                {hasVoted ? (
+                  <div className="flex items-center gap-2 text-emerald-400">
+                    <CheckCircleIcon className="h-6 w-6" />
+                    <span className="font-medium text-lg">You've voted</span>
+                  </div>
+                ) : !canVote ? (
+                  <div className="text-rose-400 font-medium text-lg">
+                    Minimum 1 MASOG required to vote
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => openVoteModal(proposal.id)}
+                    className="group relative w-full px-6 py-3 bg-brand text-white rounded-lg font-medium text-lg overflow-hidden transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    {/* Pixel grid background effect */}
+                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:4px_4px] animate-shimmer" />
+
+                    {/* Main button content */}
+                    <div className="relative flex items-center justify-center gap-2">
+                      <span className="relative z-10">Vote Now</span>
+                      {/* Pixel corner decorations */}
+                      <div className="absolute top-0 left-0 w-2 h-2 bg-white/20" />
+                      <div className="absolute top-0 right-0 w-2 h-2 bg-white/20" />
+                      <div className="absolute bottom-0 left-0 w-2 h-2 bg-white/20" />
+                      <div className="absolute bottom-0 right-0 w-2 h-2 bg-white/20" />
+                    </div>
+
+                    {/* Hover effect overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Voting Status Card */}
+          <div className="bg-secondary rounded-lg p-6">
             <VoteProgress proposal={proposal} />
           </div>
-        )}
 
-        {/* Vote Distribution */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-f-primary mas-h2">
-            Vote Distribution
-          </h2>
-          <VoteDistribution proposal={proposal} />
-        </div>
-
-        {/* Actions */}
-        {isVoting && (
-          <div className="flex justify-end pt-4 border-t border-border">
-            <ProposalActions
-              status={proposal.status}
-              proposalId={proposal.id}
-              hasVoted={hasVoted}
-              canVote={canVote}
-            />
+          {/* Voting Period */}
+          <div className="bg-secondary rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-f-primary mb-4">
+              Voting Period
+            </h3>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-f-tertiary">Start</span>
+                <span className="text-f-primary">
+                  {new Date(
+                    Number(proposal.creationTimestamp)
+                  ).toLocaleString()}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-f-tertiary">End</span>
+                <span className="text-f-primary">
+                  {new Date(Number(proposal.endTimestamp)).toLocaleString()}
+                </span>
+              </div>
+            </div>
           </div>
-        )}
+
+          {/* Quorum */}
+          <div className="bg-secondary rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-f-primary mb-4">
+              Quorum
+            </h3>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-f-tertiary">Required</span>
+                <span className="text-f-primary">50% of total supply</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-f-tertiary">Current</span>
+                <span className="text-f-primary">
+                  {(
+                    (Number(proposal.positiveVoteVolume) /
+                      Number(totalSupply)) *
+                    100
+                  ).toFixed(4)}
+                  %
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <VoteModal />
     </div>
   );
 }
