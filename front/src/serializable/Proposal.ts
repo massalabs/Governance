@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import {
   Args,
+  bytesToStr,
   DeserializedResult,
   Serializable,
   strToBytes,

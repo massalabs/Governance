@@ -8,6 +8,8 @@ import { bytesToStr, Args, Mas, strToBytes } from "@massalabs/massa-web3";
 import { FormattedProposal, GovernanceStats } from "../types/governance";
 import { Vote } from "../serializable/Vote";
 import { Proposal } from "../serializable/Proposal";
+import { useState, useEffect } from "react";
+import { mockProposals } from "../mocks/proposals";
 
 // Query keys
 export const governanceKeys = {
@@ -189,13 +191,11 @@ export function useGovernanceData() {
   const { masOg } = useContractStore();
   const queryClient = useQueryClient();
 
-  const { data: proposals = [], isLoading: isLoadingProposals } =
+  const { data: realProposals = [], isLoading: isLoadingProposals } =
     useProposals();
-
   const { data: userBalance, isLoading: isLoadingBalance } = useUserBalance();
-
   const { data: userVotes = {}, isLoading: isLoadingVotes } =
-    useUserVotes(proposals);
+    useUserVotes(realProposals);
 
   // Get total supply for stats
   const { data: totalMasogSupply, isLoading: isLoadingSupply } = useQuery({
@@ -207,8 +207,11 @@ export function useGovernanceData() {
   const isLoading =
     isLoadingProposals || isLoadingBalance || isLoadingVotes || isLoadingSupply;
 
+  // Combine real and mock proposals
+  const allProposals = [...realProposals, ...mockProposals];
+
   const stats = calculateStats(
-    isLoadingProposals ? [] : proposals,
+    isLoadingProposals ? [] : allProposals,
     isLoadingSupply ? null : totalMasogSupply ?? null,
     isLoadingBalance ? null : userBalance ?? null
   );
@@ -219,9 +222,9 @@ export function useGovernanceData() {
   };
 
   return {
-    proposals: isLoadingProposals ? [] : proposals,
-    stats,
+    proposals: isLoading ? [] : allProposals,
     loading: isLoading,
+    stats,
     userMasogBalance: isLoadingBalance ? null : userBalance ?? null,
     userVotingPower: isLoadingBalance ? null : userBalance ?? null,
     userVotes: isLoadingVotes ? {} : userVotes,

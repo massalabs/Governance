@@ -1,19 +1,11 @@
 import { Link } from "react-router-dom";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-
-interface Proposal {
-  id: bigint;
-  title: string;
-  summary: string;
-  status: string;
-  positiveVoteVolume: bigint;
-  negativeVoteVolume: bigint;
-  blankVoteVolume: bigint;
-}
+import { FormattedProposal } from "../../types/governance";
+import { ProposalCard } from "../proposals/ProposalCard";
 
 interface RecentProposalsSectionProps {
   loading: boolean;
-  proposals: Proposal[];
+  proposals: FormattedProposal[];
 }
 
 export function RecentProposalsSection({
@@ -44,40 +36,9 @@ export function RecentProposalsSection({
           No proposals found
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {proposals.slice(0, 3).map((proposal) => (
-            <Link
-              key={proposal.id.toString()}
-              to={`/proposals/${proposal.id}`}
-              className="bg-secondary border border-border p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-medium text-f-primary group-hover:text-brand mas-h2">
-                    {proposal.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-f-tertiary mas-body2 line-clamp-2">
-                    {proposal.summary}
-                  </p>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    proposal.status === "votingStatus"
-                      ? "bg-green-100 text-green-800"
-                      : proposal.status === "executedStatus"
-                      ? "bg-blue-100 text-blue-800"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
-                >
-                  {proposal.status.replace("Status", "")}
-                </span>
-              </div>
-              <div className="mt-4 flex gap-4 text-sm text-f-tertiary mas-body2">
-                <span>Yes: {proposal.positiveVoteVolume.toString()}</span>
-                <span>No: {proposal.negativeVoteVolume.toString()}</span>
-                <span>Abstain: {proposal.blankVoteVolume.toString()}</span>
-              </div>
-            </Link>
+            <ProposalCard key={proposal.id.toString()} proposal={proposal} />
           ))}
         </div>
       )}

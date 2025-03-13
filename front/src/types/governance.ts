@@ -6,8 +6,8 @@ export enum ProposalStatus {
 }
 
 export interface CreateProposalParams {
-  forumPostLink: string;
   title: string;
+  forumPostLink: string;
   summary: string;
   parameterChange?: {
     parameter: string;

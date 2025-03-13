@@ -7,6 +7,9 @@ import { ProposalCard } from "../components/proposals/ProposalCard";
 import { ProposalFilters } from "../components/proposals/ProposalFilters";
 import { ProposalStatus } from "../types/governance";
 import { useGovernanceData } from "../hooks/useGovernanceData";
+import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
+import { VoteProgress } from "../components/proposals/VoteProgress";
+import { truncateAddress } from "../utils/address";
 
 export default function Proposals() {
   const { connectedAccount } = useAccountStore();
@@ -73,14 +76,9 @@ export default function Proposals() {
           No proposals found matching your criteria.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredProposals.map((proposal) => (
-            <ProposalCard
-              key={proposal.id.toString()}
-              proposal={proposal}
-              userMasogBalance={userMasogBalance}
-              hasVoted={!!userVotes[proposal.id.toString()]}
-            />
+            <ProposalCard key={proposal.id.toString()} proposal={proposal} />
           ))}
         </div>
       )}

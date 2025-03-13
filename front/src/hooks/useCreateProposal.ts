@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CreateProposalParams } from "../types/governance";
+import { Proposal } from "../serializable/Proposal";
 
 export const REQUIRED_MASOG = 1000n;
 
@@ -31,6 +32,14 @@ export function useCreateProposal() {
 
     setLoading(true);
     try {
+      // Create proposal with correct field order
+      const proposal = Proposal.create(
+        formData.title,
+        formData.forumPostLink,
+        formData.summary,
+        parameterChangeInput || "{}"
+      );
+
       // Implementation for submitting proposal would go here
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Mock delay
     } finally {
