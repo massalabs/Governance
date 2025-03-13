@@ -36,7 +36,7 @@ export function ProposalFilters({
             placeholder="Search proposals by title..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 h-10"
+            className="w-full pl-10 h-10 bg-secondary border-border text-f-primary placeholder:text-f-tertiary focus:ring-brand/20"
           />
         </div>
         <div className="flex gap-2">
