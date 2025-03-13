@@ -3,7 +3,8 @@ import { useAccountStore } from "@massalabs/react-ui-kit";
 import { useLocalStorage } from "@massalabs/react-ui-kit/src/lib/util/hooks/useLocalStorage";
 import { getWallets } from "@massalabs/wallet-provider";
 import { useContractStore } from "../store/useContractStore";
-import { useGovernanceStore } from "../store/useGovernanceStore";
+import { useQueryClient } from "@tanstack/react-query";
+import { governanceKeys } from "./useGovernanceData";
 
 type SavedAccount = {
   address: string;
@@ -18,7 +19,7 @@ const EMPTY_ACCOUNT: SavedAccount = {
 const useAccountSync = () => {
   const { connectedAccount, setCurrentWallet } = useAccountStore();
   const { initializeContracts } = useContractStore();
-  const { fetchPublicData } = useGovernanceStore();
+  const queryClient = useQueryClient();
 
   const [savedAccount, setSavedAccount] = useLocalStorage<SavedAccount>(
     "saved-account",
@@ -59,8 +60,8 @@ const useAccountSync = () => {
         // @ts-ignore Version mismatch between react-ui-kit and wallet-provider
         await setCurrentWallet(stored.wallet, stored.account);
         await initializeContracts(stored.account);
-        // Fetch initial governance data
-        await fetchPublicData();
+        // Invalidate queries to trigger a fresh fetch
+        queryClient.invalidateQueries({ queryKey: governanceKeys.all });
       } catch (error) {
         console.error("Error initializing contracts:", error);
       }
@@ -70,7 +71,7 @@ const useAccountSync = () => {
     getStoredAccount,
     setCurrentWallet,
     initializeContracts,
-    fetchPublicData,
+    queryClient,
   ]);
 
   useEffect(() => {

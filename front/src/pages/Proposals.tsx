@@ -1,7 +1,5 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-
-import { useGovernanceStore } from "../store/useGovernanceStore";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { ConnectButton } from "../components/connect-wallet-popup";
 import VoteModal from "../components/VoteModal";
@@ -11,11 +9,14 @@ import { ProposalStatus } from "../types/governance";
 import { useGovernanceData } from "../hooks/useGovernanceData";
 
 export default function Proposals() {
-  const { loading, userMasogBalance, userVotes } = useGovernanceStore();
-
   const { connectedAccount } = useAccountStore();
+  const {
+    proposals: allProposals,
+    loading,
+    userMasogBalance,
+    userVotes,
+  } = useGovernanceData();
 
-  const { proposals: allProposals } = useGovernanceData();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<ProposalStatus | "all">(
     "all"
@@ -78,7 +79,7 @@ export default function Proposals() {
               key={proposal.id.toString()}
               proposal={proposal}
               userMasogBalance={userMasogBalance}
-              hasVoted={userVotes[proposal.id.toString()] !== undefined}
+              hasVoted={!!userVotes[proposal.id.toString()]}
             />
           ))}
         </div>

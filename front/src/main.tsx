@@ -5,6 +5,7 @@ import "./index.css";
 import { useContractInitialization } from "./hooks/useContractInitialization";
 import useAccountSync from "./hooks/useAccountSync";
 import { Toast } from "@massalabs/react-ui-kit";
+import { QueryProvider } from "./providers/QueryProvider";
 
 function AppWithHooks() {
   useAccountSync();
@@ -19,7 +20,9 @@ if (!rootElement) throw new Error("Failed to find the root element");
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <Toast />
-    <AppWithHooks />
+    <QueryProvider>
+      <Toast />
+      <AppWithHooks />
+    </QueryProvider>
   </React.StrictMode>
 );

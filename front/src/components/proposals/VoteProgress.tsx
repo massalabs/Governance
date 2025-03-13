@@ -1,28 +1,12 @@
 import { FormattedProposal } from "../../types/governance";
-import { useContractStore } from "../../store/useContractStore";
-import { useState, useEffect } from "react";
+import { useMasogTotalSupply } from "../../hooks/useMasogData";
 
 interface VoteProgressProps {
   proposal: FormattedProposal;
 }
 
 export function VoteProgress({ proposal }: VoteProgressProps) {
-  const [totalSupply, setTotalSupply] = useState<bigint>(0n);
-  const { masOg } = useContractStore();
-
-  useEffect(() => {
-    const fetchTotalSupply = async () => {
-      if (!masOg?.public) return;
-
-      try {
-        const supply = await masOg.public.totalSupply();
-        setTotalSupply(supply);
-      } catch (error) {
-        console.error("Failed to fetch total supply:", error);
-      }
-    };
-    fetchTotalSupply();
-  }, [masOg]);
+  const { data: totalSupply } = useMasogTotalSupply();
 
   if (!totalSupply) return null;
 
