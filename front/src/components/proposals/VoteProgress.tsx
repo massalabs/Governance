@@ -26,7 +26,8 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
 
   if (!totalSupply) return null;
 
-  const requiredScore = totalSupply / 2n; // 50% of total supply
+  // Add 1 to ensure it's more than 50%
+  const requiredScore = totalSupply / 2n + 1n;
   const currentScore = proposal.positiveVoteVolume;
 
   // Convert to number with proper scaling to avoid integer division truncation
@@ -52,13 +53,18 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
           style={{ width: `${cappedProgress}%` }}
         />
       </div>
-      <div className="flex justify-between text-sm mt-1">
-        <span className="text-f-tertiary">
-          {currentScore.toString()} voting power
-        </span>
-        <span className="text-f-tertiary">
-          {requiredScore.toString()} required
-        </span>
+      <div className="space-y-1">
+        <div className="flex justify-between text-sm">
+          <span className="text-f-tertiary">
+            {currentScore.toString()} voting power
+          </span>
+          <span className="text-f-tertiary">
+            {requiredScore.toString()} required
+          </span>
+        </div>
+        <div className="text-xs text-f-tertiary text-right">
+          (more than 50% of total MASOG supply)
+        </div>
       </div>
     </div>
   );
