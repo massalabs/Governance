@@ -7,12 +7,10 @@ import { ProposalCard } from "../components/proposals/ProposalCard";
 import { ProposalFilters } from "../components/proposals/ProposalFilters";
 import { ProposalStatus } from "../types/governance";
 import { useGovernanceData } from "../hooks/useGovernanceData";
-import { useProposals } from "../hooks/useProposals";
 
 export default function Proposals() {
   const { connectedAccount } = useAccountStore();
   const { proposals: allProposals, loading } = useGovernanceData();
-  const { proposals } = useProposals();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<ProposalStatus | "all">(
@@ -48,10 +46,6 @@ export default function Proposals() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-f-primary mas-title">Proposals</h1>
-      </div>
-
       <ProposalFilters
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}

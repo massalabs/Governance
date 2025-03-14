@@ -14,6 +14,7 @@ import {
 import { Link } from "react-router-dom";
 import VoteModal from "../components/VoteModal";
 import { useUIStore } from "../store/useUIStore";
+import { ParameterChanges } from "../components/proposals/ParameterChanges";
 
 export default function ProposalDetails() {
   const { id } = useParams<{ id: string }>();
@@ -126,42 +127,7 @@ export default function ProposalDetails() {
               <h2 className="text-xl font-semibold text-f-primary mb-4">
                 Parameter Changes
               </h2>
-              <div className="space-y-4">
-                {(() => {
-                  try {
-                    const changes = JSON.parse(proposal.parameterChange);
-                    return (
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-f-tertiary">Parameter:</span>
-                          <span className="text-f-primary font-medium">
-                            {changes.parameter}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-f-tertiary">New Value:</span>
-                          <span className="text-f-primary font-medium">
-                            {typeof changes.value === "string" &&
-                            changes.value.startsWith("{")
-                              ? JSON.stringify(
-                                  JSON.parse(changes.value),
-                                  null,
-                                  2
-                                )
-                              : changes.value}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  } catch (e) {
-                    return (
-                      <div className="text-f-tertiary">
-                        Invalid parameter change format
-                      </div>
-                    );
-                  }
-                })()}
-              </div>
+              <ParameterChanges parameterChange={proposal.parameterChange} />
             </div>
           )}
         </div>
