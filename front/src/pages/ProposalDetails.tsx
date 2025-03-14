@@ -111,7 +111,7 @@ export default function ProposalDetails() {
         {/* Left Column - Proposal Content */}
         <div className="lg:col-span-2 space-y-8">
           {/* Summary */}
-          <div className="bg-secondary rounded-lg p-6">
+          <div className="bg-secondary border border-border rounded-lg p-6">
             <h2 className="text-xl font-semibold text-f-primary mb-4">
               Summary
             </h2>
@@ -122,7 +122,7 @@ export default function ProposalDetails() {
 
           {/* Parameter Changes */}
           {proposal.parameterChange && (
-            <div className="bg-secondary rounded-lg p-6">
+            <div className="bg-secondary border border-border rounded-lg p-6">
               <h2 className="text-xl font-semibold text-f-primary mb-4">
                 Parameter Changes
               </h2>
@@ -170,7 +170,7 @@ export default function ProposalDetails() {
         <div className="space-y-6">
           {/* Vote Action */}
           {isVoting && (
-            <div className="bg-secondary rounded-lg p-6">
+            <div className="bg-secondary border border-border rounded-lg p-6">
               <div className="flex flex-col items-center gap-4">
                 {hasVoted ? (
                   <div className="flex items-center gap-2 text-emerald-400">
@@ -208,12 +208,12 @@ export default function ProposalDetails() {
           )}
 
           {/* Voting Status Card */}
-          <div className="bg-secondary rounded-lg p-6">
+          <div className="bg-secondary border border-border rounded-lg p-6">
             <VoteProgress proposal={proposal} />
           </div>
 
           {/* Voting Period */}
-          <div className="bg-secondary rounded-lg p-6">
+          <div className="bg-secondary border border-border rounded-lg p-6">
             <h3 className="text-lg font-semibold text-f-primary mb-4">
               Voting Period
             </h3>
@@ -237,7 +237,7 @@ export default function ProposalDetails() {
           </div>
 
           {/* Quorum */}
-          <div className="bg-secondary rounded-lg p-6">
+          <div className="bg-secondary border border-border rounded-lg p-6">
             <h3 className="text-lg font-semibold text-f-primary mb-4">
               Quorum
             </h3>

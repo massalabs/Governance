@@ -1,8 +1,8 @@
-import { Button, useAccountStore } from '@massalabs/react-ui-kit';
-import Intl from '@/i18n/i18n';
-import { useState } from 'react';
-import { ConnectWalletPopup } from './ConnectWalletPopup';
-import { truncateAddress } from '@/utils/address';
+import { Button, useAccountStore } from "@massalabs/react-ui-kit";
+import Intl from "@/i18n/i18n";
+import { useState } from "react";
+import { ConnectWalletPopup } from "./ConnectWalletPopup";
+import { truncateAddress } from "@/utils/address";
 
 export function ConnectButton() {
   const [open, setOpen] = useState(false);
@@ -13,7 +13,7 @@ export function ConnectButton() {
       <Button
         disabled={isFetching}
         variant="secondary"
-        customClass="h-[54px] text-primary dark:text-primary relative"
+        customClass="h-[25px] text-primary dark:text-primary relative"
         onClick={() => setOpen(true)}
       >
         {truncateAddress(connectedAccount?.address)}
@@ -30,16 +30,18 @@ export function ConnectButton() {
           customClass="h-[54px] text-primary dark:text-primary relative"
           onClick={() => setOpen(true)}
         >
-          {Intl.t('connect-wallet.title')}
+          {Intl.t("connect-wallet.title")}
         </Button>
       </>
     );
   }
   return (
     <>
-      <div className="top-10 right-10 shadow-md rounded-lg border-primary border 
+      <div
+        className="top-10 right-10 shadow-md rounded-lg border-primary border 
                       hover:shadow-lg hover:-translate-y-0.5 transition-transform duration-200
-                      active:translate-y-0.5">
+                      active:translate-y-0.5"
+      >
         {connectedAccount ? <ConnectedWallet /> : <NotConnectedWallet />}
       </div>
 

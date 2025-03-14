@@ -20,25 +20,31 @@ const colorDarkAccent = "#60A5FA"; // Bright blue for accents
 // Light mode colors
 const colorMuted = "#64748B"; // Cool gray for muted text (light mode)
 
-/** @type {import('tailwindcss').Config} */
-// eslint-disable-next-line no-undef
-module.exports = {
+export default {
   theme: {
-    fontFamily: {
-      sans: [
-        "Inter",
-        "system-ui",
-        "-apple-system",
-        "BlinkMacSystemFont",
-        "Segoe UI",
-        "Roboto",
-        "Helvetica Neue",
-        "Arial",
-        "sans-serif",
-      ],
-      display: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
-    },
     extend: {
+      colors: {
+        secondary: colorParchment,
+        tertiary: colorSepia,
+        neutral: colorInk,
+        brand: colorAccent,
+        background: colorPaper,
+        border: colorBorder,
+      },
+      fontFamily: {
+        sans: [
+          "Inter",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif",
+        ],
+        display: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
@@ -88,6 +94,11 @@ module.exports = {
           "bg-secondary": colorParchment,
           "bg-tertiary": colorSepia,
           "bg-card": colorParchment,
+          // borders:
+          "border-secondary": colorParchment,
+          "border-tertiary": colorSepia,
+          "border-neutral": colorInk,
+          "border-brand": colorAccent,
         },
         dark: {
           primary: colorDarkAccent,
@@ -126,88 +137,95 @@ module.exports = {
           "bg-secondary": colorDarkCard,
           "bg-tertiary": colorDarkBg,
           "bg-card": colorDarkCard,
+          // borders:
+          "border-secondary": colorDarkCard,
+          "border-tertiary": colorDarkBg,
+          "border-neutral": colorDarkText,
+          "border-brand": colorDarkAccent,
         },
       },
       { defaultTheme: "light" }
     ),
     plugin(function ({ addComponents, theme }) {
       addComponents({
-        ".mas-banner": {
-          fontSize: "42px",
-          fontWeight: "700",
-          fontFamily: theme("fontFamily.display"),
-          lineHeight: "1.2",
-          letterSpacing: "-0.02em",
-        },
-        ".mas-title": {
-          fontSize: "36px",
-          fontWeight: "700",
-          fontFamily: theme("fontFamily.display"),
-          lineHeight: "1.3",
-          letterSpacing: "-0.01em",
-        },
-        ".mas-subtitle": {
-          fontSize: "24px",
-          fontWeight: "600",
-          fontFamily: theme("fontFamily.display"),
-          lineHeight: "1.4",
-        },
-        ".mas-h2": {
-          fontSize: "20px",
-          fontWeight: "600",
-          fontFamily: theme("fontFamily.display"),
-          lineHeight: "1.4",
-        },
-        ".mas-h3": {
-          fontSize: "16px",
-          fontWeight: "600",
-          fontFamily: theme("fontFamily.display"),
-          lineHeight: "1.5",
-        },
-        ".mas-buttons": {
-          fontSize: "16px",
-          fontWeight: "500",
-          fontFamily: theme("fontFamily.sans"),
-          lineHeight: "1.5",
-        },
-        ".mas-menu-active": {
-          fontSize: "16px",
-          fontWeight: "600",
-          fontFamily: theme("fontFamily.sans"),
-          lineHeight: "1.5",
-        },
-        ".mas-menu-default": {
-          fontSize: "16px",
-          fontWeight: "500",
-          fontFamily: theme("fontFamily.sans"),
-          lineHeight: "1.5",
-        },
-        ".mas-body": {
-          fontSize: "16px",
-          fontWeight: "400",
-          fontFamily: theme("fontFamily.sans"),
-          lineHeight: "1.6",
-        },
-        ".mas-body2": {
-          fontSize: "14px",
-          fontWeight: "400",
-          fontFamily: theme("fontFamily.sans"),
-          lineHeight: "1.6",
-        },
-        ".mas-caption": {
-          fontSize: "12px",
-          fontWeight: "400",
-          fontFamily: theme("fontFamily.sans"),
-          lineHeight: "1.5",
-        },
-        ".active-button": {
-          "@apply transition-all duration-100 ease-in-out border border-border":
-            {},
-          "&:hover": {
-            "@apply -translate-y-[2%] shadow-md": {},
+        "@layer components": {
+          ".mas-banner": {
+            fontSize: "42px",
+            fontWeight: "700",
+            fontFamily: theme("fontFamily.display"),
+            lineHeight: "1.2",
+            letterSpacing: "-0.02em",
           },
-          "&:active": {
-            "@apply translate-y-[2%] shadow-none": {},
+          ".mas-title": {
+            fontSize: "36px",
+            fontWeight: "700",
+            fontFamily: theme("fontFamily.display"),
+            lineHeight: "1.3",
+            letterSpacing: "-0.01em",
+          },
+          ".mas-subtitle": {
+            fontSize: "24px",
+            fontWeight: "600",
+            fontFamily: theme("fontFamily.display"),
+            lineHeight: "1.4",
+          },
+          ".mas-h2": {
+            fontSize: "20px",
+            fontWeight: "600",
+            fontFamily: theme("fontFamily.display"),
+            lineHeight: "1.4",
+          },
+          ".mas-h3": {
+            fontSize: "16px",
+            fontWeight: "600",
+            fontFamily: theme("fontFamily.display"),
+            lineHeight: "1.5",
+          },
+          ".mas-buttons": {
+            fontSize: "16px",
+            fontWeight: "500",
+            fontFamily: theme("fontFamily.sans"),
+            lineHeight: "1.5",
+          },
+          ".mas-menu-active": {
+            fontSize: "16px",
+            fontWeight: "600",
+            fontFamily: theme("fontFamily.sans"),
+            lineHeight: "1.5",
+          },
+          ".mas-menu-default": {
+            fontSize: "16px",
+            fontWeight: "500",
+            fontFamily: theme("fontFamily.sans"),
+            lineHeight: "1.5",
+          },
+          ".mas-body": {
+            fontSize: "16px",
+            fontWeight: "400",
+            fontFamily: theme("fontFamily.sans"),
+            lineHeight: "1.6",
+          },
+          ".mas-body2": {
+            fontSize: "14px",
+            fontWeight: "400",
+            fontFamily: theme("fontFamily.sans"),
+            lineHeight: "1.6",
+          },
+          ".mas-caption": {
+            fontSize: "12px",
+            fontWeight: "400",
+            fontFamily: theme("fontFamily.sans"),
+            lineHeight: "1.5",
+          },
+          ".active-button": {
+            "@apply transition-all duration-100 ease-in-out border border-border":
+              {},
+            "&:hover": {
+              "@apply -translate-y-[2%] shadow-md": {},
+            },
+            "&:active": {
+              "@apply translate-y-[2%] shadow-none": {},
+            },
           },
         },
       });

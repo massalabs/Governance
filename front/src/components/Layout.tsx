@@ -1,14 +1,17 @@
 import { useEffect } from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useUIStore } from "../store/useUIStore";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import ThemeToggle from "./ThemeToggle";
 import { ConnectButton } from "./connect-wallet-popup";
 import { NetworkIndicator } from "./NetworkIndicator";
+import { useUserData } from "../hooks/useUserData";
 
 export default function Layout() {
   const { theme } = useUIStore();
   const { connectedAccount } = useAccountStore();
+  const navigate = useNavigate();
+  useUserData(); // This will handle all user data refetching
 
   useEffect(() => {
     // Remove both theme classes first
@@ -16,6 +19,13 @@ export default function Layout() {
     // Add the current theme class
     document.documentElement.classList.add(`theme-${theme}`);
   }, [theme]);
+
+  useEffect(() => {
+    // If account changes and we're on a protected route, redirect to home
+    if (!connectedAccount && window.location.pathname !== "/") {
+      navigate("/");
+    }
+  }, [connectedAccount, navigate]);
 
   return (
     <div className="min-h-screen bg-background text-f-primary">

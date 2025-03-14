@@ -32,7 +32,7 @@ export default function CreateProposal() {
         userMasogBalance={userMasogBalance}
       />
 
-      <div className="bg-secondary border border-border rounded-lg shadow-sm divide-y divide-border">
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm divide-y divide-gray-200">
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <BasicInformationSection
             formData={formData}
