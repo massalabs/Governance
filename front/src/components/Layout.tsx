@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { useUIStore } from "../store/useUIStore";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import ThemeToggle from "./ThemeToggle";
@@ -11,6 +11,7 @@ export default function Layout() {
   const { theme } = useUIStore();
   const { connectedAccount } = useAccountStore();
   const navigate = useNavigate();
+  const location = useLocation();
   useUserData(); // This will handle all user data refetching
 
   useEffect(() => {
@@ -29,31 +30,54 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-background text-f-primary">
-      <header className="border-b border-border bg-secondary shadow-sm">
-        <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-secondary/80 backdrop-blur-md shadow-sm">
+        <nav className="container mx-auto px-4 py-3 flex items-center justify-between relative">
           <div className="flex items-center space-x-8">
-            <Link to="/" className="text-2xl font-bold text-brand mas-title">
+            <Link
+              to="/"
+              className={`text-2xl font-bold text-brand mas-title hover:opacity-90 transition-opacity ${
+                location.pathname === "/" ? "opacity-100" : "opacity-80"
+              }`}
+            >
               Governance
             </Link>
             {connectedAccount && (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-6">
                 <Link
                   to="/proposals"
-                  className="text-f-tertiary hover:text-brand transition-colors mas-menu-default"
+                  className={`text-f-tertiary hover:text-brand transition-all duration-200 mas-menu-default relative font-medium ${
+                    location.pathname.startsWith("/proposals")
+                      ? "text-brand font-semibold"
+                      : ""
+                  }`}
                 >
                   Proposals
+                  {location.pathname.startsWith("/proposals") && (
+                    <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-brand" />
+                  )}
                 </Link>
                 <Link
                   to="/create"
-                  className="text-f-tertiary hover:text-brand transition-colors mas-menu-default"
+                  className={`text-f-tertiary hover:text-brand transition-all duration-200 mas-menu-default relative font-medium ${
+                    location.pathname === "/create"
+                      ? "text-brand font-semibold"
+                      : ""
+                  }`}
                 >
                   Create Proposal
+                  {location.pathname === "/create" && (
+                    <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-brand" />
+                  )}
                 </Link>
               </div>
             )}
           </div>
           <div className="flex items-center space-x-4">
-            {connectedAccount && <NetworkIndicator />}
+            {connectedAccount && (
+              <div className="px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50">
+                <NetworkIndicator />
+              </div>
+            )}
             <ConnectButton />
             <ThemeToggle />
           </div>
