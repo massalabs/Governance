@@ -121,6 +121,11 @@ export function deleteProposal(binaryArgs: StaticArray<u8>): void {
   transferRemaining(initialBalance);
 }
 
+/* -------------------------------------------------------------------------- */
+/*                               TEMP FUNCTIONS                               */
+/* -------------------------------------------------------------------------- */
+
+// TODO: remove this function
 export function nextStatus(binaryArgs: StaticArray<u8>): void {
   _onlyOwner();
   // Update the status of a proposal to next status
@@ -132,6 +137,10 @@ export function nextStatus(binaryArgs: StaticArray<u8>): void {
   const proposal = Proposal.getById(proposalId);
   proposal.setStatus(votingStatus).save();
 }
+
+/* -------------------------------------------------------------------------- */
+/*                               END TEMP FUNCTIONS                               */
+/* -------------------------------------------------------------------------- */
 
 export {
   setOwner,

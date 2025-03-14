@@ -8,6 +8,8 @@ import {
 import { Args, Mas } from "@massalabs/massa-web3";
 import { useContractStore } from "@/store/useContractStore";
 
+export const REQUIRED_MASOG = 1n;
+
 interface ValidationErrors {
   title?: string;
   forumPostLink?: string;
@@ -28,6 +30,8 @@ export function useCreateProposal() {
   const { connectedAccount } = useAccountStore();
   const { governance } = useContractStore();
   const { callSmartContract } = useWriteSmartContract(connectedAccount!);
+  const userMasogBalance = 2000n; // TODO: Replace with actual balance from contract
+  const hasEnoughMasog = userMasogBalance >= REQUIRED_MASOG;
 
   const validateForm = (): boolean => {
     const newErrors: ValidationErrors = {};
@@ -104,5 +108,7 @@ export function useCreateProposal() {
     errors,
     handleSubmit,
     formatJson,
+    userMasogBalance,
+    hasEnoughMasog,
   };
 }
