@@ -1,16 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { ConnectButton } from "../components/connect-wallet-popup";
-import { VoteDistribution } from "../components/proposals/VoteDistribution";
 import { VoteProgress } from "../components/proposals/VoteProgress";
-import { ProposalActions } from "../components/proposals/ProposalActions";
 import { useGovernanceData } from "../hooks/useGovernanceData";
 import { useMasogTotalSupply } from "../hooks/useMasogData";
 import { truncateAddress } from "../utils/address";
 import {
   ChatBubbleLeftRightIcon,
   ArrowLeftIcon,
-  CalendarIcon,
   UserIcon,
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
@@ -232,7 +229,8 @@ export default function ProposalDetails() {
               <div className="flex justify-between text-sm">
                 <span className="text-f-tertiary">End</span>
                 <span className="text-f-primary">
-                  {new Date(Number(proposal.endTimestamp)).toLocaleString()}
+                  {/* TODO: Add end date */}
+                  {/* {new Date(Number()).toLocaleString()} */}
                 </span>
               </div>
             </div>

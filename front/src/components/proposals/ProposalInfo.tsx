@@ -11,7 +11,10 @@ export function ProposalInfo({ proposal }: ProposalInfoProps) {
     return link.startsWith("https://forum.massa.community/");
   };
 
-  const hasValidForumLink = isValidForumLink(proposal.forumPostLink);
+  const hasValidForumLink =
+    !!proposal.forumPostLink &&
+    typeof proposal.forumPostLink === "string" &&
+    isValidForumLink(proposal.forumPostLink);
 
   return (
     <div className="flex items-center gap-4 text-f-tertiary mas-caption">
