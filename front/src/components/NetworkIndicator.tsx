@@ -29,13 +29,13 @@ export const NetworkIndicator = () => {
   const getNetworkColor = () => {
     switch (network.toLowerCase()) {
       case "mainnet":
-        return "text-green-500";
+        return "text-s-success";
       case "buildnet":
-        return "text-yellow-500";
+        return "text-brand";
       case "error":
-        return "text-red-500";
+        return "text-s-error";
       default:
-        return "text-gray-500";
+        return "text-f-tertiary";
     }
   };
 

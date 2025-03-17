@@ -59,7 +59,7 @@ export default function ProposalDetails() {
   const canVote = (userMasogBalance ?? 0n) >= 1n;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8">
       {/* Top Bar with Back Button and Vote Button */}
       <div className="flex justify-between items-center">
         <Link
