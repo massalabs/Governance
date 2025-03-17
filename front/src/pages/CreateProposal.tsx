@@ -14,7 +14,7 @@ export default function CreateProposal() {
     hasEnoughMasog,
     userMasogBalance,
     handleSubmit,
-    formatJson,
+    errors,
   } = useCreateProposal();
 
   return (
@@ -42,7 +42,7 @@ export default function CreateProposal() {
           <TechnicalDetailsSection
             parameterChangeInput={parameterChangeInput}
             setParameterChangeInput={setParameterChangeInput}
-            formatJson={formatJson}
+            error={errors.parameterChange}
           />
 
           <SubmitSection loading={loading} hasEnoughMasog={hasEnoughMasog} />

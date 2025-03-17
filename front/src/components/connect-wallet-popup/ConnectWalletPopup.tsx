@@ -4,6 +4,7 @@ import {
   PopupModalContent,
   PopupModalHeader,
 } from "@massalabs/react-ui-kit";
+import { createPortal } from "react-dom";
 import Intl from "@/i18n/i18n";
 
 interface ConnectWalletPopupProps {
@@ -13,28 +14,31 @@ interface ConnectWalletPopupProps {
 export function ConnectWalletPopup(props: ConnectWalletPopupProps) {
   const { setOpen } = props;
 
-  return (
-    <PopupModal
-      customClass="w-1/3 min-w-[470px] max-w-[700px]"
-      customClassNested="border-2 border-primary bg-secondary/90 backdrop-blur-lg"
-      fullMode={true}
-      onClose={() => setOpen(false)}
-    >
-      <PopupModalHeader>
-        <div className="text-f-primary flex flex-col mb-4">
-          <label className="mas-title mb-4">
-            {Intl.t("connect-wallet.title")}
-          </label>
-        </div>
-      </PopupModalHeader>
-      <PopupModalContent>
-        <div className="col-span-2">
-          <WalletCard>
-            <ConnectMassaWallet />
-          </WalletCard>
-        </div>
-      </PopupModalContent>
-    </PopupModal>
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <PopupModal
+        customClass="w-1/3 min-w-[470px] max-w-[700px]"
+        customClassNested="border-2 border-primary bg-secondary/90 backdrop-blur-lg"
+        fullMode={true}
+        onClose={() => setOpen(false)}
+      >
+        <PopupModalHeader>
+          <div className="text-f-primary flex flex-col mb-4">
+            <label className="mas-title mb-4">
+              {Intl.t("connect-wallet.title")}
+            </label>
+          </div>
+        </PopupModalHeader>
+        <PopupModalContent>
+          <div className="col-span-2">
+            <WalletCard>
+              <ConnectMassaWallet />
+            </WalletCard>
+          </div>
+        </PopupModalContent>
+      </PopupModal>
+    </div>,
+    document.body
   );
 }
 
