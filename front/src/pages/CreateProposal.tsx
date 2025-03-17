@@ -18,10 +18,13 @@ export default function CreateProposal() {
   } = useCreateProposal();
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="text-center">
-        <h1 className="text-f-primary mas-title mb-2">Create New Proposal</h1>
-        <p className="text-f-tertiary mas-body">
+    <div className="max-w-4xl mx-auto space-y-8">
+      {/* Header Section */}
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl font-bold text-f-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+          Create New Proposal
+        </h1>
+        <p className="text-f-tertiary mas-body text-lg max-w-2xl mx-auto">
           Submit a new governance proposal to improve the platform. Make sure to
           include a detailed forum post for discussion.
         </p>
@@ -32,18 +35,23 @@ export default function CreateProposal() {
         userMasogBalance={userMasogBalance}
       />
 
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm divide-y divide-gray-200">
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      {/* Main Form */}
+      <div className="bg-secondary/40 backdrop-blur-sm border border-primary/10 rounded-2xl shadow-lg">
+        <form onSubmit={handleSubmit} className="p-8 space-y-12">
           <BasicInformationSection
             formData={formData}
             setFormData={setFormData}
           />
+
+          <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
           <TechnicalDetailsSection
             parameterChangeInput={parameterChangeInput}
             setParameterChangeInput={setParameterChangeInput}
             error={errors.parameterChange}
           />
+
+          <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
           <SubmitSection loading={loading} hasEnoughMasog={hasEnoughMasog} />
         </form>

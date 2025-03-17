@@ -93,12 +93,16 @@ export function ParameterChangeForm({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-f-primary mas-h2">Parameter Changes</h2>
-        <div className="flex items-center text-f-tertiary">
-          <InformationCircleIcon className="h-4 w-4 mr-1" />
-          <span className="mas-caption">Optional</span>
+        <div className="space-y-1">
+          <p className="text-f-tertiary text-sm">
+            Define the technical parameters to be modified
+          </p>
+        </div>
+        <div className="flex items-center text-f-tertiary bg-secondary/30 px-3 py-1.5 rounded-full">
+          <InformationCircleIcon className="h-4 w-4 mr-1.5" />
+          <span className="text-sm">Optional</span>
         </div>
       </div>
 
@@ -106,29 +110,29 @@ export function ParameterChangeForm({
         {changes.map((change, index) => (
           <div
             key={index}
-            className="bg-secondary/30 border border-border rounded-lg p-4 space-y-4"
+            className="bg-secondary/20 border border-border/50 rounded-xl p-6 space-y-5 backdrop-blur-sm transition-all hover:border-border/80"
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-f-primary mas-body2">
+              <h3 className="text-lg font-medium text-f-primary">
                 Parameter Change #{index + 1}
               </h3>
               {changes.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeChange(index)}
-                  className="text-s-error hover:text-s-error/80 transition-colors"
+                  className="text-s-error hover:text-s-error/80 transition-colors p-1.5 rounded-lg hover:bg-s-error/10"
                 >
                   <TrashIcon className="h-5 w-5" />
                 </button>
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Parameter Name */}
               <div className="space-y-2">
                 <label
                   htmlFor={`parameter-${index}`}
-                  className="block text-f-primary mas-body2"
+                  className="block text-f-primary text-sm font-medium"
                 >
                   Parameter Name
                 </label>
@@ -137,38 +141,34 @@ export function ParameterChangeForm({
                   id={`parameter-${index}`}
                   value={change.parameter}
                   onChange={(e) => handleParameterChange(index, e.target.value)}
-                  className="w-full px-4 py-2 bg-background border border-border rounded-lg text-f-primary focus:outline-none focus:ring-2 focus:ring-brand/30 mas-body"
+                  className="w-full px-4 py-2.5 bg-background/50 border border-border/50 rounded-lg text-f-primary focus:outline-none focus:ring-2 focus:ring-brand/30 text-sm transition-all hover:border-border/80"
                   placeholder="Enter parameter name"
                 />
               </div>
 
               {/* Value Type Toggle */}
               <div className="space-y-2">
-                <label className="block text-f-primary mas-body2">
+                <label className="block text-f-primary text-sm font-medium">
                   Value Type
                 </label>
-                <div className="flex items-center space-x-4">
-                  <label className="flex items-center space-x-2">
+                <div className="flex items-center space-x-6">
+                  <label className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="radio"
                       checked={!change.isObjectValue}
                       onChange={() => handleIsObjectToggle(index, false)}
                       className="text-brand focus:ring-brand"
                     />
-                    <span className="text-f-primary mas-body2">
-                      Simple Value
-                    </span>
+                    <span className="text-f-primary text-sm">Simple Value</span>
                   </label>
-                  <label className="flex items-center space-x-2">
+                  <label className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="radio"
                       checked={change.isObjectValue}
                       onChange={() => handleIsObjectToggle(index, true)}
                       className="text-brand focus:ring-brand"
                     />
-                    <span className="text-f-primary mas-body2">
-                      JSON Object
-                    </span>
+                    <span className="text-f-primary text-sm">JSON Object</span>
                   </label>
                 </div>
               </div>
@@ -178,7 +178,7 @@ export function ParameterChangeForm({
             <div className="space-y-2">
               <label
                 htmlFor={`value-${index}`}
-                className="block text-f-primary mas-body2"
+                className="block text-f-primary text-sm font-medium"
               >
                 New Value
               </label>
@@ -187,7 +187,7 @@ export function ParameterChangeForm({
                   id={`value-${index}`}
                   value={change.value}
                   onChange={(e) => handleValueChange(index, e.target.value)}
-                  className="w-full px-4 py-3 bg-background border border-border rounded-lg font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand/30 text-f-primary"
+                  className="w-full px-4 py-3 bg-background/50 border border-border/50 rounded-lg font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand/30 text-f-primary transition-all hover:border-border/80"
                   rows={4}
                   placeholder='{
   "key": "value",
@@ -201,7 +201,7 @@ export function ParameterChangeForm({
                   id={`value-${index}`}
                   value={change.value}
                   onChange={(e) => handleValueChange(index, e.target.value)}
-                  className="w-full px-4 py-2 bg-background border border-border rounded-lg text-f-primary focus:outline-none focus:ring-2 focus:ring-brand/30 mas-body"
+                  className="w-full px-4 py-2.5 bg-background/50 border border-border/50 rounded-lg text-f-primary focus:outline-none focus:ring-2 focus:ring-brand/30 text-sm transition-all hover:border-border/80"
                   placeholder="Enter new value"
                 />
               )}
@@ -212,18 +212,22 @@ export function ParameterChangeForm({
         <button
           type="button"
           onClick={addChange}
-          className="w-full py-2 px-4 border-2 border-dashed border-border rounded-lg text-f-tertiary hover:text-brand hover:border-brand transition-colors flex items-center justify-center gap-2"
+          className="w-full py-3 px-4 border-2 border-dashed border-border/50 rounded-xl text-f-tertiary hover:text-brand hover:border-brand transition-all flex items-center justify-center gap-2 hover:bg-secondary/20"
         >
           <PlusIcon className="h-5 w-5" />
-          <span className="mas-body2">Add Another Parameter Change</span>
+          <span className="text-sm font-medium">
+            Add Another Parameter Change
+          </span>
         </button>
       </div>
 
       {/* Preview */}
       {parameterChangeInput && (
         <div className="space-y-2">
-          <label className="block text-f-primary mas-body2">Preview</label>
-          <div className="bg-secondary/50 border border-border rounded-lg p-4">
+          <label className="block text-f-primary text-sm font-medium">
+            Preview
+          </label>
+          <div className="bg-secondary/30 border border-border/50 rounded-xl p-4 backdrop-blur-sm">
             <pre className="text-sm whitespace-pre-wrap font-mono text-f-primary">
               {parameterChangeInput}
             </pre>
@@ -232,7 +236,11 @@ export function ParameterChangeForm({
       )}
 
       {/* Error Message */}
-      {error && <div className="text-s-error text-sm mt-2">{error}</div>}
+      {error && (
+        <div className="text-s-error text-sm mt-2 bg-s-error/10 px-4 py-2 rounded-lg">
+          {error}
+        </div>
+      )}
     </div>
   );
 }

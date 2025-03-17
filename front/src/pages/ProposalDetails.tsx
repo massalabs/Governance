@@ -111,23 +111,33 @@ export default function ProposalDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column - Proposal Content */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Summary */}
-          <div className="bg-secondary border border-border rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-f-primary mb-4">
-              Summary
+          {/* Basic Information Section */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-f-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              Basic Information
             </h2>
-            <p className="text-f-tertiary whitespace-pre-wrap">
-              {proposal.summary}
-            </p>
+            <div className="bg-secondary border border-border rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-f-primary mb-4">
+                Summary
+              </h3>
+              <p className="text-f-tertiary whitespace-pre-wrap">
+                {proposal.summary}
+              </p>
+            </div>
           </div>
 
-          {/* Parameter Changes */}
+          {/* Technical Details Section */}
           {proposal.parameterChange && (
-            <div className="bg-secondary border border-border rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-f-primary mb-4">
-                Parameter Changes
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold text-f-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                Technical Details
               </h2>
-              <ParameterChanges parameterChange={proposal.parameterChange} />
+              <div className="bg-secondary border border-border rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-f-primary mb-4">
+                  Parameter Changes
+                </h3>
+                <ParameterChanges parameterChange={proposal.parameterChange} />
+              </div>
             </div>
           )}
         </div>
