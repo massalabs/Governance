@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { ConnectButton } from "../components/connect-wallet-popup";

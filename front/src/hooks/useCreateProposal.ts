@@ -7,6 +7,8 @@ import {
 } from "@massalabs/react-ui-kit";
 import { Args, Mas } from "@massalabs/massa-web3";
 import { useContractStore } from "@/store/useContractStore";
+import { useNavigate } from "react-router-dom";
+import { useGovernanceData } from "./useGovernanceData";
 
 export const REQUIRED_MASOG = 1n;
 
@@ -18,6 +20,7 @@ interface ValidationErrors {
 }
 
 export function useCreateProposal() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<CreateProposalParams>({
     title: "",
     forumPostLink: "",
@@ -29,9 +32,11 @@ export function useCreateProposal() {
   const [errors, setErrors] = useState<ValidationErrors>({});
   const { connectedAccount } = useAccountStore();
   const { governance } = useContractStore();
+  const { refresh, userMasogBalance } = useGovernanceData();
   const { callSmartContract } = useWriteSmartContract(connectedAccount!);
-  const userMasogBalance = 2000n; // TODO: Replace with actual balance from contract
-  const hasEnoughMasog = userMasogBalance >= REQUIRED_MASOG;
+
+  const hasEnoughMasog =
+    !!userMasogBalance && userMasogBalance >= REQUIRED_MASOG;
 
   const validateForm = (): boolean => {
     const newErrors: ValidationErrors = {};
@@ -89,8 +94,14 @@ export function useCreateProposal() {
           pending: "Creating proposal...",
           error: "Failed to create proposal",
         },
-        Mas.fromString("1001")
+        Mas.fromString("1001"),
+        undefined,
+        true
       );
+
+      const counter = await governance?.public.getCounter();
+      await refresh();
+      navigate(`/proposal/${counter}`);
     } catch (error) {
       console.error("Failed to create proposal:", error);
       throw error;

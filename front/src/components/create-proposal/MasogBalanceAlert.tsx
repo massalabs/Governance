@@ -3,7 +3,7 @@ import { REQUIRED_MASOG } from "../../hooks/useCreateProposal";
 
 interface MasogBalanceAlertProps {
   hasEnoughMasog: boolean;
-  userMasogBalance: bigint;
+  userMasogBalance: bigint | null;
 }
 
 export function MasogBalanceAlert({
@@ -37,7 +37,7 @@ export function MasogBalanceAlert({
           <p className="text-f-tertiary mas-body2">
             Your balance:{" "}
             <span className={!hasEnoughMasog ? "text-red-500 font-medium" : ""}>
-              {userMasogBalance.toString()}
+              {userMasogBalance?.toString() ?? "0"}
             </span>{" "}
             MASOG
             <br />
