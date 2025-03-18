@@ -1,6 +1,4 @@
 import { useParams } from "react-router-dom";
-import { useAccountStore } from "@massalabs/react-ui-kit";
-import { ConnectButton } from "../components/connect-wallet-popup";
 import { VoteProgress } from "../components/proposals/VoteProgress";
 import { useGovernanceData } from "../hooks/useGovernanceData";
 import { useMasogTotalSupply } from "../hooks/useMasogData";
@@ -18,27 +16,12 @@ import { ParameterChanges } from "../components/proposals/ParameterChanges";
 
 export default function ProposalDetails() {
   const { id } = useParams<{ id: string }>();
-  const { connectedAccount } = useAccountStore();
   const { proposals, loading, userMasogBalance, userVotes } =
     useGovernanceData();
   const { data: totalSupply } = useMasogTotalSupply();
   const { openVoteModal } = useUIStore();
 
   const proposal = proposals.find((p) => p.id.toString() === id);
-
-  if (!connectedAccount) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 space-y-6">
-        <h1 className="text-2xl font-bold text-f-primary mas-title">
-          Connect to View Proposal
-        </h1>
-        <p className="text-f-tertiary mas-body text-center max-w-md">
-          Connect your wallet to view proposal details
-        </p>
-        <ConnectButton />
-      </div>
-    );
-  }
 
   if (loading || !totalSupply) {
     return (

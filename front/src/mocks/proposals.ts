@@ -7,7 +7,7 @@ export const mockProposals = [
   {
     id: 1n,
     title: "Increase Block Reward",
-    forumPostLink: "https://forum.massa.net/t/proposal-1",
+    forumPostLink: "https://forum.massa.community/t/proposal-1",
     summary:
       "Proposal to increase the block reward from 100 MAS to 150 MAS to incentivize more validators to join the network. This change will help improve network decentralization and security.",
     parameterChange: JSON.stringify({
@@ -26,7 +26,7 @@ export const mockProposals = [
   {
     id: 2n,
     title: "Adjust Finality Period",
-    forumPostLink: "https://forum.massa.net/t/proposal-2",
+    forumPostLink: "https://forum.massa.community/t/proposal-2",
     summary:
       "Modify the finality period from 32 blocks to 48 blocks to provide more time for network consensus and improve security. This change will help prevent potential chain reorganizations.",
     parameterChange: JSON.stringify({
@@ -45,7 +45,7 @@ export const mockProposals = [
   {
     id: 3n,
     title: "Update Network Fees",
-    forumPostLink: "https://forum.massa.net/t/proposal-3",
+    forumPostLink: "https://forum.massa.community/t/proposal-3",
     summary:
       "Adjust network transaction fees to better reflect current network conditions and ensure sustainable network operation. This includes updating both storage and computation fees.",
     parameterChange: JSON.stringify({
@@ -64,7 +64,7 @@ export const mockProposals = [
   {
     id: 4n,
     title: "Modify Slot Duration",
-    forumPostLink: "https://forum.massa.net/t/proposal-4",
+    forumPostLink: "https://forum.massa.community/t/proposal-4",
     summary:
       "Change the slot duration from 16 seconds to 20 seconds to improve network stability and reduce the likelihood of missed blocks. This adjustment will help optimize network performance.",
     parameterChange: JSON.stringify({
@@ -83,7 +83,7 @@ export const mockProposals = [
   {
     id: 5n,
     title: "Implement New Consensus Rules",
-    forumPostLink: "https://forum.massa.net/t/proposal-5",
+    forumPostLink: "https://forum.massa.community/t/proposal-5",
     summary:
       "Introduce new consensus rules to improve network security and efficiency. This includes implementing additional validation checks and optimizing the consensus algorithm.",
     parameterChange: JSON.stringify({

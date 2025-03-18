@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useAccountStore } from "@massalabs/react-ui-kit";
-import { ConnectButton } from "../components/connect-wallet-popup";
 import VoteModal from "../components/VoteModal";
 import { ProposalCard } from "../components/proposals/ProposalCard";
 import { ProposalFilters } from "../components/proposals/ProposalFilters";
@@ -8,7 +6,6 @@ import { ProposalStatus } from "../types/governance";
 import { useGovernanceData } from "../hooks/useGovernanceData";
 
 export default function Proposals() {
-  const { connectedAccount } = useAccountStore();
   const { proposals: allProposals, loading } = useGovernanceData();
 
   const [searchQuery, setSearchQuery] = useState("");

@@ -79,12 +79,18 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
           </div>
           <div className="h-8 bg-secondary/50 rounded-md overflow-hidden relative border border-emerald-400/30">
             <div
-              className="h-full bg-emerald-400/20 transition-all duration-300 flex items-center px-4"
-              style={{ width: `${yesPercentage}%` }}
+              className="h-full transition-all duration-300 flex items-center px-4"
+              style={{
+                width: `${yesPercentage}%`,
+                backgroundColor:
+                  yesPercentage > 0 ? "rgba(16, 185, 129, 0.2)" : "transparent",
+              }}
             >
-              <span className="text-sm font-medium text-emerald-400">
-                {proposal.positiveVoteVolume.toString()}
-              </span>
+              {proposal.positiveVoteVolume > 0n && (
+                <span className="text-sm font-medium text-emerald-400">
+                  {proposal.positiveVoteVolume.toString()}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -97,12 +103,18 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
           </div>
           <div className="h-8 bg-secondary/50 rounded-md overflow-hidden relative border border-rose-400/30">
             <div
-              className="h-full bg-rose-400/20 transition-all duration-300 flex items-center px-4"
-              style={{ width: `${noPercentage}%` }}
+              className="h-full transition-all duration-300 flex items-center px-4"
+              style={{
+                width: `${noPercentage}%`,
+                backgroundColor:
+                  noPercentage > 0 ? "rgba(244, 63, 94, 0.2)" : "transparent",
+              }}
             >
-              <span className="text-sm font-medium text-rose-400">
-                {proposal.negativeVoteVolume.toString()}
-              </span>
+              {proposal.negativeVoteVolume > 0n && (
+                <span className="text-sm font-medium text-rose-400">
+                  {proposal.negativeVoteVolume.toString()}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -117,12 +129,20 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
           </div>
           <div className="h-8 bg-secondary/50 rounded-md overflow-hidden relative border border-indigo-400/30">
             <div
-              className="h-full bg-indigo-400/20 transition-all duration-300 flex items-center px-4"
-              style={{ width: `${blankPercentage}%` }}
+              className="h-full transition-all duration-300 flex items-center px-4"
+              style={{
+                width: `${blankPercentage}%`,
+                backgroundColor:
+                  blankPercentage > 0
+                    ? "rgba(99, 102, 241, 0.2)"
+                    : "transparent",
+              }}
             >
-              <span className="text-sm font-medium text-indigo-400">
-                {proposal.blankVoteVolume.toString()}
-              </span>
+              {proposal.blankVoteVolume > 0n && (
+                <span className="text-sm font-medium text-indigo-400">
+                  {proposal.blankVoteVolume.toString()}
+                </span>
+              )}
             </div>
           </div>
         </div>

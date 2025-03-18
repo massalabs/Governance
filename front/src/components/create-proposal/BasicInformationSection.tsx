@@ -71,7 +71,7 @@ export function BasicInformationSection({
               className="w-full px-4 pr-12 py-3 bg-secondary/60 dark:bg-darkCard/60 border border-primary/10 dark:border-darkAccent/10 rounded-lg text-f-primary dark:text-darkText placeholder-f-tertiary dark:placeholder-darkMuted focus:outline-none focus:ring-2 focus:ring-primary/20 dark:focus:ring-darkAccent/20 focus:border-primary/30 dark:focus:border-darkAccent/30 mas-body transition-all duration-200"
               required
               maxLength={MAX_FORUM_LINK_LENGTH}
-              placeholder="https://forum.massa.net/..."
+              placeholder="https://forum.massa.community/..."
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-f-tertiary dark:text-darkMuted">
               {formData.forumPostLink.length}/{MAX_FORUM_LINK_LENGTH}
