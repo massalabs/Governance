@@ -4,6 +4,9 @@ import { Context, Storage } from '@massalabs/massa-as-sdk';
 import { voteKey, commentKey } from '../governance-internals/keys';
 
 export class Vote implements Serializable {
+  // Maximum length for a vote comment (500 characters)
+  private static readonly MAX_COMMENT_LENGTH: u32 = 500;
+
   constructor(
     public proposalId: u64 = 0,
     public value: i32 = 0,
@@ -43,7 +46,19 @@ export class Vote implements Serializable {
     return new Result(args.offset);
   }
 
+  /**
+   * Validates the vote data.
+   */
+  assertIsValid(): void {
+    assert(
+      u32(this.comment.length) <= Vote.MAX_COMMENT_LENGTH,
+      'Comment exceeds maximum length of 500 characters',
+    );
+  }
+
   save(): void {
+    this.assertIsValid();
+
     // Check if voter has already voted
     const voterAddr = Context.caller().toString();
     const voteKeyBytes = voteKey(this.proposalId, voterAddr);
