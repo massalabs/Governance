@@ -6,15 +6,15 @@ export function ActionLinks() {
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       <Link
         to="/proposals"
-        className="bg-secondary border border-border p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group active-button"
+        className="bg-secondary dark:bg-darkCard border border-border dark:border-darkBorder p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group active-button"
       >
-        <h3 className="text-lg font-medium text-f-primary group-hover:text-brand mas-h2">
+        <h3 className="text-lg font-medium text-f-primary dark:text-darkText group-hover:text-brand dark:group-hover:text-darkAccent mas-h2">
           View Proposals
         </h3>
-        <p className="mt-2 text-sm text-f-tertiary mas-body2">
+        <p className="mt-2 text-sm text-f-tertiary dark:text-darkMuted mas-body2">
           Browse and vote on active governance proposals
         </p>
-        <div className="mt-4 flex items-center text-brand">
+        <div className="mt-4 flex items-center text-brand dark:text-darkAccent">
           <span className="text-sm font-medium mas-buttons">
             View all proposals
           </span>
@@ -24,15 +24,15 @@ export function ActionLinks() {
 
       <Link
         to="/create"
-        className="bg-secondary border border-border p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group active-button"
+        className="bg-secondary dark:bg-darkCard border border-border dark:border-darkBorder p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group active-button"
       >
-        <h3 className="text-lg font-medium text-f-primary group-hover:text-brand mas-h2">
+        <h3 className="text-lg font-medium text-f-primary dark:text-darkText group-hover:text-brand dark:group-hover:text-darkAccent mas-h2">
           Create Proposal
         </h3>
-        <p className="mt-2 text-sm text-f-tertiary mas-body2">
+        <p className="mt-2 text-sm text-f-tertiary dark:text-darkMuted mas-body2">
           Submit a new governance proposal
         </p>
-        <div className="mt-4 flex items-center text-brand">
+        <div className="mt-4 flex items-center text-brand dark:text-darkAccent">
           <span className="text-sm font-medium mas-buttons">
             Create proposal
           </span>

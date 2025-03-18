@@ -16,9 +16,9 @@ export default function Layout() {
 
   useEffect(() => {
     // Remove both theme classes first
-    document.documentElement.classList.remove("theme-light", "theme-dark");
+    document.documentElement.classList.remove("light", "dark");
     // Add the current theme class
-    document.documentElement.classList.add(`theme-${theme}`);
+    document.documentElement.classList.add(theme);
   }, [theme]);
 
   useEffect(() => {
@@ -29,13 +29,13 @@ export default function Layout() {
   }, [connectedAccount, navigate]);
 
   return (
-    <div className="min-h-screen bg-background text-f-primary">
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-secondary/80 backdrop-blur-md shadow-sm">
+    <div className="min-h-screen bg-background dark:bg-darkBg text-f-primary dark:text-f-primary">
+      <header className="sticky top-0 z-50 border-b border-border/50 dark:border-darkBorder/50 bg-secondary/80 dark:bg-darkCard/80 backdrop-blur-md shadow-sm">
         <nav className="container mx-auto px-4 py-3 flex items-center justify-between relative">
           <div className="flex items-center space-x-8">
             <Link
               to="/"
-              className={`text-2xl font-bold text-brand mas-title hover:opacity-90 transition-opacity ${
+              className={`text-2xl font-bold text-brand dark:text-brand mas-title hover:opacity-90 transition-opacity ${
                 location.pathname === "/" ? "opacity-100" : "opacity-80"
               }`}
             >
@@ -45,28 +45,28 @@ export default function Layout() {
               <div className="flex items-center space-x-6">
                 <Link
                   to="/proposals"
-                  className={`text-f-tertiary hover:text-brand transition-all duration-200 mas-menu-default relative font-medium ${
+                  className={`text-f-tertiary dark:text-f-tertiary hover:text-brand dark:hover:text-brand transition-all duration-200 mas-menu-default relative font-medium ${
                     location.pathname.startsWith("/proposals")
-                      ? "text-brand font-semibold"
+                      ? "text-brand dark:text-brand font-semibold"
                       : ""
                   }`}
                 >
                   Proposals
                   {location.pathname.startsWith("/proposals") && (
-                    <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-brand" />
+                    <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-brand dark:bg-brand" />
                   )}
                 </Link>
                 <Link
                   to="/create"
-                  className={`text-f-tertiary hover:text-brand transition-all duration-200 mas-menu-default relative font-medium ${
+                  className={`text-f-tertiary dark:text-f-tertiary hover:text-brand dark:hover:text-brand transition-all duration-200 mas-menu-default relative font-medium ${
                     location.pathname === "/create"
-                      ? "text-brand font-semibold"
+                      ? "text-brand dark:text-brand font-semibold"
                       : ""
                   }`}
                 >
                   Create Proposal
                   {location.pathname === "/create" && (
-                    <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-brand" />
+                    <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-brand dark:bg-brand" />
                   )}
                 </Link>
               </div>
@@ -74,7 +74,7 @@ export default function Layout() {
           </div>
           <div className="flex items-center space-x-4">
             {connectedAccount && (
-              <div className="px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50">
+              <div className="px-3 py-1.5 rounded-full bg-secondary/50 dark:bg-darkCard/50 border border-border/50 dark:border-darkBorder/50">
                 <NetworkIndicator />
               </div>
             )}
