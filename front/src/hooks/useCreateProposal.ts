@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 import { useGovernanceData } from "./useGovernanceData";
 
 export const REQUIRED_MASOG = 1n;
-
 export const REQUIRED_MAS = Mas.fromMas(1000n);
 
 interface ValidationErrors {

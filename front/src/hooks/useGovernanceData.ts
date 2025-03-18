@@ -72,15 +72,7 @@ export const useProposals = () => {
         throw new Error("Governance contract not initialized");
 
       try {
-        const networkInfo = await governance.public.provider.networkInfos();
-        console.log("[Debug] Network info:", networkInfo);
-        console.log(
-          "[Debug] Using governance contract at:",
-          governance.public.address
-        );
-
         const fetchedProposals = await governance.public.getProposals();
-        console.log("[Debug] Raw proposals:", fetchedProposals);
 
         return fetchedProposals
           .map(formatProposal)
@@ -107,9 +99,7 @@ export const useUserBalance = () => {
       if (!masOg?.public || !connectedAccount)
         throw new Error("MasOg contract not initialized or no account");
 
-      const balance = await masOg.public.balanceOf(connectedAccount.address);
-      console.log("[Debug] User balance:", balance.toString());
-      return balance;
+      return masOg.public.balanceOf(connectedAccount.address);
     },
     refetchInterval: 5 * 60 * 1000,
     retry: 3,

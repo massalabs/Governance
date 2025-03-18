@@ -15,6 +15,7 @@ import { useUIStore } from "../store/useUIStore";
 import { ParameterChanges } from "../components/proposals/ParameterChanges";
 import { FormattedProposal } from "@/types/governance";
 import { REQUIRED_MASOG } from "@/hooks/useCreateProposal";
+import { Loading } from "@/components/ui/Loading";
 
 interface ProposalHeaderProps {
   proposal: FormattedProposal;
@@ -228,11 +229,7 @@ export default function ProposalDetails() {
   const proposal = proposals.find((p) => p.id.toString() === id);
 
   if (loading || !totalSupply) {
-    return (
-      <div className="text-center py-8 text-f-tertiary dark:text-darkMuted">
-        Loading proposal...
-      </div>
-    );
+    return <Loading text="Loading proposal details..." size="lg" />;
   }
 
   if (!proposal) {
