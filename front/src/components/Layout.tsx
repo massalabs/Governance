@@ -35,7 +35,7 @@ export default function Layout() {
           <div className="flex items-center space-x-8">
             <Link
               to="/"
-              className={`text-2xl font-bold text-brand dark:text-brand mas-title hover:opacity-90 transition-opacity ${
+              className={`text-2xl font-bold text-neutral dark:text-neutral mas-title hover:opacity-90 transition-opacity ${
                 location.pathname === "/" ? "opacity-100" : "opacity-80"
               }`}
             >
@@ -45,28 +45,28 @@ export default function Layout() {
               <div className="flex items-center space-x-6">
                 <Link
                   to="/proposals"
-                  className={`text-f-tertiary dark:text-f-tertiary hover:text-brand dark:hover:text-brand transition-all duration-200 mas-menu-default relative font-medium ${
+                  className={`text-neutral dark:text-neutral hover:opacity-80 transition-all duration-200 mas-menu-default relative font-medium ${
                     location.pathname.startsWith("/proposals")
-                      ? "text-brand dark:text-brand font-semibold"
-                      : ""
+                      ? "opacity-100 font-semibold"
+                      : "opacity-70"
                   }`}
                 >
                   Proposals
                   {location.pathname.startsWith("/proposals") && (
-                    <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-brand dark:bg-brand" />
+                    <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-neutral dark:bg-neutral" />
                   )}
                 </Link>
                 <Link
                   to="/create"
-                  className={`text-f-tertiary dark:text-f-tertiary hover:text-brand dark:hover:text-brand transition-all duration-200 mas-menu-default relative font-medium ${
+                  className={`text-neutral dark:text-neutral hover:opacity-80 transition-all duration-200 mas-menu-default relative font-medium ${
                     location.pathname === "/create"
-                      ? "text-brand dark:text-brand font-semibold"
-                      : ""
+                      ? "opacity-100 font-semibold"
+                      : "opacity-70"
                   }`}
                 >
                   Create Proposal
                   {location.pathname === "/create" && (
-                    <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-brand dark:bg-brand" />
+                    <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-neutral dark:bg-neutral" />
                   )}
                 </Link>
               </div>
@@ -91,7 +91,7 @@ export default function Layout() {
       <footer className="border-t border-border dark:border-darkBorder bg-secondary dark:bg-darkCard mt-auto">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
-            <div className="text-xl font-bold text-brand dark:text-brand">
+            <div className="text-xl font-bold text-neutral dark:text-neutral">
               MASSA GOVERNANCE
             </div>
             <div className="flex items-center space-x-6">
@@ -99,7 +99,7 @@ export default function Layout() {
                 href="https://twitter.com/MassaAIO"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-f-tertiary dark:text-f-tertiary hover:text-brand dark:hover:text-brand transition-colors"
+                className="text-neutral dark:text-neutral hover:opacity-80 transition-opacity"
               >
                 <svg
                   className="w-6 h-6"
@@ -113,7 +113,7 @@ export default function Layout() {
                 href="https://github.com/massalabs"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-f-tertiary dark:text-f-tertiary hover:text-brand dark:hover:text-brand transition-colors"
+                className="text-neutral dark:text-neutral hover:opacity-80 transition-opacity"
               >
                 <svg
                   className="w-6 h-6"
@@ -127,7 +127,7 @@ export default function Layout() {
                 href="https://discord.gg/massa"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-f-tertiary dark:text-f-tertiary hover:text-brand dark:hover:text-brand transition-colors"
+                className="text-neutral dark:text-neutral hover:opacity-80 transition-opacity"
               >
                 <svg
                   className="w-6 h-6"
@@ -141,7 +141,7 @@ export default function Layout() {
                 href="https://docs.massa.net"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-f-tertiary dark:text-f-tertiary hover:text-brand dark:hover:text-brand transition-colors"
+                className="text-neutral dark:text-neutral hover:opacity-80 transition-opacity"
               >
                 <svg
                   className="w-6 h-6"
