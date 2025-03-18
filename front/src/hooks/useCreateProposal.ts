@@ -41,6 +41,17 @@ export function useCreateProposal() {
 
   const hasEnoughMas = !!userMasBalance && userMasBalance >= REQUIRED_MAS;
 
+  // Debug logging
+  console.log("Balance check:", {
+    userMasBalance: userMasBalance?.toString(),
+    requiredMas: REQUIRED_MAS.toString(),
+    hasEnoughMas,
+    userMasogBalance: userMasogBalance?.toString(),
+    requiredMasog: REQUIRED_MASOG.toString(),
+    hasEnoughMasog,
+    hasEnough: hasEnoughMasog && hasEnoughMas,
+  });
+
   const validateForm = (): boolean => {
     const newErrors: ValidationErrors = {};
 

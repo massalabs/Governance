@@ -29,7 +29,7 @@ export default function Layout() {
   }, [connectedAccount, navigate]);
 
   return (
-    <div className="min-h-screen bg-background dark:bg-darkBg text-f-primary dark:text-f-primary">
+    <div className="min-h-screen flex flex-col bg-background dark:bg-darkBg text-f-primary dark:text-f-primary">
       <header className="sticky top-0 z-50 border-b border-border/50 dark:border-darkBorder/50 bg-secondary/80 dark:bg-darkCard/80 backdrop-blur-md shadow-sm">
         <nav className="container mx-auto px-4 py-3 flex items-center justify-between relative">
           <div className="flex items-center space-x-8">
@@ -85,11 +85,11 @@ export default function Layout() {
         </nav>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-8">
         <Outlet />
       </main>
 
-      <footer className="border-t border-border dark:border-darkBorder bg-secondary dark:bg-darkCard mt-auto">
+      <footer className="border-t border-border dark:border-darkBorder bg-secondary dark:bg-darkCard">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
             <div className="text-xl text-neutral dark:text-neutral">

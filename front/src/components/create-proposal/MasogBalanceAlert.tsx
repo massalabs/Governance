@@ -16,9 +16,11 @@ export function MasogBalanceAlert({
   userMasBalance,
 }: MasogBalanceAlertProps) {
   const hasEnough = hasEnoughMasog && hasEnoughMas;
-  const alertColor = hasEnough ? "text-s-success" : "text-red-500";
-  const alertBgColor = hasEnough ? "bg-s-success/10" : "bg-red-100";
-  const alertBorderColor = hasEnough ? "border-s-success/20" : "border-red-300";
+  const alertColor = hasEnough ? "text-s-success" : "text-s-error";
+  const alertBgColor = hasEnough ? "bg-s-success/10" : "bg-s-error/10";
+  const alertBorderColor = hasEnough
+    ? "border-s-success/20"
+    : "border-s-error/20";
 
   return (
     <div
@@ -40,7 +42,7 @@ export function MasogBalanceAlert({
             <div className="flex items-center gap-2">
               <span className="text-f-tertiary mas-body2">MASOG:</span>
               <span
-                className={!hasEnoughMasog ? "text-red-500 font-medium" : ""}
+                className={!hasEnoughMasog ? "text-s-error font-medium" : ""}
               >
                 {userMasogBalance?.toString() ?? "0"}
               </span>
@@ -51,7 +53,7 @@ export function MasogBalanceAlert({
             </div>
             <div className="flex items-center gap-2">
               <span className="text-f-tertiary mas-body2">MAS:</span>
-              <span className={!hasEnoughMas ? "text-red-500 font-medium" : ""}>
+              <span className={!hasEnoughMas ? "text-s-error font-medium" : ""}>
                 {formatAmount(userMasBalance ?? 0n).preview ?? "0"}
               </span>
               <span className="text-f-tertiary">/</span>
