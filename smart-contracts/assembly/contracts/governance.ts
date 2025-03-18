@@ -118,6 +118,9 @@ export function deleteProposal(binaryArgs: StaticArray<u8>): void {
 
   _deleteProposal(proposalId);
 
+  // set counter to 0
+  Storage.set(UPDATE_PROPOSAL_COUNTER_TAG, u64ToBytes(0));
+
   transferRemaining(initialBalance);
 }
 

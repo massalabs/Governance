@@ -12,7 +12,7 @@ import {
 } from "../types/governance";
 import { Vote } from "../serializable/Vote";
 import { Proposal } from "../serializable/Proposal";
-import { mockProposals } from "../mocks/proposals";
+// import { mockProposals } from "../mocks/proposals";
 
 // Query keys
 export const governanceKeys = {
@@ -201,10 +201,10 @@ export function useGovernanceData() {
     isLoadingProposals || isLoadingBalance || isLoadingVotes || isLoadingSupply;
 
   // Combine real and mock proposals
-  const allProposals = [...realProposals, ...mockProposals];
+  // const allProposals = [...realProposals, ...mockProposals];
 
   const stats = calculateStats(
-    isLoadingProposals ? [] : allProposals,
+    isLoadingProposals ? [] : realProposals,
     isLoadingSupply ? null : totalMasogSupply ?? null,
     isLoadingBalance ? null : userBalance ?? null
   );
@@ -215,7 +215,7 @@ export function useGovernanceData() {
   };
 
   return {
-    proposals: isLoading ? [] : allProposals,
+    proposals: isLoading ? [] : realProposals,
     loading: isLoading,
     stats,
     userMasogBalance: isLoadingBalance ? null : userBalance ?? null,
