@@ -25,20 +25,6 @@ export default function Proposals() {
     return matchesSearch && matchesStatus;
   });
 
-  if (!connectedAccount) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 space-y-6">
-        <h1 className="text-2xl font-bold text-f-primary mas-title">
-          Welcome to Governance
-        </h1>
-        <p className="text-f-tertiary mas-body text-center max-w-md">
-          Connect your wallet to view and participate in governance proposals
-        </p>
-        <ConnectButton />
-      </div>
-    );
-  }
-
   if (loading) {
     return <div>Loading...</div>;
   }
