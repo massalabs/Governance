@@ -1,24 +1,25 @@
 import { createThemes } from "tw-colors";
 import plugin from "tailwindcss/plugin";
 
-// Modern clean colors
-const colorPaper = "#F8FAFC"; // Very light blue-gray for main background
-const colorSepia = "#F1F5F9"; // Light cool gray for secondary elements
-const colorInk = "#1A1F36"; // Deep blue-gray for text
-const colorAccent = "#3B82F6"; // Modern blue for accents
+// Modern black and white colors
+const colorPaper = "#FFFFFF"; // Pure white for main background
+const colorSepia = "#F8F8F8"; // Very light gray for secondary elements
+const colorInk = "#111111"; // Deep black for text
+const colorAccent = "#000000"; // Pure black for accents
 const colorParchment = "#FFFFFF"; // Pure white for cards
-const colorBorder = "#E2E8F0"; // Light gray for borders
+const colorBorder = "#E5E5E5"; // Light gray for borders
+const colorHighlight = "#FF3B30"; // Vibrant red for highlights
 
 // Dark mode colors
-const colorDarkBg = "#0F172A"; // Deep blue-gray background
-const colorDarkCard = "#1E293B"; // Slightly lighter blue-gray for cards
-const colorDarkText = "#F8FAFC"; // Cool white for text
-const colorDarkMuted = "#94A3B8"; // Cool gray for muted text
-const colorDarkBorder = "#334155"; // Blue-gray for borders
-const colorDarkAccent = "#60A5FA"; // Bright blue for accents
+const colorDarkBg = "#111111"; // Deep black background
+const colorDarkCard = "#1A1A1A"; // Slightly lighter black for cards
+const colorDarkText = "#FFFFFF"; // Pure white for text
+const colorDarkMuted = "#A3A3A3"; // Cool gray for muted text
+const colorDarkBorder = "#262626"; // Dark gray for borders
+const colorDarkAccent = "#FF3B30"; // Same vibrant red for highlights
 
 // Light mode colors
-const colorMuted = "#64748B"; // Cool gray for muted text (light mode)
+const colorMuted = "#666666"; // Medium gray for muted text (light mode)
 
 export default {
   theme: {
@@ -30,6 +31,7 @@ export default {
         brand: colorAccent,
         background: colorPaper,
         border: colorBorder,
+        highlight: colorHighlight,
       },
       fontFamily: {
         sans: [
@@ -66,10 +68,11 @@ export default {
           brand: colorAccent,
           background: colorPaper,
           border: colorBorder,
+          highlight: colorHighlight,
           // states:
-          "s-success": colorAccent,
-          "s-error": colorAccent,
-          "s-warning": colorAccent,
+          "s-success": colorHighlight,
+          "s-error": colorHighlight,
+          "s-warning": colorHighlight,
           "s-info": colorMuted,
           "s-info-1": colorMuted,
           // components:
@@ -78,7 +81,7 @@ export default {
           "c-pressed": colorMuted,
           "c-disabled-1": colorMuted,
           "c-disabled-2": colorParchment,
-          "c-error": colorAccent,
+          "c-error": colorHighlight,
           // icons:
           "i-primary": colorMuted,
           "i-secondary": colorParchment,
@@ -109,6 +112,7 @@ export default {
           info: colorDarkMuted,
           background: colorDarkBg,
           border: colorDarkBorder,
+          highlight: colorDarkAccent,
           // states:
           "s-success": colorDarkAccent,
           "s-error": colorDarkAccent,
