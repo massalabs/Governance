@@ -25,7 +25,7 @@ export default function ProposalDetails() {
 
   if (loading || !totalSupply) {
     return (
-      <div className="text-center py-8 text-f-tertiary">
+      <div className="text-center py-8 text-f-tertiary dark:text-darkMuted">
         Loading proposal...
       </div>
     );
@@ -33,7 +33,9 @@ export default function ProposalDetails() {
 
   if (!proposal) {
     return (
-      <div className="text-center py-8 text-f-tertiary">Proposal not found</div>
+      <div className="text-center py-8 text-f-tertiary dark:text-darkMuted">
+        Proposal not found
+      </div>
     );
   }
 
@@ -47,7 +49,7 @@ export default function ProposalDetails() {
       <div className="flex justify-between items-center">
         <Link
           to="/proposals"
-          className="inline-flex items-center gap-2 text-f-tertiary hover:text-f-primary transition-colors"
+          className="inline-flex items-center gap-2 text-f-tertiary dark:text-darkMuted hover:text-f-primary dark:hover:text-darkText transition-colors"
         >
           <ArrowLeftIcon className="h-5 w-5" />
           <span>Back to Proposals</span>
@@ -57,8 +59,8 @@ export default function ProposalDetails() {
       {/* Header Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-f-tertiary">
-            <span className="px-2 py-1 rounded-full bg-secondary text-brand">
+          <div className="flex items-center gap-2 text-sm text-f-tertiary dark:text-darkMuted">
+            <span className="px-2 py-1 rounded-full bg-secondary/20 dark:bg-darkCard/20 text-brand dark:text-darkAccent">
               {proposal.status}
             </span>
             <span>•</span>
@@ -70,8 +72,10 @@ export default function ProposalDetails() {
             </span>
           </div>
         </div>
-        <h1 className="text-3xl font-bold text-f-primary">{proposal.title}</h1>
-        <div className="flex items-center gap-4 text-sm text-f-tertiary">
+        <h1 className="text-3xl font-bold text-f-primary dark:text-darkText">
+          {proposal.title}
+        </h1>
+        <div className="flex items-center gap-4 text-sm text-f-tertiary dark:text-darkMuted">
           <div className="flex items-center gap-1.5">
             <UserIcon className="h-4 w-4" />
             <span>{truncateAddress(proposal.owner)}</span>
@@ -81,7 +85,7 @@ export default function ProposalDetails() {
               href={proposal.forumPostLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-brand hover:opacity-80 transition-opacity"
+              className="flex items-center gap-1.5 text-brand dark:text-darkAccent hover:opacity-80 transition-opacity"
             >
               <ChatBubbleLeftRightIcon className="h-4 w-4" />
               <span>Forum Discussion</span>
@@ -96,14 +100,14 @@ export default function ProposalDetails() {
         <div className="lg:col-span-2 space-y-8">
           {/* Basic Information Section */}
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-f-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold text-f-primary dark:text-darkText bg-gradient-to-r from-primary dark:from-darkAccent to-primary/80 dark:to-darkAccent/80 bg-clip-text text-transparent">
               Basic Information
             </h2>
-            <div className="bg-secondary border border-border rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-f-primary mb-4">
+            <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-f-primary dark:text-darkText mb-4">
                 Summary
               </h3>
-              <p className="text-f-tertiary whitespace-pre-wrap">
+              <p className="text-f-tertiary dark:text-darkMuted whitespace-pre-wrap">
                 {proposal.summary}
               </p>
             </div>
@@ -112,11 +116,11 @@ export default function ProposalDetails() {
           {/* Technical Details Section */}
           {proposal.parameterChange && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-f-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              <h2 className="text-2xl font-bold text-f-primary dark:text-darkText bg-gradient-to-r from-primary dark:from-darkAccent to-primary/80 dark:to-darkAccent/80 bg-clip-text text-transparent">
                 Technical Details
               </h2>
-              <div className="bg-secondary border border-border rounded-lg p-6">
-                <h3 className="text-xl font-semibold text-f-primary mb-4">
+              <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-f-primary dark:text-darkText mb-4">
                   Parameter Changes
                 </h3>
                 <ParameterChanges parameterChange={proposal.parameterChange} />
@@ -129,7 +133,7 @@ export default function ProposalDetails() {
         <div className="space-y-6">
           {/* Vote Action */}
           {isVoting && (
-            <div className="bg-secondary border border-border rounded-lg p-6">
+            <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
               <div className="flex flex-col items-center gap-4">
                 {hasVoted ? (
                   <div className="flex items-center gap-2 text-emerald-400">
@@ -143,7 +147,7 @@ export default function ProposalDetails() {
                 ) : (
                   <button
                     onClick={() => openVoteModal(proposal.id)}
-                    className="group relative w-full px-6 py-3 bg-brand text-white rounded-lg font-medium text-lg overflow-hidden transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                    className="group relative w-full px-6 py-3 bg-brand dark:bg-darkAccent text-white rounded-lg font-medium text-lg overflow-hidden transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {/* Pixel grid background effect */}
                     <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:4px_4px] animate-shimmer" />
@@ -167,19 +171,21 @@ export default function ProposalDetails() {
           )}
 
           {/* Voting Status Card */}
-          <div className="bg-secondary border border-border rounded-lg p-6">
+          <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
             <VoteProgress proposal={proposal} />
           </div>
 
           {/* Voting Period */}
-          <div className="bg-secondary border border-border rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-f-primary mb-4">
+          <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-f-primary dark:text-darkText mb-4">
               Voting Period
             </h3>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-f-tertiary">Start</span>
-                <span className="text-f-primary">
+                <span className="text-f-tertiary dark:text-darkMuted">
+                  Start
+                </span>
+                <span className="text-f-primary dark:text-darkText">
                   {new Date(
                     Number(proposal.creationTimestamp) * 1000 +
                       2 * 7 * 24 * 60 * 60 * 1000
@@ -187,8 +193,8 @@ export default function ProposalDetails() {
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-f-tertiary">End</span>
-                <span className="text-f-primary">
+                <span className="text-f-tertiary dark:text-darkMuted">End</span>
+                <span className="text-f-primary dark:text-darkText">
                   {new Date(
                     Number(proposal.creationTimestamp) * 1000 +
                       5 * 7 * 24 * 60 * 60 * 1000
@@ -199,18 +205,24 @@ export default function ProposalDetails() {
           </div>
 
           {/* Quorum */}
-          <div className="bg-secondary border border-border rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-f-primary mb-4">
+          <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-f-primary dark:text-darkText mb-4">
               Quorum
             </h3>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-f-tertiary">Required</span>
-                <span className="text-f-primary">50% of total supply</span>
+                <span className="text-f-tertiary dark:text-darkMuted">
+                  Required
+                </span>
+                <span className="text-f-primary dark:text-darkText">
+                  50% of total supply
+                </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-f-tertiary">Current</span>
-                <span className="text-f-primary">
+                <span className="text-f-tertiary dark:text-darkMuted">
+                  Current
+                </span>
+                <span className="text-f-primary dark:text-darkText">
                   {(
                     (Number(proposal.positiveVoteVolume) /
                       Number(totalSupply)) *

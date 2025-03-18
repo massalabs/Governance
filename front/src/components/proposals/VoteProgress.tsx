@@ -61,10 +61,10 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-f-primary">
+        <h3 className="text-lg font-semibold text-f-primary dark:text-darkText">
           Vote Distribution
         </h3>
-        <div className="text-sm text-f-tertiary">
+        <div className="text-sm text-f-tertiary dark:text-darkMuted">
           {totalVotes.toString()} total votes
         </div>
       </div>
@@ -75,9 +75,11 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
         <div>
           <div className="flex justify-between text-sm mb-2">
             <span className="text-emerald-400 font-medium">Yes</span>
-            <span className="text-f-primary">{yesPercentage.toFixed(1)}%</span>
+            <span className="text-f-primary dark:text-darkText">
+              {yesPercentage.toFixed(1)}%
+            </span>
           </div>
-          <div className="h-8 bg-secondary/50 rounded-md overflow-hidden relative border border-emerald-400/30">
+          <div className="h-8 bg-secondary/20 dark:bg-darkCard/20 rounded-md overflow-hidden relative border border-emerald-400/30">
             <div
               className="h-full transition-all duration-300 flex items-center px-4"
               style={{
@@ -99,9 +101,11 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
         <div>
           <div className="flex justify-between text-sm mb-2">
             <span className="text-rose-400 font-medium">No</span>
-            <span className="text-f-primary">{noPercentage.toFixed(1)}%</span>
+            <span className="text-f-primary dark:text-darkText">
+              {noPercentage.toFixed(1)}%
+            </span>
           </div>
-          <div className="h-8 bg-secondary/50 rounded-md overflow-hidden relative border border-rose-400/30">
+          <div className="h-8 bg-secondary/20 dark:bg-darkCard/20 rounded-md overflow-hidden relative border border-rose-400/30">
             <div
               className="h-full transition-all duration-300 flex items-center px-4"
               style={{
@@ -123,11 +127,11 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
         <div>
           <div className="flex justify-between text-sm mb-2">
             <span className="text-indigo-400 font-medium">Abstain</span>
-            <span className="text-f-primary">
+            <span className="text-f-primary dark:text-darkText">
               {blankPercentage.toFixed(1)}%
             </span>
           </div>
-          <div className="h-8 bg-secondary/50 rounded-md overflow-hidden relative border border-indigo-400/30">
+          <div className="h-8 bg-secondary/20 dark:bg-darkCard/20 rounded-md overflow-hidden relative border border-indigo-400/30">
             <div
               className="h-full transition-all duration-300 flex items-center px-4"
               style={{
@@ -149,7 +153,7 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
       </div>
 
       {/* Acceptance Threshold */}
-      <div className="pt-4 border-t border-border/50">
+      <div className="pt-4 border-t border-border/50 dark:border-darkAccent/50">
         <div className="flex items-center gap-2 mb-1">
           <div className="h-4 w-0.5 bg-amber-400/50" />
           <span className="text-sm text-amber-400 font-medium">
@@ -157,7 +161,7 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
           </span>
         </div>
         <div className="space-y-1">
-          <div className="text-xs text-f-tertiary pl-2">
+          <div className="text-xs text-f-tertiary dark:text-darkMuted pl-2">
             Required: {thresholdPercentage.toFixed(1)}% of total supply
           </div>
           <div className="text-xs text-emerald-400 pl-2">

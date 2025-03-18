@@ -11,7 +11,7 @@ export function ParameterChanges({ parameterChange }: ParameterChangesProps) {
 
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-2 text-sm text-f-tertiary">
+        <div className="flex items-center gap-2 text-sm text-f-tertiary dark:text-darkMuted">
           <ArrowPathIcon className="h-4 w-4" />
           <span>Parameter Changes</span>
         </div>
@@ -24,25 +24,25 @@ export function ParameterChanges({ parameterChange }: ParameterChangesProps) {
             return (
               <div
                 key={index}
-                className="bg-secondary/50 border border-border rounded-lg p-4"
+                className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-4"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Parameter Name */}
                   <div>
-                    <div className="text-sm text-f-tertiary mb-1">
+                    <div className="text-sm text-f-tertiary dark:text-darkMuted mb-1">
                       Parameter Name
                     </div>
-                    <div className="font-medium text-f-primary">
+                    <div className="font-medium text-f-primary dark:text-darkText">
                       {change.parameter}
                     </div>
                   </div>
 
                   {/* New Value */}
                   <div>
-                    <div className="text-sm text-f-tertiary mb-1">
+                    <div className="text-sm text-f-tertiary dark:text-darkMuted mb-1">
                       New Value
                     </div>
-                    <div className="font-medium text-f-primary">
+                    <div className="font-medium text-f-primary dark:text-darkText">
                       {isObjectValue ? (
                         <pre className="text-sm whitespace-pre-wrap">
                           {JSON.stringify(JSON.parse(change.value), null, 2)}
@@ -59,9 +59,9 @@ export function ParameterChanges({ parameterChange }: ParameterChangesProps) {
         </div>
       </div>
     );
-  } catch (e) {
+  } catch (error) {
     return (
-      <div className="text-f-tertiary bg-secondary/50 border border-border rounded-lg p-4">
+      <div className="text-f-tertiary dark:text-darkMuted bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-4">
         Invalid parameter change format
       </div>
     );
