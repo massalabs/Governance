@@ -33,7 +33,7 @@ export default {
       },
       fontFamily: {
         sans: [
-          "Inter",
+          "Space Grotesk",
           "system-ui",
           "-apple-system",
           "BlinkMacSystemFont",
@@ -43,7 +43,7 @@ export default {
           "Arial",
           "sans-serif",
         ],
-        display: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
+        display: ["Space Grotesk", "system-ui", "sans-serif"],
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
