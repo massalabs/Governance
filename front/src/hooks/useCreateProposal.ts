@@ -12,6 +12,8 @@ import { useGovernanceData } from "./useGovernanceData";
 
 export const REQUIRED_MASOG = 1n;
 
+export const REQUIRED_MAS = Mas.fromMas(1000n);
+
 interface ValidationErrors {
   title?: string;
   forumPostLink?: string;
@@ -30,13 +32,15 @@ export function useCreateProposal() {
   const [parameterChangeInput, setParameterChangeInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
-  const { connectedAccount } = useAccountStore();
+  const { connectedAccount, balance: userMasBalance } = useAccountStore();
   const { governance } = useContractStore();
   const { refresh, userMasogBalance } = useGovernanceData();
   const { callSmartContract } = useWriteSmartContract(connectedAccount!);
 
   const hasEnoughMasog =
     !!userMasogBalance && userMasogBalance >= REQUIRED_MASOG;
+
+  const hasEnoughMas = !!userMasBalance && userMasBalance >= REQUIRED_MAS;
 
   const validateForm = (): boolean => {
     const newErrors: ValidationErrors = {};
@@ -99,9 +103,8 @@ export function useCreateProposal() {
         true
       );
 
-      const counter = await governance?.public.getCounter();
       await refresh();
-      navigate(`/proposal/${counter}`);
+      navigate(`/proposals`);
     } catch (error) {
       console.error("Failed to create proposal:", error);
       throw error;
@@ -121,5 +124,7 @@ export function useCreateProposal() {
     formatJson,
     userMasogBalance,
     hasEnoughMasog,
+    hasEnoughMas,
+    userMasBalance,
   };
 }

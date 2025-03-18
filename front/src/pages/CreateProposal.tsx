@@ -13,6 +13,8 @@ export default function CreateProposal() {
     loading,
     hasEnoughMasog,
     userMasogBalance,
+    hasEnoughMas,
+    userMasBalance,
     handleSubmit,
     errors,
   } = useCreateProposal();
@@ -33,6 +35,8 @@ export default function CreateProposal() {
       <MasogBalanceAlert
         hasEnoughMasog={hasEnoughMasog}
         userMasogBalance={userMasogBalance}
+        hasEnoughMas={hasEnoughMas}
+        userMasBalance={userMasBalance}
       />
 
       {/* Main Form */}
