@@ -1,7 +1,6 @@
 import { ProposalStatus } from "../types/governance";
 
-const DISCUSSION_PERIOD = 14 * 24 * 60 * 60 * 1000; // 14 days in milliseconds
-const VOTING_PERIOD = 21 * 24 * 60 * 60 * 1000; // 21 days in milliseconds
+const DISCUSSION_PERIOD = 2 * 7 * 24 * 60 * 60 * 1000; // 2 weeks in milliseconds
 
 export const mockProposals = [
   {
@@ -17,7 +16,7 @@ export const mockProposals = [
     status: ProposalStatus.DISCUSSION,
     owner: "P1q2w3e4r5t6y7u8i9o0p1q2w3e4r5t6y7u8i9o0",
     creationTimestamp: BigInt(Date.now() - 3600000), // 1 hour ago
-    endTimestamp: BigInt(Date.now() + DISCUSSION_PERIOD), // 14 days from now
+    endTimestamp: BigInt(Date.now() + DISCUSSION_PERIOD), // 2 weeks from now
     requiredScore: 564969254n, // 50% of total supply
     positiveVoteVolume: 0n,
     negativeVoteVolume: 0n,
@@ -36,7 +35,7 @@ export const mockProposals = [
     status: ProposalStatus.VOTING,
     owner: "P2q3w4e5r6t7y8u9i0p1q2w3e4r5t6y7u8i9o0p1",
     creationTimestamp: BigInt(Date.now() - 7200000), // 2 hours ago
-    endTimestamp: BigInt(Date.now() + VOTING_PERIOD), // 21 days from now
+    endTimestamp: BigInt(Date.now() + 5 * 7 * 24 * 60 * 60 * 1000), // 5 weeks from creation
     requiredScore: 564969254n, // 50% of total supply
     positiveVoteVolume: 5000n,
     negativeVoteVolume: 2000n,
@@ -93,7 +92,7 @@ export const mockProposals = [
     status: ProposalStatus.VOTING,
     owner: "P5q6w7e8r9t0y1u2i3p4q5w6e7r8t9y0u1i2p3q4",
     creationTimestamp: BigInt(Date.now() - 18000000), // 5 hours ago
-    endTimestamp: BigInt(Date.now() + VOTING_PERIOD), // 21 days from now
+    endTimestamp: BigInt(Date.now() + 5 * 7 * 24 * 60 * 60 * 1000), // 5 weeks from creation
     requiredScore: 564969254n, // 50% of total supply
     positiveVoteVolume: 4000n,
     negativeVoteVolume: 1500n,

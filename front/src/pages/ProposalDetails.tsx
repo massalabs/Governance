@@ -181,15 +181,18 @@ export default function ProposalDetails() {
                 <span className="text-f-tertiary">Start</span>
                 <span className="text-f-primary">
                   {new Date(
-                    Number(proposal.creationTimestamp)
+                    Number(proposal.creationTimestamp) * 1000 +
+                      2 * 7 * 24 * 60 * 60 * 1000
                   ).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-f-tertiary">End</span>
                 <span className="text-f-primary">
-                  {/* TODO: Add end date */}
-                  {/* {new Date(Number()).toLocaleString()} */}
+                  {new Date(
+                    Number(proposal.creationTimestamp) * 1000 +
+                      5 * 7 * 24 * 60 * 60 * 1000
+                  ).toLocaleString()}
                 </span>
               </div>
             </div>
