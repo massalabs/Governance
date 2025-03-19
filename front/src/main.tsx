@@ -4,8 +4,8 @@ import App from "./App";
 import "./index.css";
 import { useContractInitialization } from "./hooks/useContractInitialization";
 import useAccountSync from "./hooks/useAccountSync";
-import { Toast } from "@massalabs/react-ui-kit";
 import { QueryProvider } from "./providers/QueryProvider";
+import { ThemeAwareToast } from "./components/ThemeAwareToast";
 
 function AppWithHooks() {
   useAccountSync();
@@ -21,7 +21,7 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <QueryProvider>
-      <Toast />
+      <ThemeAwareToast />
       <AppWithHooks />
     </QueryProvider>
   </React.StrictMode>

@@ -31,7 +31,7 @@ export function MasogBalanceAlert({
         <div>
           <h2 className={`text-sm font-medium mb-2 ${alertColor}`}>
             {hasEnough
-              ? "You have enough balance to create a proposal"
+              ? "Your balance meets the requirements for proposal creation"
               : !hasEnoughMasog && !hasEnoughMas
               ? "Insufficient MASOG and MAS balance"
               : !hasEnoughMasog

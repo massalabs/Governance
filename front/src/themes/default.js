@@ -9,6 +9,7 @@ const colorAccent = "#000000"; // Pure black for accents
 const colorParchment = "#FFFFFF"; // Pure white for cards
 const colorBorder = "#E5E5E5"; // Light gray for borders
 const colorHighlight = "#FF3B30"; // Vibrant red for highlights
+const colorSuccess = "#34C759"; // Green for success states
 
 // Dark mode colors
 const colorDarkBg = "#111111"; // Deep black background
@@ -17,6 +18,7 @@ const colorDarkText = "#FFFFFF"; // Pure white for text
 const colorDarkMuted = "#A3A3A3"; // Cool gray for muted text
 const colorDarkBorder = "#262626"; // Dark gray for borders
 const colorDarkAccent = "#FF3B30"; // Same vibrant red for highlights
+const colorDarkSuccess = "#30D158"; // Green for success states in dark mode
 
 // Light mode colors
 const colorMuted = "#666666"; // Medium gray for muted text (light mode)
@@ -70,7 +72,7 @@ export default {
           border: colorBorder,
           highlight: colorHighlight,
           // states:
-          "s-success": colorHighlight,
+          "s-success": colorSuccess,
           "s-error": colorHighlight,
           "s-warning": colorHighlight,
           "s-info": colorMuted,
@@ -114,7 +116,7 @@ export default {
           border: colorDarkBorder,
           highlight: colorDarkAccent,
           // states:
-          "s-success": colorDarkAccent,
+          "s-success": colorDarkSuccess,
           "s-error": colorDarkAccent,
           "s-warning": colorDarkAccent,
           "s-info": colorDarkMuted,

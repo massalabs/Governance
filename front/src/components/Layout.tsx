@@ -35,7 +35,7 @@ export default function Layout() {
           <div className="flex items-center space-x-8">
             <Link
               to="/"
-              className={`text-2xl text-neutral dark:text-neutral mas-title hover:opacity-90 transition-opacity ${
+              className={`text-2xl text-neutral dark:text-white mas-title hover:opacity-90 transition-opacity ${
                 location.pathname === "/" ? "opacity-100" : "opacity-80"
               }`}
             >
@@ -46,7 +46,7 @@ export default function Layout() {
               <div className="flex items-center space-x-6">
                 <Link
                   to="/proposals"
-                  className={`text-neutral dark:text-neutral hover:opacity-80 transition-all duration-200 mas-menu-default relative font-medium ${
+                  className={`text-neutral dark:text-white hover:opacity-80 transition-all duration-200 mas-menu-default relative font-medium ${
                     location.pathname.startsWith("/proposals")
                       ? "opacity-100 font-semibold"
                       : "opacity-70"
@@ -59,7 +59,7 @@ export default function Layout() {
                 </Link>
                 <Link
                   to="/create"
-                  className={`text-neutral dark:text-neutral hover:opacity-80 transition-all duration-200 mas-menu-default relative font-medium ${
+                  className={`text-neutral dark:text-white hover:opacity-80 transition-all duration-200 mas-menu-default relative font-medium ${
                     location.pathname === "/create"
                       ? "opacity-100 font-semibold"
                       : "opacity-70"
@@ -92,7 +92,7 @@ export default function Layout() {
       <footer className="border-t border-border dark:border-darkBorder bg-secondary dark:bg-darkCard">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
-            <div className="text-xl text-neutral dark:text-neutral">
+            <div className="text-xl text-neutral dark:text-white">
               <div className="font-normal">MASSA</div>
               <div className="font-normal">GOVERNANCE</div>
             </div>
@@ -101,7 +101,7 @@ export default function Layout() {
                 href="https://twitter.com/MassaAIO"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-neutral dark:text-neutral hover:opacity-80 transition-opacity"
+                className="text-neutral dark:text-white hover:opacity-80 transition-opacity"
               >
                 <svg
                   className="w-6 h-6"
@@ -115,7 +115,7 @@ export default function Layout() {
                 href="https://github.com/massalabs"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-neutral dark:text-neutral hover:opacity-80 transition-opacity"
+                className="text-neutral dark:text-white hover:opacity-80 transition-opacity"
               >
                 <svg
                   className="w-6 h-6"
@@ -129,7 +129,7 @@ export default function Layout() {
                 href="https://discord.gg/massa"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-neutral dark:text-neutral hover:opacity-80 transition-opacity"
+                className="text-neutral dark:text-white hover:opacity-80 transition-opacity"
               >
                 <svg
                   className="w-6 h-6"
@@ -143,7 +143,7 @@ export default function Layout() {
                 href="https://docs.massa.net"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-neutral dark:text-neutral hover:opacity-80 transition-opacity"
+                className="text-neutral dark:text-white hover:opacity-80 transition-opacity"
               >
                 <svg
                   className="w-6 h-6"
