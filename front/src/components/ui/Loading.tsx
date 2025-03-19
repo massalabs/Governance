@@ -24,7 +24,7 @@ export function Loading({ text = "Loading...", size = "md" }: LoadingProps) {
         }}
       >
         {/* Outer ring */}
-        <div className="absolute inset-0 border-4 border-secondary/20 dark:border-darkCard/20 rounded-full" />
+        <div className="absolute inset-0 border-4 border-neutral/10 dark:border-darkBorder/20 rounded-full" />
         {/* Spinning ring */}
         <div className="absolute inset-0 border-4 border-transparent border-t-brand dark:border-t-darkAccent rounded-full" />
       </motion.div>

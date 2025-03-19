@@ -12,7 +12,13 @@ const ProposalDetails = lazy(() => import("./pages/ProposalDetails"));
 export default function App() {
   return (
     <BrowserRouter>
-      <Suspense fallback={<Loading text="Loading application..." size="lg" />}>
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-secondary dark:bg-darkCard">
+            <Loading text="Loading application..." size="lg" />
+          </div>
+        }
+      >
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />

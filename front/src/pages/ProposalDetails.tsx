@@ -16,6 +16,7 @@ import { ParameterChanges } from "../components/proposals/ParameterChanges";
 import { FormattedProposal } from "@/types/governance";
 import { REQUIRED_MASOG } from "@/hooks/useCreateProposal";
 import { Loading } from "@/components/ui/Loading";
+import { PixelButton } from "@/components/ui/PixelButton";
 
 interface ProposalHeaderProps {
   proposal: FormattedProposal;
@@ -124,26 +125,9 @@ function VoteAction({ hasVoted, canVote, onVote }: VoteActionProps) {
             Minimum {REQUIRED_MASOG.toString()} MASOG required to vote
           </div>
         ) : (
-          <button
-            onClick={onVote}
-            className="group relative w-full px-6 py-3 bg-brand dark:bg-darkAccent text-white rounded-lg font-medium text-lg overflow-hidden transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-          >
-            {/* Pixel grid background effect */}
-            <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:4px_4px] animate-shimmer" />
-
-            {/* Main button content */}
-            <div className="relative flex items-center justify-center gap-2">
-              <span className="relative z-10">Vote Now</span>
-              {/* Pixel corner decorations */}
-              <div className="absolute top-0 left-0 w-2 h-2 bg-white/20" />
-              <div className="absolute top-0 right-0 w-2 h-2 bg-white/20" />
-              <div className="absolute bottom-0 left-0 w-2 h-2 bg-white/20" />
-              <div className="absolute bottom-0 right-0 w-2 h-2 bg-white/20" />
-            </div>
-
-            {/* Hover effect overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-          </button>
+          <PixelButton onClick={onVote} fullWidth variant="primary">
+            Vote Now
+          </PixelButton>
         )}
       </div>
     </div>
