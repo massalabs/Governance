@@ -12,8 +12,9 @@ import {
 } from "../types/governance";
 import { Vote } from "../serializable/Vote";
 import { Proposal } from "../serializable/Proposal";
+import { useMasogTotalSupply } from "./useMasogData";
 // import { mockProposals } from "../mocks/proposals";
-import { useEffect } from "react";
+import { useCallback } from "react";
 
 // Query keys
 export const governanceKeys = {
@@ -22,6 +23,11 @@ export const governanceKeys = {
   stats: () => [...governanceKeys.all, "stats"],
   userBalance: () => [...governanceKeys.all, "userBalance"],
   userVotes: () => [...governanceKeys.all, "userVotes"],
+  proposalVotes: (proposalId: bigint) => [
+    ...governanceKeys.all,
+    "proposalVotes",
+    proposalId.toString(),
+  ],
 };
 
 // Utility functions
@@ -116,7 +122,7 @@ export const useUserVotes = (proposals: FormattedProposal[]) => {
       }
 
       const proposalIds = proposals.map((p) => p.id);
-      const votes = await governance.public.getVotes(
+      const votes = await governance.public.getUserVotes(
         connectedAccount.address,
         proposalIds
       );
@@ -174,86 +180,143 @@ export const useVoteMutation = () => {
   });
 };
 
-// Main hook that combines all the data
-export function useGovernanceData() {
-  const { connectedAccount } = useAccountStore();
-  const { masOg, governance } = useContractStore();
-  const queryClient = useQueryClient();
+// Add new hook for getting proposal votes
+export const useProposalVotes = (proposalId: bigint) => {
+  const { governance } = useContractStore();
 
-  const { data: realProposals = [], isLoading: isLoadingProposals } =
-    useProposals();
-  const { data: userBalance, isLoading: isLoadingBalance } = useUserBalance();
-  const { data: userVotes = {}, isLoading: isLoadingVotes } =
-    useUserVotes(realProposals);
-
-  // Get total supply for stats
-  const { data: totalMasogSupply, isLoading: isLoadingSupply } = useQuery({
-    queryKey: [...governanceKeys.all, "totalSupply"],
+  return useQuery({
+    queryKey: governanceKeys.proposalVotes(proposalId),
     queryFn: async () => {
-      try {
-        const supply = await masOg?.public?.totalSupply();
+      if (!governance?.public) {
+        throw new Error("Governance contract not initialized");
+      }
 
-        return supply ?? null;
+      try {
+        return await governance.public.getVotes(proposalId);
       } catch (error) {
-        console.error("[Error] Error fetching total supply:", error);
+        console.error("[Error] Error fetching proposal votes:", error);
         throw error;
       }
     },
-    enabled: !!masOg?.public,
+    refetchInterval: 30000, // Refresh every 30 seconds
+    retry: 3,
+    retryDelay: 1000,
+    enabled: !!governance?.public,
+  });
+};
+
+// Main hook that combines all the data
+export function useGovernanceData() {
+  const { governance } = useContractStore();
+  const { connectedAccount } = useAccountStore();
+  const queryClient = useQueryClient();
+
+  // Fetch proposals
+  const { data: proposals = [], isLoading: isLoadingProposals } = useQuery({
+    queryKey: governanceKeys.proposals(),
+    queryFn: async () => {
+      if (!governance?.public) {
+        throw new Error("Governance contract not initialized");
+      }
+
+      try {
+        const proposals = await governance.public.getProposals();
+        return proposals.map(formatProposal);
+      } catch (error) {
+        console.error("[Error] Error fetching proposals:", error);
+        throw error;
+      }
+    },
+    refetchInterval: 30000, // Refresh every 30 seconds
+    retry: 3,
+    retryDelay: 1000,
+    enabled: !!governance?.public,
   });
 
-  // Get total number of votes
-  const { data: totalVotes, isLoading: isLoadingTotalVotes } = useQuery({
-    queryKey: [...governanceKeys.all, "totalVotes"],
+  // Fetch total votes
+  const { data: totalVotes = 0n, isLoading: isLoadingTotalVotes } = useQuery({
+    queryKey: governanceKeys.all,
     queryFn: async () => {
-      try {
-        const votes = await governance?.public?.getTotalNbVotes();
+      if (!governance?.public) {
+        throw new Error("Governance contract not initialized");
+      }
 
-        return votes ?? 0n;
+      try {
+        return await governance.public.getTotalNbVotes();
       } catch (error) {
         console.error("[Error] Error fetching total votes:", error);
         throw error;
       }
     },
+    refetchInterval: 30000, // Refresh every 30 seconds
+    retry: 3,
+    retryDelay: 1000,
     enabled: !!governance?.public,
-    initialData: 0n,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
   });
 
-  const isLoading =
-    isLoadingProposals ||
-    isLoadingBalance ||
-    isLoadingVotes ||
-    isLoadingSupply ||
-    isLoadingTotalVotes;
+  // Fetch user's MASOG balance using the existing hook
+  const { data: userMasogBalance = null, isLoading: isLoadingBalance } =
+    useUserBalance();
 
+  // Fetch user's votes
+  const { data: userVotes = {}, isLoading: isLoadingUserVotes } =
+    useUserVotes(proposals);
+
+  // Fetch all proposal votes
+  const { data: proposalVotesMap = {}, isLoading: isLoadingProposalVotes } =
+    useQuery({
+      queryKey: [...governanceKeys.all, "allProposalVotes"],
+      queryFn: async () => {
+        if (!governance?.public || !proposals.length) {
+          throw new Error("Missing dependencies for fetching proposal votes");
+        }
+
+        try {
+          const votesMap: Record<string, bigint[]> = {};
+          await Promise.all(
+            proposals.map(async (proposal) => {
+              const votes = await governance.public.getVotes(proposal.id);
+              votesMap[proposal.id.toString()] = votes;
+            })
+          );
+          return votesMap;
+        } catch (error) {
+          console.error("[Error] Error fetching proposal votes:", error);
+          throw error;
+        }
+      },
+      refetchInterval: 30000, // Refresh every 30 seconds
+      retry: 3,
+      retryDelay: 1000,
+      enabled: !!governance?.public && proposals.length > 0,
+    });
+
+  // Calculate stats
+  const { data: totalSupply } = useMasogTotalSupply();
   const stats = calculateStats(
-    isLoadingProposals ? [] : realProposals,
-    isLoadingSupply ? null : totalMasogSupply ?? null,
-    isLoadingBalance ? null : userBalance ?? null,
-    isLoadingTotalVotes ? 0n : totalVotes ?? 0n
+    proposals,
+    totalSupply ?? null,
+    userMasogBalance,
+    totalVotes
   );
 
-  const refresh = () => {
+  // Refresh function
+  const refresh = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: governanceKeys.all });
-  };
-
-  // Add useEffect to ensure initial data fetch
-  useEffect(() => {
-    if (masOg?.public && connectedAccount) {
-      refresh();
-    }
-  }, [masOg?.public, connectedAccount]);
+  }, [queryClient]);
 
   return {
-    proposals: isLoading ? [] : realProposals,
-    loading: isLoading,
+    proposals,
     stats,
-    userMasogBalance: isLoadingBalance ? null : userBalance ?? null,
-    userVotingPower: isLoadingBalance ? null : userBalance ?? null,
-    userVotes: isLoadingVotes ? {} : userVotes,
-    connectedAccount,
+    userMasogBalance,
+    userVotes,
+    proposalVotesMap,
+    loading:
+      isLoadingProposals ||
+      isLoadingTotalVotes ||
+      isLoadingBalance ||
+      isLoadingUserVotes ||
+      isLoadingProposalVotes,
     refresh,
   };
 }

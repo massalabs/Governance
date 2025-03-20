@@ -10,10 +10,12 @@ import {
   strToBytes,
   U64,
   I32,
+  bytesToF32,
 } from "@massalabs/massa-web3";
 import { Proposal } from "../serializable/Proposal";
 import { Vote } from "../serializable/Vote";
 import { getContracts } from "../config";
+import { I32_t } from "@massalabs/massa-web3/dist/esm/basicElements/serializers/number/i32";
 
 export type Upgradable = SmartContract & {
   upgradeSC: (
@@ -137,10 +139,32 @@ export class Governance extends SmartContract implements Upgradable {
   }
 
   /**
+   * Gets all votes for a specific proposal
+   * @param proposalId - The ID of the proposal
+   */
+  async getVotes(proposalId: bigint, final = false): Promise<I32_t[]> {
+    const keys = await this.provider.getStorageKeys(
+      this.address,
+      new Uint8Array([...UPDATE_VOTE_TAG, ...U64.toBytes(proposalId)]),
+      final
+    );
+
+    const values = await this.provider.readStorage(this.address, keys, final);
+    console.log("values", values);
+    if (!values[0]) {
+      return [];
+    }
+
+    return values.map((value) => {
+      return I32.fromBytes(value!);
+    });
+  }
+
+  /**
    * Gets all votes for a specific address
    * @param address - The address to get votes for
    */
-  async getVotes(
+  async getUserVotes(
     address: string,
     ids: bigint[],
     final = false
@@ -166,33 +190,6 @@ export class Governance extends SmartContract implements Upgradable {
         return { id: ids[index], value: I32.fromBytes(value) };
       })
       .filter((value) => value !== null);
-  }
-
-  /**
-   * Gets a specific vote for a proposal from an address
-   * @param address - The address that cast the vote
-   * @param proposalId - The ID of the proposal
-   */
-  async getVote(
-    address: string,
-    proposalId: bigint,
-    final = false
-  ): Promise<Vote> {
-    const key = new Uint8Array([
-      ...UPDATE_VOTE_TAG,
-      ...strToBytes(address),
-      ...U64.toBytes(proposalId),
-    ]);
-
-    const result = await this.provider.readStorage(this.address, [key], final);
-
-    if (!result[0]) {
-      throw new Error("Vote not found");
-    }
-
-    const vote = new Vote();
-    vote.deserialize(result[0], 0);
-    return vote;
   }
 
   /**

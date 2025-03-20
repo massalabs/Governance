@@ -1,6 +1,9 @@
 import { useParams } from "react-router-dom";
 import { VoteProgress } from "../components/proposals/VoteProgress";
-import { useGovernanceData } from "../hooks/useGovernanceData";
+import {
+  useGovernanceData,
+  useProposalVotes,
+} from "../hooks/useGovernanceData";
 import { useMasogTotalSupply } from "../hooks/useMasogData";
 import { truncateAddress } from "../utils/address";
 import {
@@ -189,7 +192,7 @@ function Quorum({ positiveVoteVolume, totalSupply }: QuorumProps) {
         <div className="flex justify-between text-sm">
           <span className="text-f-tertiary dark:text-darkMuted">Required</span>
           <span className="text-f-primary dark:text-darkText">
-            50% of total supply
+            50.0% of total supply
           </span>
         </div>
         <div className="flex justify-between text-sm">
@@ -205,16 +208,14 @@ function Quorum({ positiveVoteVolume, totalSupply }: QuorumProps) {
 
 export default function ProposalDetails() {
   const { id } = useParams<{ id: string }>();
-  const { proposals, loading, userMasogBalance, userVotes } =
+  const { proposals, userMasogBalance, userVotes, proposalVotesMap, loading } =
     useGovernanceData();
-  const { data: totalSupply } = useMasogTotalSupply();
+  const { data: totalSupply, isLoading: isLoadingSupply } =
+    useMasogTotalSupply();
   const { openVoteModal } = useUIStore();
 
   const proposal = proposals.find((p) => p.id.toString() === id);
-
-  if (loading || !totalSupply) {
-    return <Loading text="Loading proposal details..." size="lg" />;
-  }
+  const proposalVotes = proposalVotesMap[id ?? ""] ?? [];
 
   if (!proposal) {
     return (
@@ -227,6 +228,14 @@ export default function ProposalDetails() {
   const isVoting = proposal.status === "VOTING";
   const hasVoted = !!userVotes[proposal.id.toString()];
   const canVote = (userMasogBalance ?? 0n) >= 1n;
+
+  // Calculate vote counts from proposalVotes
+  const voteCounts = {
+    total: proposalVotes.length,
+    positive: proposalVotes.filter((v) => v === 1n).length,
+    negative: proposalVotes.filter((v) => v === -1n).length,
+    blank: proposalVotes.filter((v) => v === 0n).length,
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -267,14 +276,31 @@ export default function ProposalDetails() {
           )}
 
           <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
-            <VoteProgress proposal={proposal} />
+            {loading ? (
+              <Loading text="Loading vote data..." size="sm" />
+            ) : (
+              <VoteProgress
+                proposal={{
+                  ...proposal,
+                  positiveVoteVolume: BigInt(voteCounts.positive),
+                  negativeVoteVolume: BigInt(voteCounts.negative),
+                  blankVoteVolume: BigInt(voteCounts.blank),
+                }}
+              />
+            )}
           </div>
 
           <VotingPeriod creationTimestamp={proposal.creationTimestamp} />
-          <Quorum
-            positiveVoteVolume={proposal.positiveVoteVolume}
-            totalSupply={totalSupply}
-          />
+          {isLoadingSupply || !totalSupply ? (
+            <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
+              <Loading text="Loading quorum data..." size="sm" />
+            </div>
+          ) : (
+            <Quorum
+              positiveVoteVolume={proposal.positiveVoteVolume}
+              totalSupply={totalSupply}
+            />
+          )}
         </div>
       </div>
 
