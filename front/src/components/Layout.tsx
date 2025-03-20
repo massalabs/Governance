@@ -5,16 +5,16 @@ import { useAccountStore } from "@massalabs/react-ui-kit";
 import ThemeToggle from "./ThemeToggle";
 import { ConnectButton } from "./connect-wallet-popup";
 import { NetworkIndicator } from "./NetworkIndicator";
-import { useUserData } from "../hooks/useUserData";
 import bgDark from "../assets/bg-dark.png";
 import bgLight from "../assets/bg-light.png";
+import { useGovernanceData } from "@/hooks/useGovernanceData";
 
 export default function Layout() {
   const { theme } = useUIStore();
   const { connectedAccount } = useAccountStore();
   const navigate = useNavigate();
   const location = useLocation();
-  useUserData(); // This will handle all user data refetching
+  const { refresh } = useGovernanceData();
 
   useEffect(() => {
     // Remove both theme classes first
@@ -27,6 +27,9 @@ export default function Layout() {
     // If account changes and we're on a protected route, redirect to home
     if (!connectedAccount && window.location.pathname !== "/") {
       navigate("/");
+    }
+    if (connectedAccount) {
+      refresh();
     }
   }, [connectedAccount, navigate]);
 

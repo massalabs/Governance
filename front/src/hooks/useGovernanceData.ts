@@ -16,11 +16,11 @@ import { Proposal } from "../serializable/Proposal";
 
 // Query keys
 export const governanceKeys = {
-  all: ["governance"] as const,
-  proposals: () => [...governanceKeys.all, "proposals"] as const,
-  stats: () => [...governanceKeys.all, "stats"] as const,
-  userBalance: () => [...governanceKeys.all, "userBalance"] as const,
-  userVotes: () => [...governanceKeys.all, "userVotes"] as const,
+  all: ["governance"],
+  proposals: () => [...governanceKeys.all, "proposals"],
+  stats: () => [...governanceKeys.all, "stats"],
+  userBalance: () => [...governanceKeys.all, "userBalance"],
+  userVotes: () => [...governanceKeys.all, "userVotes"],
 };
 
 // Utility functions
@@ -136,7 +136,7 @@ export const useUserVotes = (proposals: FormattedProposal[]) => {
 
       return votesMap;
     },
-    refetchInterval: 30000,
+    refetchInterval: 10000,
     retry: 3,
     retryDelay: 1000,
     enabled: !!governance?.public && !!connectedAccount && proposals.length > 0,
