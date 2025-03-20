@@ -98,15 +98,25 @@ export const useUserBalance = () => {
   return useQuery({
     queryKey: governanceKeys.userBalance(),
     queryFn: async () => {
-      if (!masOg?.public || !connectedAccount)
-        throw new Error("MasOg contract not initialized or no account");
+      if (!masOg?.public || !connectedAccount) {
+        console.error("MasOg contract not initialized or no account connected");
+        return null;
+      }
 
-      return masOg.public.balanceOf(connectedAccount.address);
+      try {
+        const balance = await masOg.public.balanceOf(connectedAccount.address);
+        console.log("Fetched MASOG balance:", balance.toString());
+        return balance;
+      } catch (error) {
+        console.error("[Error] Error fetching MASOG balance:", error);
+        throw error;
+      }
     },
-    refetchInterval: 5 * 60 * 1000,
+    refetchInterval: 10000, // Refresh every 10 seconds
     retry: 3,
     retryDelay: 1000,
     enabled: !!masOg?.public && !!connectedAccount,
+    staleTime: 5000, // Consider balance stale after 5 seconds
   });
 };
 

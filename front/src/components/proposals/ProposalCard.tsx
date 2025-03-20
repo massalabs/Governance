@@ -61,11 +61,8 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
   };
 
   return (
-    <Link
-      to={`/proposals/${proposal.id}`}
-      className="bg-secondary dark:bg-darkCard border border-border dark:border-darkBorder p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group"
-    >
-      <div className="space-y-4">
+    <div className="bg-secondary dark:bg-darkCard border border-border dark:border-darkBorder p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group">
+      <Link to={`/proposals/${proposal.id}`} className="block space-y-4">
         {/* Header with title and status */}
         <div className="flex justify-between items-start gap-3">
           <h3 className="text-xl font-semibold text-f-primary dark:text-darkText group-hover:text-brand dark:group-hover:text-darkAccent mas-h2 line-clamp-1 flex-1">
@@ -98,21 +95,22 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
                 ).toLocaleDateString()}
               </span>
             </div>
-            {proposal.forumPostLink && (
-              <a
-                href={proposal.forumPostLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="flex items-center gap-1.5 text-brand dark:text-darkAccent hover:opacity-80 transition-opacity"
-              >
-                <ChatBubbleLeftRightIcon className="h-4 w-4" />
-                <span>Forum Discussion</span>
-              </a>
-            )}
           </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+      {proposal.forumPostLink && (
+        <div className="mt-4">
+          <a
+            href={proposal.forumPostLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-brand dark:text-darkAccent hover:opacity-80 transition-opacity"
+          >
+            <ChatBubbleLeftRightIcon className="h-4 w-4" />
+            <span>Forum Discussion</span>
+          </a>
+        </div>
+      )}
+    </div>
   );
 }
