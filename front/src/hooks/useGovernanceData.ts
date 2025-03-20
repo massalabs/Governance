@@ -13,6 +13,7 @@ import {
 import { Vote } from "../serializable/Vote";
 import { Proposal } from "../serializable/Proposal";
 // import { mockProposals } from "../mocks/proposals";
+import { useEffect } from "react";
 
 // Query keys
 export const governanceKeys = {
@@ -41,7 +42,8 @@ const formatProposal = (p: Proposal): FormattedProposal => ({
 const calculateStats = (
   proposals: FormattedProposal[],
   totalMasogSupply: bigint | null,
-  userBalance: bigint | null = null
+  userBalance: bigint | null = null,
+  totalVotes: bigint | null = null
 ): GovernanceStats => ({
   totalProposals: proposals ? BigInt(proposals.length) : null,
   votingProposals: proposals
@@ -49,13 +51,7 @@ const calculateStats = (
         proposals.filter((p) => p.status.toUpperCase() === "VOTING").length
       )
     : null,
-  totalVotes: proposals
-    ? proposals.reduce(
-        (acc, p) =>
-          acc + p.positiveVoteVolume + p.negativeVoteVolume + p.blankVoteVolume,
-        0n
-      )
-    : null,
+  totalVotes: totalVotes,
   totalMasogSupply: totalMasogSupply,
   userMasogBalance: userBalance,
   userVotingPower: userBalance, // Same as balance for now
@@ -181,7 +177,7 @@ export const useVoteMutation = () => {
 // Main hook that combines all the data
 export function useGovernanceData() {
   const { connectedAccount } = useAccountStore();
-  const { masOg } = useContractStore();
+  const { masOg, governance } = useContractStore();
   const queryClient = useQueryClient();
 
   const { data: realProposals = [], isLoading: isLoadingProposals } =
@@ -193,26 +189,62 @@ export function useGovernanceData() {
   // Get total supply for stats
   const { data: totalMasogSupply, isLoading: isLoadingSupply } = useQuery({
     queryKey: [...governanceKeys.all, "totalSupply"],
-    queryFn: async () => (await masOg?.public?.totalSupply()) ?? null,
+    queryFn: async () => {
+      try {
+        const supply = await masOg?.public?.totalSupply();
+
+        return supply ?? null;
+      } catch (error) {
+        console.error("[Error] Error fetching total supply:", error);
+        throw error;
+      }
+    },
     enabled: !!masOg?.public,
   });
 
-  const isLoading =
-    isLoadingProposals || isLoadingBalance || isLoadingVotes || isLoadingSupply;
+  // Get total number of votes
+  const { data: totalVotes, isLoading: isLoadingTotalVotes } = useQuery({
+    queryKey: [...governanceKeys.all, "totalVotes"],
+    queryFn: async () => {
+      try {
+        const votes = await governance?.public?.getTotalNbVotes();
 
-  // Combine real and mock proposals
-  // const allProposals = [...realProposals, ...mockProposals];
+        return votes ?? 0n;
+      } catch (error) {
+        console.error("[Error] Error fetching total votes:", error);
+        throw error;
+      }
+    },
+    enabled: !!governance?.public,
+    initialData: 0n,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+  });
+
+  const isLoading =
+    isLoadingProposals ||
+    isLoadingBalance ||
+    isLoadingVotes ||
+    isLoadingSupply ||
+    isLoadingTotalVotes;
 
   const stats = calculateStats(
     isLoadingProposals ? [] : realProposals,
     isLoadingSupply ? null : totalMasogSupply ?? null,
-    isLoadingBalance ? null : userBalance ?? null
+    isLoadingBalance ? null : userBalance ?? null,
+    isLoadingTotalVotes ? 0n : totalVotes ?? 0n
   );
 
   const refresh = () => {
-    console.log("[Debug] Manually refreshing queries...");
     queryClient.invalidateQueries({ queryKey: governanceKeys.all });
   };
+
+  // Add useEffect to ensure initial data fetch
+  useEffect(() => {
+    if (masOg?.public && connectedAccount) {
+      refresh();
+    }
+  }, [masOg?.public, connectedAccount]);
 
   return {
     proposals: isLoading ? [] : realProposals,

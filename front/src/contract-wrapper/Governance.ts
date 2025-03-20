@@ -196,6 +196,21 @@ export class Governance extends SmartContract implements Upgradable {
   }
 
   /**
+   * Get the number of total votes
+   * @param proposalId - The ID of the proposal
+   */
+  async getTotalNbVotes(final = false): Promise<bigint> {
+    const keys = await this.provider.getStorageKeys(
+      this.address,
+      UPDATE_VOTE_TAG,
+      final
+    );
+    console.log(keys);
+
+    return BigInt(keys.length);
+  }
+
+  /**
    * Get the counter of the proposal
    * @param proposalId - The ID of the proposal
    */

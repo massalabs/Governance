@@ -16,14 +16,7 @@ export const useContractInitialization = () => {
 
   // Initialize or reset contracts based on wallet connection
   useEffect(() => {
-    console.log("[Debug] Contract initialization effect triggered:", {
-      hasConnectedAccount: !!connectedAccount,
-      hasWalletNetwork: !!walletNetwork,
-      isInitialized,
-    });
-
     if (!connectedAccount) {
-      console.log("[Debug] No connected account, resetting contracts");
       resetContracts();
       return;
     }
@@ -36,18 +29,10 @@ export const useContractInitialization = () => {
       // }
 
       if (!isInitialized) {
-        console.log("[Debug] Initializing contracts...");
         try {
           // @ts-ignore TODO: fix this version related issue
-          initializeContracts(connectedAccount)
-            .then(() => {
-              console.log("[Debug] Contracts initialized successfully");
-            })
-            .catch((error) => {
-              console.error("[Debug] Contract initialization failed:", error);
-            });
+          initializeContracts(connectedAccount);
         } catch (error) {
-          console.error("[Debug] Failed to initialize contracts:", error);
           toast.error(
             "Failed to initialize contracts. Please try reconnecting your wallet."
           );
@@ -63,10 +48,8 @@ export const useContractInitialization = () => {
     resetContracts,
   ]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      console.log("[Debug] Cleaning up contracts");
       resetContracts();
     };
   }, [resetContracts]);
