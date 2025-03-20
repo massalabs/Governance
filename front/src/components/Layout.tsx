@@ -6,6 +6,8 @@ import ThemeToggle from "./ThemeToggle";
 import { ConnectButton } from "./connect-wallet-popup";
 import { NetworkIndicator } from "./NetworkIndicator";
 import { useUserData } from "../hooks/useUserData";
+import bgDark from "../assets/bg-dark.png";
+import bgLight from "../assets/bg-light.png";
 
 export default function Layout() {
   const { theme } = useUIStore();
@@ -85,11 +87,19 @@ export default function Layout() {
         </nav>
       </header>
 
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-8 mb-16 min-h-[calc(100vh-400px)]">
         <Outlet />
       </main>
 
-      <footer className="border-t border-border dark:border-darkBorder bg-secondary dark:bg-darkCard">
+      {/* Background image container */}
+      <div
+        className="relative w-full h-[300px] bg-center bg-no-repeat bg-cover transition-all duration-300"
+        style={{
+          backgroundImage: `url(${theme === "dark" ? bgDark : bgLight})`,
+        }}
+      />
+
+      <footer className="relative border-t border-border dark:border-darkBorder bg-secondary dark:bg-darkCard">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
             <div className="text-xl text-neutral dark:text-white">

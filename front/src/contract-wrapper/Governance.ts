@@ -195,7 +195,6 @@ export class Governance extends SmartContract implements Upgradable {
     return vote;
   }
 
-  // get counter
   /**
    * Get the counter of the proposal
    * @param proposalId - The ID of the proposal
