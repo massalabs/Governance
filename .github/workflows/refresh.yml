@@ -1,0 +1,29 @@
+name: Refresh Data
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+
+jobs:
+  refresh-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ./smart-contracts/.nvmrc
+          cache: "npm"
+          cache-dependency-path: ./smart-contracts/package-lock.json
+
+      - name: Install
+        working-directory: ./smart-contracts
+        run: npm ci
+
+      - name: Run the refresh script
+        working-directory: ./smart-contracts
+        run: npm run governance:refresh
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}

@@ -3,15 +3,15 @@ import { getProvider } from '../utils';
 import { MasOg } from '../masog/wrapper/MasOg';
 
 const ADDRESSES = [
-  '0x0000000000000000000000000000000000000000',
-  '0x0000000000000000000000000000000000000000',
-  '0x0000000000000000000000000000000000000000',
-  '0x0000000000000000000000000000000000000000',
-  '0x0000000000000000000000000000000000000000',
-  '0x0000000000000000000000000000000000000000',
-  '0x0000000000000000000000000000000000000000',
-  '0x0000000000000000000000000000000000000000',
+  'AU1xs4LUr2XsFhe4YB756bEB2aG59k2Dy2LzLYgYR8zH4o2ZWv5G', // Kevin
+  'AU12wiZMwocjfWZKZhzP2dR86PBXJfGCoKY5wi6q1cSQoquMekvfJ', // Joao
+  'AU1bTSHvZG7cdUUu4ScKwQVFum3gB5TDpdi9yMRv2bnedYUyptsa', // Tatiana
+  'AU1DjgRMPCfnSvDcY3TXkbSQNDpsLQ3NUfCMrisT7xzwWsSe9V4s', // Daniel
+  'AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5', // Seb
+  'AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX', // Damir
 ];
+
+const NAMES = ['Kevin', 'Joao', 'Tatiana', 'Daniel', 'Seb', 'Damir'];
 
 const provider = await getProvider();
 const masOg = MasOg.buildnet(provider);
@@ -30,6 +30,7 @@ const totalToMint =
 // Then divide among addresses
 const AMOUNT = totalToMint / numberOfAddresses;
 const op = await masOg.mintForTest(ADDRESSES, AMOUNT);
+
 const status = await op.waitFinalExecution();
 
 if (status !== OperationStatus.Success) {
@@ -41,7 +42,7 @@ console.log('Proposal status updated');
 const newTotalSupply = await masOg.totalSupply();
 console.log('New total supply:', newTotalSupply);
 
-for (const address of ADDRESSES) {
-  const balance = await masOg.balanceOf(address);
-  console.log('Balance of', address, ':', balance);
+for (let i = 0; i < ADDRESSES.length; i++) {
+  const balance = await masOg.balanceOf(ADDRESSES[i]);
+  console.log('Balance of', NAMES[i], ':', balance);
 }
