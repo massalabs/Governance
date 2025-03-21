@@ -1,17 +1,15 @@
 import { OperationStatus } from '@massalabs/massa-web3';
 import { getProvider } from '../utils';
-import { MasOg } from '../masog/wrapper/MasOg';
+import { MasOg } from './wrapper/MasOg';
 
 const ADDRESSES = [
-  'AU1xs4LUr2XsFhe4YB756bEB2aG59k2Dy2LzLYgYR8zH4o2ZWv5G', // Kevin
-  'AU12wiZMwocjfWZKZhzP2dR86PBXJfGCoKY5wi6q1cSQoquMekvfJ', // Joao
-  'AU1bTSHvZG7cdUUu4ScKwQVFum3gB5TDpdi9yMRv2bnedYUyptsa', // Tatiana
-  'AU1DjgRMPCfnSvDcY3TXkbSQNDpsLQ3NUfCMrisT7xzwWsSe9V4s', // Daniel
-  'AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5', // Seb
-  'AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX', // Damir
+  'AU1xs4LUr2XsFhe4YB756bEB2aG59k2Dy2LzLYgYR8zH4o2ZWv5G',
+  'AU12wiZMwocjfWZKZhzP2dR86PBXJfGCoKY5wi6q1cSQoquMekvfJ',
+  'AU1bTSHvZG7cdUUu4ScKwQVFum3gB5TDpdi9yMRv2bnedYUyptsa',
+  'AU1DjgRMPCfnSvDcY3TXkbSQNDpsLQ3NUfCMrisT7xzwWsSe9V4s',
+  'AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5',
+  'AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX',
 ];
-
-const NAMES = ['Kevin', 'Joao', 'Tatiana', 'Daniel', 'Seb', 'Damir'];
 
 const provider = await getProvider();
 const masOg = MasOg.buildnet(provider);
@@ -44,5 +42,5 @@ console.log('New total supply:', newTotalSupply);
 
 for (let i = 0; i < ADDRESSES.length; i++) {
   const balance = await masOg.balanceOf(ADDRESSES[i]);
-  console.log('Balance of', NAMES[i], ':', balance);
+  console.log('Balance of address', ADDRESSES[i], ':', balance);
 }
