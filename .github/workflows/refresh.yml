@@ -2,7 +2,7 @@ name: Refresh Data
 
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/5 * * * *"
 
 jobs:
   refresh-data:
