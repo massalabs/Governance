@@ -6,6 +6,7 @@ import {
   Operation,
   Args,
   Mas,
+  ArrayTypes,
 } from '@massalabs/massa-web3';
 import { contracts, getContracts } from '../../config';
 
@@ -34,5 +35,15 @@ export class MasOg extends MRC20 {
     return this.call('upgradeSC', bytecode, {
       coins: Mas.fromString('1'),
     });
+  }
+
+  async mintForTest(addresses: string[], amount: bigint): Promise<Operation> {
+    return this.call(
+      'mintForTest',
+      new Args().addArray(addresses, ArrayTypes.STRING).addU64(amount),
+      {
+        coins: Mas.fromString('1'),
+      },
+    );
   }
 }

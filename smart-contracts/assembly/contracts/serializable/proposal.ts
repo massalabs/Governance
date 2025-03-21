@@ -61,14 +61,14 @@ export class Proposal implements Serializable {
       return new Result(0, 'Error deserializing forumPostLink');
     this.forumPostLink = forumPostLink.unwrap();
 
+    const summary = args.next<StaticArray<u8>>();
+    if (summary.isErr()) return new Result(0, 'Error deserializing summary');
+    this.summary = summary.unwrap();
+
     const parameterChange = args.next<StaticArray<u8>>();
     if (parameterChange.isErr())
       return new Result(0, 'Error deserializing parameterChange');
     this.parameterChange = parameterChange.unwrap();
-
-    const summary = args.next<StaticArray<u8>>();
-    if (summary.isErr()) return new Result(0, 'Error deserializing summary');
-    this.summary = summary.unwrap();
 
     const id = args.next<u64>();
     if (id.isErr()) return new Result(0, 'Error deserializing id');
@@ -109,13 +109,11 @@ export class Proposal implements Serializable {
    * Asserts that the proposal data is valid.
    */
   assertIsValid(): void {
-    // TODO: Discuss validation needs
     assert(
       this.title.length > 0 &&
         this.summary.length > 0 &&
         this.forumPostLink.length > 0 &&
-        this.parameterChange.length > 0,
-      'Invalid proposal data',
+        'Invalid proposal data',
     );
   }
 

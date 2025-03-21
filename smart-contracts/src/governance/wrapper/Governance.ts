@@ -121,7 +121,6 @@ export class Governance extends SmartContract implements Upgradable {
 
     const values = await this.provider.readStorage(this.address, keys, final);
 
-    console.log(values);
     return values.map((value) => {
       const proposal = new Proposal();
       proposal.deserialize(value, 0);
@@ -224,5 +223,20 @@ export class Governance extends SmartContract implements Upgradable {
     options?: ReadSCOptions,
   ): Promise<Operation> {
     return await this.call('upgradeSC', bytecode, options);
+  }
+
+  /**
+   * Sets the status of a proposal to the next status
+   * @param proposalId - The ID of the proposal
+   */
+  async nextStatus(
+    proposalId: bigint,
+    options?: ReadSCOptions,
+  ): Promise<Operation> {
+    return await this.call(
+      'nextStatus',
+      new Args().addU64(proposalId),
+      options,
+    );
   }
 }

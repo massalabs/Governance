@@ -81,6 +81,9 @@ export class Oracle extends SmartContract {
       rollKey(cycle, address),
     ]);
 
+    if (!result[0]) {
+      return 0n;
+    }
     return U64.fromBytes(result[0]);
   }
 
@@ -123,7 +126,7 @@ export class Oracle extends SmartContract {
 
     return values.map((value, i) => ({
       address: bytesToStr(keys[i].slice(filter.length)),
-      rolls: U64.fromBytes(value),
+      rolls: U64.fromBytes(value!),
     }));
   }
 
@@ -143,7 +146,7 @@ export class Oracle extends SmartContract {
       ORACLE_LAST_RECORDED_CYCLE,
     ]);
 
-    if (cycle[0].length === 0) {
+    if (!cycle[0] || cycle[0].length === 0) {
       throw new Error('No cycle found');
     }
 
@@ -164,7 +167,11 @@ export class Oracle extends SmartContract {
 
   async getMasOgAddress(): Promise<string> {
     const result = await this.provider.readStorage(this.address, ['MASOG_KEY']);
-    console.log(result);
+
+    if (!result[0]) {
+      throw new Error('No masOg address found');
+    }
+
     return bytesToStr(result[0]);
   }
 }

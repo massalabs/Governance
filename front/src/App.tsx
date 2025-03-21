@@ -1,58 +1,33 @@
-import { bytesToStr, JsonRPCClient } from "@massalabs/massa-web3";
-import { useEffect, useState } from "react";
-import { MassaLogo } from "@massalabs/react-ui-kit";
-import './App.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Suspense, lazy } from "react";
+import Layout from "./components/Layout";
+import { Loading } from "@/components/ui/Loading";
 
-const sc_addr = "AS121byc9dBwjbeREk4rzUZisFyfMkdZ1Uhtcnm6n6s5hnCX6fsHc"; // TODO Update with your deployed contract address
+// Lazy load pages
+const Home = lazy(() => import("./pages/Home"));
+const Proposals = lazy(() => import("./pages/Proposals"));
+const CreateProposal = lazy(() => import("./pages/CreateProposal"));
+const ProposalDetails = lazy(() => import("./pages/ProposalDetails"));
 
-/**
- * The key used to store the greeting in the smart contract
- */
-const GREETING_KEY = "greeting_key";
-
-/**
- * App component that handles interactions with a Massa smart contract
- * @returns The rendered component
- */
-function App() {
-
-  const [greeting, setGreeting] = useState<string | null>(null);
-
-    /**
-   * Initialize the web3 client
-   */
-  const client = JsonRPCClient.buildnet()
-
-  /**
-   * Fetch the greeting when the web3 client is initialized
-   */
-  useEffect(() => {
-    getGreeting();
-  });
-
-  /**
-   * Function to get the current greeting from the smart contract
-   */
-  async function getGreeting() {
-    if (client) {
-      const dataStoreVal = await client.getDatastoreEntry(GREETING_KEY, sc_addr, false)
-      const greetingDecoded = bytesToStr(dataStoreVal);
-      setGreeting(greetingDecoded);
-    }
-  }
-
+export default function App() {
   return (
-    <>
-    <div>
-     <MassaLogo className="logo" size={100}/>   
-     <h2>Greeting message:</h2>
-     <h1>{greeting}</h1>
-     </div>
-    </>
+    <BrowserRouter>
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-secondary dark:bg-darkCard">
+            <Loading text="Loading application..." size="lg" />
+          </div>
+        }
+      >
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/proposals" element={<Proposals />} />
+            <Route path="/create" element={<CreateProposal />} />
+            <Route path="/proposals/:id" element={<ProposalDetails />} />
+          </Route>
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
   );
 }
-
-export default App;
-
-
-
