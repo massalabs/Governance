@@ -19,7 +19,7 @@ export function VotingPowerSection({
 
   const calculateVotingPowerPercentage = () => {
     if (!userMasogBalance || !totalSupply || totalSupply === 0n) return "0";
-    return ((Number(userMasogBalance) / Number(totalSupply)) * 100).toFixed(2);
+    return ((Number(userMasogBalance) / Number(totalSupply)) * 100).toFixed(4);
   };
 
   return (
