@@ -113,8 +113,7 @@ export class Proposal implements Serializable {
       this.title.length > 0 &&
         this.summary.length > 0 &&
         this.forumPostLink.length > 0 &&
-        this.parameterChange.length > 0,
-      'Invalid proposal data',
+        'Invalid proposal data',
     );
   }
 

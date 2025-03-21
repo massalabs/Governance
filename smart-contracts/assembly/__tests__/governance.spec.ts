@@ -48,6 +48,10 @@ import {
   generateVote,
   mockMasogTotalSupply,
 } from './utils';
+import {
+  DISCUSSION_PERIOD,
+  VOTING_PERIOD,
+} from '../contracts/governance-internals';
 
 const governanceOwner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
 const masOgOwner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
@@ -61,8 +65,6 @@ let oracleAddress = '';
 const MIN_PROPOSAL_MAS_AMOUNT = u64(1000_000_000_000);
 const MIN_PROPOSAL_MASOG_AMOUNT = u64(1000_000_000_000);
 const MIN_VOTE_MASOG_AMOUNT = u64(1_000);
-const DISCUSSION_PERIOD = u64(3 * 7 * 24 * 60 * 60 * 1000); // 3 weeks in milliseconds
-const VOTING_PERIOD = u64(4 * 7 * 24 * 60 * 60 * 1000); // 4 weeks in milliseconds
 
 beforeAll(() => {
   setupContracts();

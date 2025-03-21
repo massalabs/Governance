@@ -1,0 +1,26 @@
+{
+  "recurrence": {
+    "every": "Every",
+    "day": "day",
+    "week": "week",
+    "month": "month",
+    "year": "year",
+    "hour": "hour",
+    "minute": "minute",
+    "second": "second",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  },
+  "unexpected-error": {
+    "title": "Ops!",
+    "description": "An unexpected error has occurred"
+  },
+  "connect-wallet": {
+    "title": "Connect wallet"
+  }
+}
