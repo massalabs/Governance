@@ -1,9 +1,6 @@
 import { useParams } from "react-router-dom";
 import { VoteProgress } from "../components/proposals/VoteProgress";
-import {
-  useGovernanceData,
-  useProposalVotes,
-} from "../hooks/useGovernanceData";
+import { useGovernanceData } from "../hooks/useGovernanceData";
 import { useMasogTotalSupply } from "../hooks/useMasogData";
 import { truncateAddress } from "../utils/address";
 import {
@@ -258,7 +255,7 @@ export default function ProposalDetails() {
         {/* Left Column - Proposal Content */}
         <div className="lg:col-span-2 space-y-8">
           <BasicInfoSection summary={proposal.summary} />
-          {proposal.parameterChange && (
+          {proposal.parameterChange && proposal.parameterChange !== "{}" && (
             <TechnicalDetailsSection
               parameterChange={proposal.parameterChange}
             />

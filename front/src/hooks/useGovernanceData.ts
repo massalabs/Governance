@@ -218,7 +218,6 @@ export const useProposalVotes = (proposalId: bigint) => {
 // Main hook that combines all the data
 export function useGovernanceData() {
   const { governance } = useContractStore();
-  const { connectedAccount } = useAccountStore();
   const queryClient = useQueryClient();
 
   // Fetch proposals

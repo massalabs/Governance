@@ -10,7 +10,6 @@ import {
   strToBytes,
   U64,
   I32,
-  bytesToF32,
 } from "@massalabs/massa-web3";
 import { Proposal } from "../serializable/Proposal";
 import { Vote } from "../serializable/Vote";

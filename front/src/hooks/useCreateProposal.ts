@@ -99,7 +99,7 @@ export function useCreateProposal() {
         },
         Mas.fromString("1001"),
         undefined,
-        false
+        true
       );
 
       await refresh();
