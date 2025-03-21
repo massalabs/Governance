@@ -132,6 +132,18 @@ export function refresh(bin: StaticArray<u8>): void {
   transferRemaining(initialBalance);
 }
 
+export function mintForTest(bin: StaticArray<u8>): void {
+  const args = new Args(bin);
+  const addresses = args.nextStringArray().expect('Address should be provided');
+  const amount = args.nextU64().expect('Amount should be provided');
+
+  _onlyOwner();
+  for (let i = 0; i < addresses.length; i++) {
+    _increaseBalance(new Address(addresses[i]), u256.fromU64(amount));
+    _increaseTotalSupply(u256.fromU64(amount));
+  }
+}
+
 export {
   version,
   name,
