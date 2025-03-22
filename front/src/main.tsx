@@ -6,11 +6,20 @@ import { useContractInitialization } from "./hooks/useContractInitialization";
 import useAccountSync from "./hooks/useAccountSync";
 import { QueryProvider } from "./providers/QueryProvider";
 import { ThemeAwareToast } from "./components/ThemeAwareToast";
+import WalletConnectingLoader from "./components/WalletConnectingLoader";
 
 function AppWithHooks() {
-  useAccountSync();
+  const { isConnecting, connectionStatus } = useAccountSync();
   useContractInitialization();
-  return <App />;
+  return (
+    <>
+      <WalletConnectingLoader
+        isConnecting={isConnecting}
+        connectionStatus={connectionStatus}
+      />
+      <App />
+    </>
+  );
 }
 
 // Create root only once
