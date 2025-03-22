@@ -17,6 +17,6 @@ export function useMasogTotalSupply() {
       return masOg.public.totalSupply();
     },
     enabled: !!masOg?.public,
-    staleTime: 5 * 60 * 1000, // Consider total supply stale after 5 minutes
+    staleTime: 5 * 60 * 1000, // Consider masog total supply stale after 5 minutes
   });
 }

@@ -84,10 +84,11 @@ export const useProposals = () => {
         throw error;
       }
     },
-    refetchInterval: 30000,
+    refetchInterval: 60000,
     retry: 3,
     retryDelay: 1000,
     enabled: !!governance?.public,
+    staleTime: 30000,
   });
 };
 
@@ -112,11 +113,11 @@ export const useUserBalance = () => {
         throw error;
       }
     },
-    refetchInterval: 10000, // Refresh every 10 seconds
+    refetchInterval: 30000,
     retry: 3,
     retryDelay: 1000,
     enabled: !!masOg?.public && !!connectedAccount,
-    staleTime: 5000, // Consider balance stale after 5 seconds
+    staleTime: 15000,
   });
 };
 
@@ -148,10 +149,11 @@ export const useUserVotes = (proposals: FormattedProposal[]) => {
 
       return votesMap;
     },
-    refetchInterval: 10000,
+    refetchInterval: 30000,
     retry: 3,
     retryDelay: 1000,
     enabled: !!governance?.public && !!connectedAccount && proposals.length > 0,
+    staleTime: 15000,
   });
 };
 
@@ -236,10 +238,11 @@ export function useGovernanceData() {
         throw error;
       }
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 60000,
     retry: 3,
     retryDelay: 1000,
     enabled: !!governance?.public,
+    staleTime: 30000,
   });
 
   // Fetch total votes

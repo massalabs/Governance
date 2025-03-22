@@ -20,6 +20,7 @@ const useAccountSync = () => {
   const { connectedAccount, setCurrentWallet } = useAccountStore();
   const { initializeContracts } = useContractStore();
   const queryClient = useQueryClient();
+  const initializingRef = useRef(false);
 
   const [savedAccount, setSavedAccount] = useLocalStorage<SavedAccount>(
     "saved-account",
@@ -29,12 +30,17 @@ const useAccountSync = () => {
   const getStoredAccount = useCallback(
     async (address: string, providerName: string) => {
       try {
+        console.log("Getting stored account for:", address, providerName);
         const wallets = await getWallets();
+
         const targetWallet = wallets.find((w) => w.name() === providerName);
+        console.log("Found target wallet:", targetWallet?.name());
 
         if (targetWallet) {
           const accounts = await targetWallet.accounts();
           const matchingAccount = accounts.find((a) => a.address === address);
+          console.log("Found matching account:", matchingAccount?.address);
+
           if (matchingAccount) {
             return { account: matchingAccount, wallet: targetWallet, wallets };
           }
@@ -49,22 +55,39 @@ const useAccountSync = () => {
   );
 
   const setAccountFromSaved = useCallback(async () => {
-    if (!savedAccount.address || !savedAccount.providerName) return;
+    if (initializingRef.current) return;
+    initializingRef.current = true;
 
-    const stored = await getStoredAccount(
-      savedAccount.address,
-      savedAccount.providerName
-    );
-    if (stored) {
-      try {
-        // @ts-ignore Version mismatch between react-ui-kit and wallet-provider
-        await setCurrentWallet(stored.wallet, stored.account);
-        await initializeContracts(stored.account);
-        // Invalidate queries to trigger a fresh fetch
-        queryClient.invalidateQueries({ queryKey: governanceKeys.all });
-      } catch (error) {
-        console.error("Error initializing contracts:", error);
+    try {
+      console.log("Setting account from saved:", savedAccount);
+
+      // If we have a saved account, try to restore it
+      if (savedAccount.address && savedAccount.providerName) {
+        console.log("Attempting to restore saved account");
+        const stored = await getStoredAccount(
+          savedAccount.address,
+          savedAccount.providerName
+        );
+        if (stored) {
+          try {
+            console.log("Found stored account, setting current wallet");
+            // @ts-ignore Version mismatch between react-ui-kit and wallet-provider
+            await setCurrentWallet(stored.wallet, stored.account);
+            console.log("Initializing contracts");
+            await initializeContracts(stored.account);
+            // Invalidate queries to trigger a fresh fetch
+            queryClient.invalidateQueries({ queryKey: governanceKeys.all });
+          } catch (error) {
+            console.error("Error initializing contracts:", error);
+            setSavedAccount(EMPTY_ACCOUNT);
+          }
+        } else {
+          console.log("No stored account found, clearing saved account");
+          setSavedAccount(EMPTY_ACCOUNT);
+        }
       }
+    } finally {
+      initializingRef.current = false;
     }
   }, [
     savedAccount,
@@ -72,25 +95,39 @@ const useAccountSync = () => {
     setCurrentWallet,
     initializeContracts,
     queryClient,
+    setSavedAccount,
   ]);
 
+  // Effect to update saved account when connected account changes
   useEffect(() => {
+    if (!connectedAccount || initializingRef.current) return;
+
     const shouldUpdateSavedAccount =
-      connectedAccount && connectedAccount.address !== savedAccount.address;
+      connectedAccount.address !== savedAccount.address ||
+      connectedAccount.providerName !== savedAccount.providerName;
 
     if (shouldUpdateSavedAccount) {
-      const { address, providerName } = connectedAccount;
-      setSavedAccount({ address, providerName });
+      console.log("Updating saved account to:", connectedAccount.address);
+      setSavedAccount({
+        address: connectedAccount.address,
+        providerName: connectedAccount.providerName,
+      });
     }
-  }, [connectedAccount, setSavedAccount, savedAccount.address]);
+  }, [
+    connectedAccount?.address,
+    connectedAccount?.providerName,
+    savedAccount,
+    setSavedAccount,
+  ]);
 
-  const initializedRef = useRef(false);
-
+  // Effect to initialize account on mount
+  const mountedRef = useRef(false);
   useEffect(() => {
-    if (!initializedRef.current) {
-      initializedRef.current = true;
-      setAccountFromSaved();
-    }
+    if (mountedRef.current) return;
+    mountedRef.current = true;
+
+    console.log("Running initial account initialization");
+    setAccountFromSaved();
   }, [setAccountFromSaved]);
 
   return { setSavedAccount };

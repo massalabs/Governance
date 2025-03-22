@@ -10,6 +10,7 @@ import { Args, u64ToBytes } from '@massalabs/as-types';
 import {
   _onlyOwner,
   _setOwner,
+  OWNER_KEY,
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
 import {
   proposalKey,
@@ -25,6 +26,16 @@ import {
   _vote,
   _deleteProposal,
 } from './governance-internals';
+
+const allowedAddresses = [
+  'AU1xs4LUr2XsFhe4YB756bEB2aG59k2Dy2LzLYgYR8zH4o2ZWv5G',
+  'AU12wiZMwocjfWZKZhzP2dR86PBXJfGCoKY5wi6q1cSQoquMekvfJ',
+  'AU1bTSHvZG7cdUUu4ScKwQVFum3gB5TDpdi9yMRv2bnedYUyptsa',
+  'AU1DjgRMPCfnSvDcY3TXkbSQNDpsLQ3NUfCMrisT7xzwWsSe9V4s',
+  'AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5',
+  'AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX',
+  'AU12FUbb8snr7qTEzSdTVH8tbmEouHydQTUAKDXY9LDwkdYMNBVGF',
+];
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.
@@ -110,7 +121,8 @@ export function upgradeSC(bytecode: StaticArray<u8>): void {
  * @param binaryArgs - Serialized proposal ID (u64).
  */
 export function deleteProposal(binaryArgs: StaticArray<u8>): void {
-  _onlyOwner();
+  onlyAllowedAddresses();
+
   const initialBalance = balance();
 
   const args = new Args(binaryArgs);
@@ -130,7 +142,7 @@ export function deleteProposal(binaryArgs: StaticArray<u8>): void {
 
 // TODO: remove this function
 export function nextStatus(binaryArgs: StaticArray<u8>): void {
-  _onlyOwner();
+  onlyAllowedAddresses();
   // Update the status of a proposal to next status
   const args = new Args(binaryArgs);
   const proposalId = args.nextU64().expect('Proposal ID is required');
@@ -139,6 +151,19 @@ export function nextStatus(binaryArgs: StaticArray<u8>): void {
   assert(Storage.has(proposalKey(proposalId)), 'Proposal does not exist');
   const proposal = Proposal.getById(proposalId);
   proposal.setStatus(votingStatus).save();
+}
+// TODO: remove this function
+function onlyAllowedAddresses(): void {
+  assert(Storage.has(OWNER_KEY), 'Owner is not set');
+  const owner = Storage.get(OWNER_KEY);
+
+  const addresses = allowedAddresses;
+  addresses.push(owner);
+
+  assert(
+    addresses.includes(Context.caller().toString()),
+    'Caller is not allowed to call this function',
+  );
 }
 
 /* -------------------------------------------------------------------------- */

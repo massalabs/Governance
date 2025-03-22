@@ -86,10 +86,11 @@ function AcceptanceThreshold({
       </div>
       <div className="space-y-1">
         <div className="text-xs text-f-tertiary dark:text-darkMuted pl-2">
-          Required: {thresholdPercentage.toFixed(1)}% of total supply
+          Required: {thresholdPercentage.toFixed(1)}% of masog total supply
         </div>
         <div className="text-xs text-emerald-400 pl-2">
-          Current: {formatProgress(currentProgress)} % of total supply
+          Current: {currentProgress > 0 ? formatProgress(currentProgress) : "0"}
+          % of masog total supply
         </div>
       </div>
     </div>
@@ -101,7 +102,7 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
 
   if (!totalSupply) return null;
 
-  // Calculate required score (50% of total supply)
+  // Calculate required score (50% of total masog supply)
   const requiredScore = totalSupply / 2n + 1n;
 
   // Calculate total votes

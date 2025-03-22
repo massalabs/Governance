@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 import { VoteProgress } from "../components/proposals/VoteProgress";
 import { useGovernanceData } from "../hooks/useGovernanceData";
-import { useMasogTotalSupply } from "../hooks/useMasogData";
 import { truncateAddress } from "../utils/address";
 import {
   ChatBubbleLeftRightIcon,
@@ -17,6 +16,10 @@ import { FormattedProposal } from "@/types/governance";
 import { REQUIRED_MASOG } from "@/hooks/useCreateProposal";
 import { Loading } from "@/components/ui/Loading";
 import { PixelButton } from "@/components/ui/PixelButton";
+import { useAccountStore } from "@massalabs/react-ui-kit";
+import { useWriteSmartContract } from "@massalabs/react-ui-kit";
+import { useContractStore } from "../store/useContractStore";
+import { Args } from "@massalabs/massa-web3";
 
 interface ProposalHeaderProps {
   proposal: FormattedProposal;
@@ -136,15 +139,48 @@ function VoteAction({ hasVoted, canVote, onVote }: VoteActionProps) {
 
 interface VotingPeriodProps {
   creationTimestamp: bigint;
+  status: string;
 }
 
-function VotingPeriod({ creationTimestamp }: VotingPeriodProps) {
-  const startDate = new Date(
-    Number(creationTimestamp) * 1000 + 2 * 7 * 24 * 60 * 60 * 1000
-  );
+function VotingPeriod({ creationTimestamp, status }: VotingPeriodProps) {
+  const DISCUSSION_PERIOD = 3 * 7 * 24 * 60 * 60 * 1000; // 3 weeks in milliseconds
+  const VOTING_PERIOD = 4 * 7 * 24 * 60 * 60 * 1000; // 4 weeks in milliseconds
+
+  const startDate = new Date(Number(creationTimestamp) + DISCUSSION_PERIOD);
   const endDate = new Date(
-    Number(creationTimestamp) * 1000 + 5 * 7 * 24 * 60 * 60 * 1000
+    Number(creationTimestamp) + DISCUSSION_PERIOD + VOTING_PERIOD
   );
+
+  const isVotingEnded = status === "ACCEPTED" || status === "REJECTED";
+  const currentTime = new Date().getTime();
+  const votingEndTime =
+    Number(creationTimestamp) + DISCUSSION_PERIOD + VOTING_PERIOD;
+  const isTimeExpired = currentTime > votingEndTime;
+
+  if (isVotingEnded || (status === "VOTING" && isTimeExpired)) {
+    return (
+      <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
+        <div className="flex items-center justify-center p-4">
+          <span
+            className={`text-lg font-medium px-4 py-2 rounded-full ${
+              status === "ACCEPTED"
+                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                : status === "REJECTED"
+                ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
+                : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+            }`}
+          >
+            {status === "VOTING" && isTimeExpired
+              ? "Pending Final Status"
+              : status}
+          </span>
+        </div>
+        <div className="mt-4 text-sm text-center text-f-tertiary dark:text-darkMuted">
+          Voting ended on {endDate.toLocaleString()}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
@@ -169,35 +205,86 @@ function VotingPeriod({ creationTimestamp }: VotingPeriodProps) {
   );
 }
 
-interface QuorumProps {
-  positiveVoteVolume: bigint;
-  totalSupply: bigint;
+const allowedAddresses = [
+  "AU1xs4LUr2XsFhe4YB756bEB2aG59k2Dy2LzLYgYR8zH4o2ZWv5G",
+  "AU12wiZMwocjfWZKZhzP2dR86PBXJfGCoKY5wi6q1cSQoquMekvfJ",
+  "AU1bTSHvZG7cdUUu4ScKwQVFum3gB5TDpdi9yMRv2bnedYUyptsa",
+  "AU1DjgRMPCfnSvDcY3TXkbSQNDpsLQ3NUfCMrisT7xzwWsSe9V4s",
+  "AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5",
+  "AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX",
+  "AU12FUbb8snr7qTEzSdTVH8tbmEouHydQTUAKDXY9LDwkdYMNBVGF",
+];
+
+interface AdminActionsProps {
+  proposalId: bigint;
+  status: string;
 }
 
-function Quorum({ positiveVoteVolume, totalSupply }: QuorumProps) {
-  const currentPercentage =
-    Number(totalSupply) > 0
-      ? (Number(positiveVoteVolume) / Number(totalSupply)) * 100
-      : 0;
+function AdminActions({ proposalId, status }: AdminActionsProps) {
+  const { connectedAccount } = useAccountStore();
+  const { governance } = useContractStore();
+  const { callSmartContract } = useWriteSmartContract(connectedAccount!);
+
+  // Add debug information
+  console.log("Connected account:", connectedAccount?.address);
+  console.log(
+    "Is admin:",
+    connectedAccount && allowedAddresses.includes(connectedAccount.address)
+  );
+  console.log("Allowed addresses:", allowedAddresses);
+
+  if (
+    !connectedAccount ||
+    !allowedAddresses.includes(connectedAccount.address)
+  ) {
+    return null;
+  }
+
+  const canChangeStatus =
+    status.toUpperCase() === "DISCUSSION" || status.toUpperCase() === "VOTING";
+
+  const handleNextStatus = async () => {
+    if (!governance?.private) return;
+    await callSmartContract(
+      "nextStatus",
+      governance.private.address,
+      new Args().addU64(proposalId).serialize(),
+      {
+        success: "Status updated successfully!",
+        pending: "Updating status...",
+        error: "Failed to update status",
+      }
+    );
+  };
+
+  const handleDelete = async () => {
+    if (!governance?.private) return;
+    await callSmartContract(
+      "deleteProposal",
+      governance.private.address,
+      new Args().addU64(proposalId).serialize(),
+      {
+        success: "Proposal deleted successfully!",
+        pending: "Deleting proposal...",
+        error: "Failed to delete proposal",
+      }
+    );
+  };
 
   return (
     <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
       <h3 className="text-lg font-semibold text-f-primary dark:text-darkText mb-4">
-        Quorum
+        Admin Actions
       </h3>
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-f-tertiary dark:text-darkMuted">Required</span>
-          <span className="text-f-primary dark:text-darkText">
-            50.0% of total supply
-          </span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-f-tertiary dark:text-darkMuted">Current</span>
-          <span className="text-f-primary dark:text-darkText">
-            {currentPercentage.toFixed(4)}%
-          </span>
-        </div>
+      <div className="flex flex-col gap-4">
+        {canChangeStatus && (
+          <PixelButton onClick={handleNextStatus} fullWidth variant="primary">
+            Next Status
+          </PixelButton>
+        )}
+        <PixelButton onClick={handleDelete} fullWidth variant="secondary">
+          Delete Proposal
+        </PixelButton>
       </div>
     </div>
   );
@@ -207,8 +294,7 @@ export default function ProposalDetails() {
   const { id } = useParams<{ id: string }>();
   const { proposals, userMasogBalance, userVotes, proposalVotesMap, loading } =
     useGovernanceData();
-  const { data: totalSupply, isLoading: isLoadingSupply } =
-    useMasogTotalSupply();
+
   const { openVoteModal } = useUIStore();
 
   const proposal = proposals.find((p) => p.id.toString() === id);
@@ -287,17 +373,12 @@ export default function ProposalDetails() {
             )}
           </div>
 
-          <VotingPeriod creationTimestamp={proposal.creationTimestamp} />
-          {isLoadingSupply || !totalSupply ? (
-            <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
-              <Loading text="Loading quorum data..." size="sm" />
-            </div>
-          ) : (
-            <Quorum
-              positiveVoteVolume={proposal.positiveVoteVolume}
-              totalSupply={totalSupply}
-            />
-          )}
+          <VotingPeriod
+            creationTimestamp={proposal.creationTimestamp}
+            status={proposal.status}
+          />
+
+          <AdminActions proposalId={proposal.id} status={proposal.status} />
         </div>
       </div>
 

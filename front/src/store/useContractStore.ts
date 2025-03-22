@@ -25,18 +25,42 @@ interface ContractStoreState extends Partial<Contracts> {
   resetContracts: () => void;
 }
 
+// Cache for public providers to avoid unnecessary network calls
+const publicProviderCache = new Map<string, PublicProvider>();
+
 const getPublicProvider = async (
   provider: Provider
 ): Promise<PublicProvider> => {
-  const networkInfos = await provider.networkInfos();
+  try {
+    const networkInfos = await provider.networkInfos();
+    const networkKey = networkInfos.url || networkInfos.name;
 
-  if (!networkInfos.url) {
-    return networkInfos.name === "mainnet"
-      ? JsonRpcProvider.mainnet()
-      : JsonRpcProvider.buildnet();
+    // Check if we have a cached provider for this network
+    if (publicProviderCache.has(networkKey)) {
+      return publicProviderCache.get(networkKey)!;
+    }
+
+    // Create a new provider
+    let publicProvider: PublicProvider;
+    if (!networkInfos.url) {
+      publicProvider =
+        networkInfos.name === "mainnet"
+          ? JsonRpcProvider.mainnet()
+          : JsonRpcProvider.buildnet();
+    } else {
+      publicProvider = JsonRpcProvider.fromRPCUrl(networkInfos.url);
+    }
+
+    // Cache the provider
+    publicProviderCache.set(networkKey, publicProvider);
+    return publicProvider;
+  } catch (error) {
+    console.error("Error getting public provider:", error);
+    // Fallback to buildnet if there's an error
+    const fallbackProvider = JsonRpcProvider.buildnet();
+    publicProviderCache.set("buildnet", fallbackProvider);
+    return fallbackProvider;
   }
-
-  return JsonRpcProvider.fromRPCUrl(networkInfos.url);
 };
 
 const initializeContractPair = async <T>(
@@ -81,6 +105,8 @@ export const useContractStore = create<ContractStoreState>((set) => ({
   },
 
   resetContracts: () => {
+    // Clear the provider cache when resetting contracts
+    publicProviderCache.clear();
     set({
       governance: undefined,
       oracle: undefined,
