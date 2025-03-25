@@ -1,26 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
 import "./index.css";
-import { useContractInitialization } from "./hooks/useContractInitialization";
-import useAccountSync from "./hooks/useAccountSync";
 import { QueryProvider } from "./providers/QueryProvider";
 import { ThemeAwareToast } from "./components/ThemeAwareToast";
-import WalletConnectingLoader from "./components/WalletConnectingLoader";
-
-function AppWithHooks() {
-  const { isConnecting, connectionStatus } = useAccountSync();
-  useContractInitialization();
-  return (
-    <>
-      <WalletConnectingLoader
-        isConnecting={isConnecting}
-        connectionStatus={connectionStatus}
-      />
-      <App />
-    </>
-  );
-}
+import { AppWithHooks } from "./components/AppWithHooks";
 
 // Create root only once
 const rootElement = document.getElementById("root");
