@@ -1,9 +1,6 @@
-export enum ProposalStatus {
-  DISCUSSION = "DISCUSSION",
-  VOTING = "VOTING",
-  ACCEPTED = "ACCEPTED",
-  REJECTED = "REJECTED",
-}
+import { Vote } from "../serializable/Vote";
+
+export type ProposalStatus = "VOTING" | "CLOSED" | "EXECUTED" | "REJECTED";
 
 export interface CreateProposalParams {
   title: string;
@@ -18,59 +15,15 @@ export interface CreateProposalParams {
 export interface FormattedProposal {
   id: bigint;
   title: string;
+  forumPostLink: string;
   summary: string;
-  forumPostLink?: string;
+  parameterChange: string;
+  status: ProposalStatus;
   owner: string;
   creationTimestamp: bigint;
   positiveVoteVolume: bigint;
   negativeVoteVolume: bigint;
   blankVoteVolume: bigint;
-  status: ProposalStatus;
-  parameterChange?: any;
-}
-
-export interface Proposal {
-  id: bigint;
-  creator: string;
-  forumPostLink: string;
-  title: string;
-  summary: string;
-  parameterChange?: {
-    parameter: string;
-    value: string;
-  };
-  startTime: bigint;
-  endTime: bigint;
-  positiveVotes: bigint;
-  negativeVotes: bigint;
-  blankVotes: bigint;
-  status: ProposalStatus;
-}
-
-export interface Vote {
-  proposalId: bigint;
-  voter: string;
-  vote: "POSITIVE" | "NEGATIVE" | "BLANK";
-  comment?: string;
-  timestamp: bigint;
-}
-
-export interface ProposalFilters {
-  status?: "ACTIVE" | "EXECUTED" | "EXPIRED" | "CANCELLED";
-  creator?: string;
-  startTime?: bigint;
-  endTime?: bigint;
-}
-
-export interface ProposalSort {
-  field:
-    | "id"
-    | "startTime"
-    | "endTime"
-    | "positiveVotes"
-    | "negativeVotes"
-    | "blankVotes";
-  direction: "asc" | "desc";
 }
 
 export interface GovernanceStats {
@@ -80,4 +33,26 @@ export interface GovernanceStats {
   totalMasogSupply: bigint | null;
   userMasogBalance: bigint | null;
   userVotingPower: bigint | null;
+}
+
+export interface VoteDetails {
+  value: bigint;
+  address: string;
+  comment: string;
+}
+
+export interface VoteMutationParams {
+  proposalId: bigint;
+  voteValue: bigint;
+  comment: string;
+}
+
+export interface GovernanceData {
+  proposals: FormattedProposal[];
+  stats: GovernanceStats;
+  userMasogBalance: bigint | null;
+  userVotes: Record<string, Vote>;
+  proposalVotesMap: Record<string, VoteDetails[]>;
+  loading: boolean;
+  refresh: () => void;
 }

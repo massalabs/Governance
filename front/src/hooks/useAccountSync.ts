@@ -4,7 +4,7 @@ import { useLocalStorage } from "@massalabs/react-ui-kit/src/lib/util/hooks/useL
 import { getWallets } from "@massalabs/wallet-provider";
 import { useContractStore } from "../store/useContractStore";
 import { useQueryClient } from "@tanstack/react-query";
-import { governanceKeys } from "./useGovernanceData";
+import { governanceKeys } from "./queryKeys/governance";
 
 type SavedAccount = {
   address: string;
@@ -56,6 +56,33 @@ const useAccountSync = () => {
     []
   );
 
+  const connectWallet = useCallback(
+    async (stored: { account: any; wallet: any }) => {
+      setConnectionStatus("Setting up wallet connection...");
+      console.log("Found stored account, setting current wallet");
+      // @ts-ignore Version mismatch between react-ui-kit and wallet-provider
+      await setCurrentWallet(stored.wallet, stored.account);
+
+      setConnectionStatus("Initializing contracts...");
+      console.log("Initializing contracts");
+      await initializeContracts(stored.account);
+
+      // Invalidate queries to trigger a fresh fetch
+      queryClient.invalidateQueries({ queryKey: governanceKeys.all });
+      setConnectionStatus("Connected successfully!");
+    },
+    [setCurrentWallet, initializeContracts, queryClient]
+  );
+
+  const handleConnectionError = useCallback(
+    (error: any) => {
+      console.error("Error initializing contracts:", error);
+      setConnectionStatus("Error initializing contracts");
+      setSavedAccount(EMPTY_ACCOUNT);
+    },
+    [setSavedAccount]
+  );
+
   const setAccountFromSaved = useCallback(async () => {
     if (initializingRef.current) return;
     initializingRef.current = true;
@@ -68,33 +95,22 @@ const useAccountSync = () => {
       if (savedAccount.address && savedAccount.providerName) {
         setConnectionStatus("Attempting to restore saved account...");
         console.log("Attempting to restore saved account");
+
         const stored = await getStoredAccount(
           savedAccount.address,
           savedAccount.providerName
         );
+
         if (stored) {
-          try {
-            setConnectionStatus("Setting up wallet connection...");
-            console.log("Found stored account, setting current wallet");
-            // @ts-ignore Version mismatch between react-ui-kit and wallet-provider
-            await setCurrentWallet(stored.wallet, stored.account);
-            setConnectionStatus("Initializing contracts...");
-            console.log("Initializing contracts");
-            await initializeContracts(stored.account);
-            // Invalidate queries to trigger a fresh fetch
-            queryClient.invalidateQueries({ queryKey: governanceKeys.all });
-            setConnectionStatus("Connected successfully!");
-          } catch (error) {
-            console.error("Error initializing contracts:", error);
-            setConnectionStatus("Error initializing contracts");
-            setSavedAccount(EMPTY_ACCOUNT);
-          }
+          await connectWallet(stored);
         } else {
           console.log("No stored account found, clearing saved account");
           setConnectionStatus("No stored account found");
           setSavedAccount(EMPTY_ACCOUNT);
         }
       }
+    } catch (error) {
+      handleConnectionError(error);
     } finally {
       setTimeout(() => {
         initializingRef.current = false;
@@ -105,9 +121,8 @@ const useAccountSync = () => {
   }, [
     savedAccount,
     getStoredAccount,
-    setCurrentWallet,
-    initializeContracts,
-    queryClient,
+    connectWallet,
+    handleConnectionError,
     setSavedAccount,
   ]);
 

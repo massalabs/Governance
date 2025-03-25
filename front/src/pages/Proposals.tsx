@@ -21,6 +21,7 @@ export default function Proposals() {
     const matchesSearch = proposal.title
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
+
     const matchesStatus =
       selectedStatus === "all" || proposal.status === selectedStatus;
     return matchesSearch && matchesStatus;

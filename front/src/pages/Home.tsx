@@ -12,12 +12,10 @@ export default function Home() {
 
   const isConnected = !!connectedAccount;
 
-  // Show welcome screen if not connected
   if (!isConnected) {
     return <WelcomeSection isConnected={false} />;
   }
 
-  // Show main content when connected
   return (
     <div className="space-y-8">
       <WelcomeSection isConnected={true} />

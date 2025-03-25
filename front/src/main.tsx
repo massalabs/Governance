@@ -2,8 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { QueryProvider } from "./providers/QueryProvider";
-import { ThemeAwareToast } from "./components/ThemeAwareToast";
 import { AppWithHooks } from "./components/AppWithHooks";
+import { Toast } from "@massalabs/react-ui-kit";
 
 // Create root only once
 const rootElement = document.getElementById("root");
@@ -13,7 +13,7 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <QueryProvider>
-      <ThemeAwareToast />
+      <Toast />
       <AppWithHooks />
     </QueryProvider>
   </React.StrictMode>

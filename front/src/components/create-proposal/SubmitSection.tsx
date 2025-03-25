@@ -1,6 +1,7 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { REQUIRED_MASOG } from "../../hooks/useCreateProposal";
+
 import { PixelButton } from "../ui/PixelButton";
+import { REQUIRED_MASOG } from "@/hooks/useCreateProposalMutation";
 
 interface SubmitSectionProps {
   loading: boolean;
