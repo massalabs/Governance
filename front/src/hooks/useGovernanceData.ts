@@ -173,7 +173,18 @@ export const useVoteMutation = () => {
         throw new Error("Governance contract not initialized or no account");
       }
 
-      const vote = new Vote(proposalId, voteValue, strToBytes(comment));
+      console.log("[Debug] Creating vote with:", {
+        proposalId: proposalId.toString(),
+        voteValue: voteValue.toString(),
+        comment,
+      });
+
+      const commentBytes = strToBytes(comment);
+      console.log("[Debug] Comment bytes:", commentBytes);
+
+      const vote = new Vote(proposalId, voteValue, commentBytes);
+      console.log("[Debug] Created vote object:", vote);
+
       await callSmartContract(
         "vote",
         governance.private.address,
@@ -217,13 +228,31 @@ export const useProposalVotes = (proposalId: bigint) => {
   });
 };
 
-// Main hook that combines all the data
-export function useGovernanceData() {
+// Add new interface for vote details
+interface VoteDetails {
+  value: bigint;
+  address: string;
+  comment: string;
+}
+
+// Update the return type of useGovernanceData
+interface GovernanceData {
+  proposals: FormattedProposal[];
+  stats: GovernanceStats;
+  userMasogBalance: bigint | null;
+  userVotes: Record<string, Vote>;
+  proposalVotesMap: Record<string, VoteDetails[]>;
+  loading: boolean;
+  refresh: () => void;
+}
+
+export function useGovernanceData(): GovernanceData {
   const { governance } = useContractStore();
   const queryClient = useQueryClient();
+  const { connectedAccount } = useAccountStore();
 
   // Fetch proposals
-  const { data: proposals = [], isLoading: isLoadingProposals } = useQuery({
+  const { data: proposals = [], isLoading: loadingProposals } = useQuery({
     queryKey: governanceKeys.proposals(),
     queryFn: async () => {
       if (!governance?.public) {
@@ -246,7 +275,7 @@ export function useGovernanceData() {
   });
 
   // Fetch total votes
-  const { data: totalVotes = 0n, isLoading: isLoadingTotalVotes } = useQuery({
+  const { data: totalVotes = 0n, isLoading: loadingTotalVotes } = useQuery({
     queryKey: governanceKeys.all,
     queryFn: async () => {
       if (!governance?.public) {
@@ -260,47 +289,63 @@ export function useGovernanceData() {
         throw error;
       }
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000,
     retry: 3,
     retryDelay: 1000,
     enabled: !!governance?.public,
   });
 
   // Fetch user's MASOG balance using the existing hook
-  const { data: userMasogBalance = null, isLoading: isLoadingBalance } =
+  const { data: userMasogBalance = null, isLoading: loadingBalance } =
     useUserBalance();
 
   // Fetch user's votes
-  const { data: userVotes = {}, isLoading: isLoadingUserVotes } =
+  const { data: userVotes = {}, isLoading: loadingUserVotes } =
     useUserVotes(proposals);
 
-  // Fetch all proposal votes
-  const { data: proposalVotesMap = {}, isLoading: isLoadingProposalVotes } =
+  // Fetch all proposal votes with details
+  const { data: proposalVotesMap = {}, isLoading: loadingProposalVotes } =
     useQuery({
       queryKey: [...governanceKeys.all, "allProposalVotes"],
       queryFn: async () => {
-        if (!governance?.public || !proposals.length) {
+        if (!governance?.public || !proposals.length || !connectedAccount) {
           throw new Error("Missing dependencies for fetching proposal votes");
         }
 
         try {
-          const votesMap: Record<string, bigint[]> = {};
-          await Promise.all(
-            proposals.map(async (proposal) => {
-              const votes = await governance.public.getVotes(proposal.id);
-              votesMap[proposal.id.toString()] = votes;
-            })
+          const votesMap: Record<string, VoteDetails[]> = {};
+
+          // Get all votes for the user
+          const userVotes = await governance.public.getUserVotes(
+            connectedAccount.address,
+            proposals.map((p) => p.id)
           );
+
+          // Group votes by proposal
+          for (const proposal of proposals) {
+            const proposalVotes = userVotes.filter((v) => v.id === proposal.id);
+
+            // Create vote details without comments
+            const voteDetails: VoteDetails[] = proposalVotes.map((vote) => ({
+              value: vote.value,
+              address: connectedAccount.address,
+              comment: "", // Comments are now handled separately via getComments
+            }));
+
+            votesMap[proposal.id.toString()] = voteDetails;
+          }
+
           return votesMap;
         } catch (error) {
           console.error("[Error] Error fetching proposal votes:", error);
           throw error;
         }
       },
-      refetchInterval: 30000, // Refresh every 30 seconds
+      refetchInterval: 30000,
       retry: 3,
       retryDelay: 1000,
-      enabled: !!governance?.public && proposals.length > 0,
+      enabled:
+        !!governance?.public && !!connectedAccount && proposals.length > 0,
     });
 
   // Calculate stats
@@ -324,11 +369,11 @@ export function useGovernanceData() {
     userVotes,
     proposalVotesMap,
     loading:
-      isLoadingProposals ||
-      isLoadingTotalVotes ||
-      isLoadingBalance ||
-      isLoadingUserVotes ||
-      isLoadingProposalVotes,
+      loadingProposals ||
+      loadingTotalVotes ||
+      loadingBalance ||
+      loadingUserVotes ||
+      loadingProposalVotes,
     refresh,
   };
 }

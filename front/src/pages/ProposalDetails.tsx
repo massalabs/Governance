@@ -20,6 +20,7 @@ import { useAccountStore } from "@massalabs/react-ui-kit";
 import { useWriteSmartContract } from "@massalabs/react-ui-kit";
 import { useContractStore } from "../store/useContractStore";
 import { Args } from "@massalabs/massa-web3";
+import { VoteComments } from "../components/proposals/VoteComments";
 
 interface ProposalHeaderProps {
   proposal: FormattedProposal;
@@ -315,9 +316,9 @@ export default function ProposalDetails() {
   // Calculate vote counts from proposalVotes
   const voteCounts = {
     total: proposalVotes.length,
-    positive: proposalVotes.filter((v) => v === 1n).length,
-    negative: proposalVotes.filter((v) => v === -1n).length,
-    blank: proposalVotes.filter((v) => v === 0n).length,
+    positive: proposalVotes.filter((v) => v.value === 1n).length,
+    negative: proposalVotes.filter((v) => v.value === -1n).length,
+    blank: proposalVotes.filter((v) => v.value === 0n).length,
   };
 
   return (
@@ -346,6 +347,15 @@ export default function ProposalDetails() {
               parameterChange={proposal.parameterChange}
             />
           )}
+          {/* Vote Comments Section */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-f-primary dark:text-darkText bg-gradient-to-r from-primary dark:from-darkAccent to-primary/80 dark:to-darkAccent/80 bg-clip-text text-transparent">
+              Vote Comments
+            </h2>
+            <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
+              <VoteComments proposalId={proposal.id} />
+            </div>
+          </div>
         </div>
 
         {/* Right Column - Voting Status */}

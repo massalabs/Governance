@@ -10,6 +10,7 @@ import {
   strToBytes,
   U64,
   I32,
+  bytesToStr,
 } from "@massalabs/massa-web3";
 import { Proposal } from "../serializable/Proposal";
 import { Vote } from "../serializable/Vote";
@@ -26,6 +27,7 @@ export type Upgradable = SmartContract & {
 const UPDATE_PROPOSAL_TAG = strToBytes("UPDATE_PROPOSAL_TAG");
 const UPDATE_VOTE_TAG = strToBytes("UPDATE_VOTE_TAG");
 const UPDATE_COUNTER_TAG = strToBytes("UPDATE_PROPOSAL_COUNTER");
+const UPDATE_VOTE_COMMENT_TAG = strToBytes("UPDATE_VOTE_COMMENT_TAG");
 
 export class Governance extends SmartContract implements Upgradable {
   static async init(provider: Provider | PublicProvider): Promise<Governance> {
@@ -248,5 +250,53 @@ export class Governance extends SmartContract implements Upgradable {
       new Args().addU64(proposalId),
       options
     );
+  }
+
+  /**
+   * Gets a specific vote for a proposal from an address
+   * @param address - The address that cast the vote
+   * @param proposalId - The ID of the proposal
+   */
+  async getVote(
+    address: string,
+    proposalId: bigint,
+    final = false
+  ): Promise<Vote> {
+    const key = new Uint8Array([
+      ...UPDATE_VOTE_TAG,
+      ...U64.toBytes(proposalId),
+      ...strToBytes(address),
+    ]);
+
+    const result = await this.provider.readStorage(this.address, [key], final);
+
+    if (!result[0]) {
+      throw new Error("Vote not found");
+    }
+
+    const vote = new Vote();
+    vote.deserialize(result[0], 0);
+    return vote;
+  }
+
+  async getComments(proposalId: bigint, final = false): Promise<string> {
+    const key = new Uint8Array([
+      ...UPDATE_VOTE_COMMENT_TAG,
+      ...U64.toBytes(proposalId),
+    ]);
+
+    const keys = await this.provider.getStorageKeys(this.address, key, final);
+
+    const result = await this.provider.readStorage(this.address, keys, final);
+
+    if (!result || result.length === 0) {
+      return "";
+    }
+
+    // Convert all comments to strings and join them with newlines
+    return result
+      .filter((value) => value !== null)
+      .map((value) => bytesToStr(value!))
+      .join("\n");
   }
 }
