@@ -14,8 +14,8 @@ export default function App() {
     <BrowserRouter>
       <Suspense
         fallback={
-          <div className="min-h-screen bg-secondary dark:bg-darkCard">
-            <Loading text="Loading application..." size="lg" />
+          <div className="min-h-screen bg-secondary dark:bg-darkCard h-screen w-screen flex items-center justify-center">
+            <Loading text="" size="lg" />
           </div>
         }
       >

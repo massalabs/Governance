@@ -4,12 +4,14 @@ interface TechnicalDetailsSectionProps {
   parameterChangeInput: string;
   setParameterChangeInput: (value: string) => void;
   error?: string;
+  onFormatJson?: () => void;
 }
 
 export function TechnicalDetailsSection({
   parameterChangeInput,
   setParameterChangeInput,
   error,
+  onFormatJson,
 }: TechnicalDetailsSectionProps) {
   return (
     <div className="space-y-8">
@@ -22,6 +24,7 @@ export function TechnicalDetailsSection({
         parameterChangeInput={parameterChangeInput}
         setParameterChangeInput={setParameterChangeInput}
         error={error}
+        onFormatJson={onFormatJson}
       />
     </div>
   );

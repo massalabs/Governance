@@ -1,5 +1,9 @@
+import {
+  REQUIRED_MASOG,
+  REQUIRED_MAS,
+} from "@/hooks/useCreateProposalMutation";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { REQUIRED_MAS, REQUIRED_MASOG } from "../../hooks/useCreateProposal";
+
 import { formatAmount } from "@massalabs/react-ui-kit";
 
 interface MasogBalanceAlertProps {

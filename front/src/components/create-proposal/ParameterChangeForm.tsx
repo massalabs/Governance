@@ -15,12 +15,14 @@ interface ParameterChangeFormProps {
   parameterChangeInput: string;
   setParameterChangeInput: (value: string) => void;
   error?: string;
+  onFormatJson?: () => void;
 }
 
 export function ParameterChangeForm({
   parameterChangeInput,
   setParameterChangeInput,
   error,
+  onFormatJson,
 }: ParameterChangeFormProps) {
   const [changes, setChanges] = useState<ParameterChange[]>([
     { parameter: "", value: "", isObjectValue: false },
@@ -99,11 +101,22 @@ export function ParameterChangeForm({
           <p className="text-f-tertiary dark:text-darkMuted text-sm">
             Define the technical parameters to be modified
           </p>
+          <div className="flex items-center gap-2">
+            <InformationCircleIcon className="w-5 h-5 text-f-tertiary dark:text-darkMuted" />
+            <p className="text-f-tertiary dark:text-darkMuted text-sm">
+              Each parameter change will be applied to the governance contract
+            </p>
+          </div>
         </div>
-        <div className="flex items-center text-f-tertiary dark:text-darkMuted bg-secondary/30 dark:bg-darkCard/30 px-3 py-1.5 rounded-full">
-          <InformationCircleIcon className="h-4 w-4 mr-1.5" />
-          <span className="text-sm">Optional</span>
-        </div>
+        {onFormatJson && (
+          <button
+            type="button"
+            onClick={onFormatJson}
+            className="px-4 py-2 text-sm font-medium text-primary dark:text-darkAccent hover:text-primary/80 dark:hover:text-darkAccent/80"
+          >
+            Format JSON
+          </button>
+        )}
       </div>
 
       <div className="space-y-6">

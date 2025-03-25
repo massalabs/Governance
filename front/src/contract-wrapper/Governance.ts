@@ -203,7 +203,6 @@ export class Governance extends SmartContract implements Upgradable {
       UPDATE_VOTE_TAG,
       final
     );
-    console.log(keys);
 
     return BigInt(keys.length);
   }
