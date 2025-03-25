@@ -1,6 +1,6 @@
 import { Vote } from "../serializable/Vote";
 
-export type ProposalStatus = "VOTING" | "CLOSED" | "EXECUTED" | "REJECTED";
+export type ProposalStatus = "DISCUSSION" | "VOTING" | "ACCEPTED" | "REJECTED";
 
 export interface CreateProposalParams {
   title: string;
