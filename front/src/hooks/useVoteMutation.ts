@@ -43,6 +43,7 @@ export const useVoteMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: governanceKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["comments"] });
     },
   });
 };
