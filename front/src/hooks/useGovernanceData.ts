@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContractStore } from "../store/useContractStore";
-import { useAccountStore } from "@massalabs/react-ui-kit";
 import { governanceKeys } from "./queryKeys/governance";
 import { useProposals } from "./useProposals";
 import { useUserBalance } from "./useUserBalance";
@@ -13,7 +12,6 @@ import { useCallback } from "react";
 export function useGovernanceData(): GovernanceData {
   const { governance } = useContractStore();
   const queryClient = useQueryClient();
-  const { connectedAccount } = useAccountStore();
 
   // Fetch proposals
   const { data: proposals = [], isLoading: loadingProposals } = useProposals();
@@ -52,28 +50,22 @@ export function useGovernanceData(): GovernanceData {
     useQuery({
       queryKey: governanceKeys.allProposalVotes(),
       queryFn: async () => {
-        if (!governance?.public || !proposals.length || !connectedAccount) {
+        if (!governance?.public || !proposals.length) {
           throw new Error("Missing dependencies for fetching proposal votes");
         }
 
         try {
           const votesMap: Record<string, VoteDetails[]> = {};
 
-          // Get all votes for the user
-          const userVotes = await governance.public.getUserVotes(
-            connectedAccount.address,
-            proposals.map((p) => p.id)
-          );
-
-          // Group votes by proposal
+          // Get all votes for each proposal
           for (const proposal of proposals) {
-            const proposalVotes = userVotes.filter((v) => v.id === proposal.id);
+            const votes = await governance.public.getVotes(proposal.id);
 
-            // Create vote details without comments
-            const voteDetails: VoteDetails[] = proposalVotes.map((vote) => ({
-              value: vote.value,
-              address: connectedAccount.address,
-              comment: "", // Comments are now handled separately via getComments
+            // Create vote details for each vote
+            const voteDetails: VoteDetails[] = votes.map((voteValue) => ({
+              value: BigInt(voteValue),
+              address: "Unknown", // We don't have the voter address in the current implementation
+              comment: "", // Comments are handled separately via getComments
             }));
 
             votesMap[proposal.id.toString()] = voteDetails;
@@ -88,8 +80,7 @@ export function useGovernanceData(): GovernanceData {
       refetchInterval: 30000,
       retry: 3,
       retryDelay: 1000,
-      enabled:
-        !!governance?.public && !!connectedAccount && proposals.length > 0,
+      enabled: !!governance?.public && proposals.length > 0,
     });
 
   // Calculate stats
