@@ -4,6 +4,7 @@ import { StatsSection } from "../components/home/StatsSection";
 import { VotingPowerSection } from "../components/home/VotingPowerSection";
 import { RecentProposalsSection } from "../components/home/RecentProposalsSection";
 import { ActionLinks } from "../components/home/ActionLinks";
+import { BetaBanner } from "../components/home/BetaBanner";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 
 export default function Home() {
@@ -13,11 +14,17 @@ export default function Home() {
   const isConnected = !!connectedAccount;
 
   if (!isConnected) {
-    return <WelcomeSection isConnected={false} />;
+    return (
+      <>
+        <BetaBanner />
+        <WelcomeSection isConnected={false} />
+      </>
+    );
   }
 
   return (
     <div className="space-y-8">
+      <BetaBanner />
       <WelcomeSection isConnected={true} />
       <StatsSection loading={loading} stats={stats} />
       <VotingPowerSection
