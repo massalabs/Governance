@@ -5,7 +5,7 @@ import { useGovernanceData } from "../hooks/useGovernanceData";
 import { useUIStore } from "../store/useUIStore";
 import { Loading } from "@/components/ui/Loading";
 import VoteModal from "../components/VoteModal";
-import { VoteComments } from "../components/proposals/VoteComments";
+
 import { ProposalHeader } from "../components/proposals/details/ProposalHeader";
 import { BasicInfoSection } from "../components/proposals/details/BasicInfoSection";
 import { TechnicalDetailsSection } from "../components/proposals/details/TechnicalDetailsSection";
@@ -61,15 +61,6 @@ export default function ProposalDetails() {
               parameterChange={proposal.parameterChange}
             />
           )}
-          {/* Vote Comments Section */}
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-f-primary dark:text-darkText bg-gradient-to-r from-primary dark:from-darkAccent to-primary/80 dark:to-darkAccent/80 bg-clip-text text-transparent">
-              Vote Comments
-            </h2>
-            <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
-              <VoteComments proposalId={proposal.id} />
-            </div>
-          </div>
         </div>
 
         {/* Right Column - Voting Status */}

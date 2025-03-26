@@ -47,7 +47,6 @@ export default function VoteModal() {
   const { isVoteModalOpen, selectedProposalId, closeVoteModal } = useUIStore();
   const { proposals, userMasogBalance } = useGovernanceData();
   const [selectedVote, setSelectedVote] = useState<VoteType | null>(null);
-  const [comment, setComment] = useState("");
 
   const voteMutation = useVoteMutation();
 
@@ -67,7 +66,6 @@ export default function VoteModal() {
       await voteMutation.mutateAsync({
         proposalId: proposal.id,
         voteValue,
-        comment,
       });
       closeVoteModal();
     } catch (error) {
@@ -173,19 +171,6 @@ export default function VoteModal() {
                             );
                           })}
                         </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        <label className="text-f-primary font-medium">
-                          Add a Comment (Optional)
-                        </label>
-                        <textarea
-                          value={comment}
-                          onChange={(e) => setComment(e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl bg-background text-f-primary border-2 border-border focus:outline-none focus:border-brand transition-colors resize-none"
-                          rows={3}
-                          placeholder="Share your thoughts about this proposal..."
-                        />
                       </div>
                     </div>
 

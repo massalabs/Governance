@@ -1,12 +1,7 @@
 import { Serializable, Result } from '@massalabs/as-types';
 import { Args } from '@massalabs/as-types/assembly/argument';
 import { getKeys, Storage } from '@massalabs/massa-as-sdk';
-import {
-  commentKey,
-  proposalKey,
-  statusKey,
-  voteKey,
-} from '../governance-internals/keys';
+import { proposalKey, statusKey, voteKey } from '../governance-internals/keys';
 
 export class Proposal implements Serializable {
   constructor(
@@ -157,12 +152,6 @@ export class Proposal implements Serializable {
     const voteKeys = getKeys(voteKey(this.id, ''));
     for (let i = 0; i < voteKeys.length; i++) {
       Storage.del(voteKeys[i]);
-    }
-
-    // Delete all comments
-    const commentKeys = getKeys(commentKey(this.id, ''));
-    for (let i = 0; i < commentKeys.length; i++) {
-      Storage.del(commentKeys[i]);
     }
   }
 

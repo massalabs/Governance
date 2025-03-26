@@ -8,7 +8,6 @@ export const UPDATE_PROPOSAL_ID_BY_STATUS_TAG = stringToBytes(
   'PROPOSAL_BY_STATUS_TAG',
 );
 export const UPDATE_VOTE_TAG = stringToBytes('UPDATE_VOTE_TAG');
-export const UPDATE_VOTE_COMMENT_TAG = stringToBytes('UPDATE_VOTE_COMMENT_TAG');
 
 export const discussionStatus = stringToBytes('DISCUSSION');
 export const votingStatus = stringToBytes('VOTING');
@@ -50,22 +49,6 @@ export function statusKey(
  */
 export function voteKey(proposalId: u64, voterAddr: string): StaticArray<u8> {
   return UPDATE_VOTE_TAG.concat(u64ToBytes(proposalId)).concat(
-    stringToBytes(voterAddr),
-  );
-}
-
-/**
- * Constructs a key for a vote comment.
- * @param proposalId - The proposal ID.
- * @param voterAddr - The voter’s address.
- * @returns The serialized key as StaticArray<u8>.
- */
-// TODO: Should we add a way to delete comments?
-export function commentKey(
-  proposalId: u64,
-  voterAddr: string,
-): StaticArray<u8> {
-  return UPDATE_VOTE_COMMENT_TAG.concat(u64ToBytes(proposalId)).concat(
     stringToBytes(voterAddr),
   );
 }

@@ -38,10 +38,6 @@ export function generateProposal(
   );
 }
 
-export function generateVote(
-  proposalId: u64,
-  value: i32,
-  comment: string,
-): Vote {
-  return new Vote(proposalId, value, stringToBytes(comment));
+export function generateVote(proposalId: u64, value: i32): Vote {
+  return new Vote(proposalId, value);
 }

@@ -10,7 +10,6 @@ import {
   strToBytes,
   U64,
   I32,
-  bytesToStr,
 } from "@massalabs/massa-web3";
 import { Proposal } from "../serializable/Proposal";
 import { Vote } from "../serializable/Vote";
@@ -27,7 +26,6 @@ export type Upgradable = SmartContract & {
 const UPDATE_PROPOSAL_TAG = strToBytes("UPDATE_PROPOSAL_TAG");
 const UPDATE_VOTE_TAG = strToBytes("UPDATE_VOTE_TAG");
 const UPDATE_COUNTER_TAG = strToBytes("UPDATE_PROPOSAL_COUNTER");
-const UPDATE_VOTE_COMMENT_TAG = strToBytes("UPDATE_VOTE_COMMENT_TAG");
 
 export class Governance extends SmartContract implements Upgradable {
   static async init(provider: Provider | PublicProvider): Promise<Governance> {
@@ -276,26 +274,5 @@ export class Governance extends SmartContract implements Upgradable {
     const vote = new Vote();
     vote.deserialize(result[0], 0);
     return vote;
-  }
-
-  async getComments(proposalId: bigint, final = false): Promise<string> {
-    const key = new Uint8Array([
-      ...UPDATE_VOTE_COMMENT_TAG,
-      ...U64.toBytes(proposalId),
-    ]);
-
-    const keys = await this.provider.getStorageKeys(this.address, key, final);
-
-    const result = await this.provider.readStorage(this.address, keys, final);
-
-    if (!result || result.length === 0) {
-      return "";
-    }
-
-    // Convert all comments to strings and join them with newlines
-    return result
-      .filter((value) => value !== null)
-      .map((value) => bytesToStr(value!))
-      .join("\n");
   }
 }

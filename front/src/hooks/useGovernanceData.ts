@@ -65,7 +65,6 @@ export function useGovernanceData(): GovernanceData {
             const voteDetails: VoteDetails[] = votes.map((voteValue) => ({
               value: BigInt(voteValue),
               address: "Unknown", // We don't have the voter address in the current implementation
-              comment: "", // Comments are handled separately via getComments
             }));
 
             votesMap[proposal.id.toString()] = voteDetails;

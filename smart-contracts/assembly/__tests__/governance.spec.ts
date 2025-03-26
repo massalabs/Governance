@@ -34,7 +34,6 @@ import {
   UPDATE_PROPOSAL_COUNTER_TAG,
   votingStatus,
   voteKey,
-  commentKey,
   acceptedStatus,
   discussionStatus,
   rejectedStatus,
@@ -242,17 +241,13 @@ describe('Vote', () => {
   test('Vote successfully records a positive vote', () => {
     const voterMASOGBalance = MIN_VOTE_MASOG_AMOUNT * 2; // 2 MASOG
     mockMasogBalance(voterMASOGBalance);
-    const voteObj = generateVote(1, 1, 'I support this proposal');
+    const voteObj = generateVote(1, 1);
     const args = new Args().add<Vote>(voteObj).serialize();
     vote(args);
     // Check vote is recorded
     const voteKeyBytes = voteKey(1, governanceOwner);
     expect(Storage.get(voteKeyBytes)).toStrictEqual(i32ToBytes(1));
-    // Check comment is recorded
-    const commentKeyBytes = commentKey(1, governanceOwner);
-    expect(bytesToString(Storage.get(commentKeyBytes))).toBe(
-      'I support this proposal',
-    );
+
     // Check proposal updated
     const proposalBytes = Storage.get(proposalKey(1));
     const proposal = new Proposal();
@@ -266,15 +261,12 @@ describe('Vote', () => {
     const voterMASOGBalance = MIN_VOTE_MASOG_AMOUNT * 3; // 3 MASOG
     mockMasogBalance(voterMASOGBalance);
 
-    const voteObj = generateVote(1, 0, 'Neutral opinion');
+    const voteObj = generateVote(1, 0);
     const args = new Args().add<Vote>(voteObj).serialize();
     vote(args);
 
     const voteKeyBytes = voteKey(1, governanceOwner);
     expect(Storage.get(voteKeyBytes)).toStrictEqual(i32ToBytes(0));
-
-    const commentKeyBytes = commentKey(1, governanceOwner);
-    expect(bytesToString(Storage.get(commentKeyBytes))).toBe('Neutral opinion');
 
     const proposalBytes = Storage.get(proposalKey(1));
     const proposal = new Proposal();
@@ -288,15 +280,12 @@ describe('Vote', () => {
     const voterMASOGBalance = MIN_VOTE_MASOG_AMOUNT * 4; // 4 MASOG
     mockMasogBalance(voterMASOGBalance);
 
-    const voteObj = generateVote(1, -1, 'I oppose this');
+    const voteObj = generateVote(1, -1);
     const args = new Args().add<Vote>(voteObj).serialize();
     vote(args);
 
     const voteKeyBytes = voteKey(1, governanceOwner);
     expect(Storage.get(voteKeyBytes)).toStrictEqual(i32ToBytes(-1));
-
-    const commentKeyBytes = commentKey(1, governanceOwner);
-    expect(bytesToString(Storage.get(commentKeyBytes))).toBe('I oppose this');
 
     const proposalBytes = Storage.get(proposalKey(1));
     const proposal = new Proposal();
@@ -320,20 +309,20 @@ describe('Vote', () => {
     submitUpdateProposal(new Args().add<Proposal>(proposal).serialize());
     mockMasogBalance(MIN_VOTE_MASOG_AMOUNT);
 
-    const voteObj = generateVote(2, 1, 'Cannot vote yet');
+    const voteObj = generateVote(2, 1);
     const args = new Args().add<Vote>(voteObj).serialize();
     vote(args);
   });
 
   throws('Vote fails if proposal does not exist', () => {
     mockMasogBalance(MIN_VOTE_MASOG_AMOUNT);
-    const voteObj = generateVote(999, 1, 'Non-existent proposal');
+    const voteObj = generateVote(999, 1);
     const args = new Args().add<Vote>(voteObj).serialize();
     vote(args);
   });
 
   throws('Vote fails if MASOG balance is less than 1', () => {
-    const voteObj = generateVote(1, 1, 'Insufficient balance');
+    const voteObj = generateVote(1, 1);
     mockMasogBalance(0);
     const args = new Args().add<Vote>(voteObj).serialize();
     vote(args);
@@ -341,19 +330,19 @@ describe('Vote', () => {
 
   throws('Vote fails if voter has already voted', () => {
     mockMasogBalance(MIN_VOTE_MASOG_AMOUNT);
-    const voteObj = generateVote(1, 1, 'First vote');
+    const voteObj = generateVote(1, 1);
     const args = new Args().add<Vote>(voteObj).serialize();
     vote(args); // First vote succeeds
 
     // Try governance again
-    const secondVoteObj = generateVote(1, -1, 'Second vote');
+    const secondVoteObj = generateVote(1, -1);
     const secondArgs = new Args().add<Vote>(secondVoteObj).serialize();
     vote(secondArgs); // Should fail
   });
 
   throws('Vote fails with invalid vote value', () => {
     mockMasogBalance(MIN_VOTE_MASOG_AMOUNT);
-    const voteObj = generateVote(1, 2, 'Invalid vote value'); // 2 is not 1, 0, or -1
+    const voteObj = generateVote(1, 2); // 2 is not 1, 0, or -1
     const args = new Args().add<Vote>(voteObj).serialize();
     vote(args);
   });
@@ -477,7 +466,7 @@ describe('DeleteProposal', () => {
     // Add a vote to the proposal
     const voterMASOGBalance = MIN_VOTE_MASOG_AMOUNT * 2;
     mockMasogBalance(voterMASOGBalance);
-    const voteObj = generateVote(1, 1, 'Test comment');
+    const voteObj = generateVote(1, 1);
     const voteArgs = new Args().add<Vote>(voteObj).serialize();
     vote(voteArgs);
 
@@ -489,7 +478,6 @@ describe('DeleteProposal', () => {
     expect(Storage.has(proposalKey(1))).toBe(false);
     expect(Storage.has(statusKey(discussionStatus, 1))).toBe(false);
     expect(Storage.has(voteKey(1, governanceOwner))).toBe(false);
-    expect(Storage.has(commentKey(1, governanceOwner))).toBe(false);
   });
 
   throws('Fails when trying to delete non-existent proposal', () => {

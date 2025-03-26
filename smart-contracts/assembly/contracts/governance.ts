@@ -92,7 +92,7 @@ export function refresh(_: StaticArray<u8>): void {
 
 /**
  * Casts a vote on a proposal.
- * @param binaryArgs - Serialized arguments: proposalId (u64), vote (i32), comment (string).
+ * @param binaryArgs - Serialized arguments: proposalId (u64), vote (i32).
  */
 export function vote(binaryArgs: StaticArray<u8>): void {
   const initialBalance = balance();

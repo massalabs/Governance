@@ -7,7 +7,7 @@ import {
 import { governanceKeys } from "./queryKeys/governance";
 import { Vote } from "../serializable/Vote";
 import { VoteMutationParams } from "../types/governance";
-import { Args, Mas, strToBytes } from "@massalabs/massa-web3";
+import { Args, Mas } from "@massalabs/massa-web3";
 
 export const useVoteMutation = () => {
   const { governance } = useContractStore();
@@ -16,18 +16,12 @@ export const useVoteMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      proposalId,
-      voteValue,
-      comment,
-    }: VoteMutationParams) => {
+    mutationFn: async ({ proposalId, voteValue }: VoteMutationParams) => {
       if (!governance?.private || !connectedAccount) {
         throw new Error("Governance contract not initialized or no account");
       }
 
-      const commentBytes = strToBytes(comment);
-
-      const vote = new Vote(proposalId, voteValue, commentBytes);
+      const vote = new Vote(proposalId, voteValue);
 
       await callSmartContract(
         "vote",
@@ -43,7 +37,6 @@ export const useVoteMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: governanceKeys.all });
-      queryClient.invalidateQueries({ queryKey: ["comments"] });
     },
   });
 };

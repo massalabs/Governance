@@ -38,13 +38,11 @@ export interface GovernanceStats {
 export interface VoteDetails {
   value: bigint;
   address: string;
-  comment: string;
 }
 
 export interface VoteMutationParams {
   proposalId: bigint;
   voteValue: bigint;
-  comment: string;
 }
 
 export interface GovernanceData {
