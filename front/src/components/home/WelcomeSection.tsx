@@ -1,4 +1,5 @@
 import { ConnectButton } from "../connect-wallet-popup";
+import { FORUM_URLS } from "../../constants/urls";
 
 interface WelcomeSectionProps {
   isConnected: boolean;
@@ -26,7 +27,16 @@ export function WelcomeSection({ isConnected }: WelcomeSectionProps) {
       </h1>
       <p className="text-f-tertiary max-w-2xl mx-auto mas-body">
         Participate in the decision-making process of our platform. Vote on
-        proposals and help shape the future of our ecosystem.
+        proposals and help shape the future of our ecosystem.{" "}
+        <a
+          href={FORUM_URLS.GOVERNANCE}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-f-primary hover:underline"
+        >
+          Learn more about decentralized governance on Massa on the forum
+        </a>
+        .
       </p>
     </section>
   );
