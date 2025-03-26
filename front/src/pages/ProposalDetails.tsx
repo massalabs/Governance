@@ -10,8 +10,8 @@ import { ProposalHeader } from "../components/proposals/details/ProposalHeader";
 import { BasicInfoSection } from "../components/proposals/details/BasicInfoSection";
 import { TechnicalDetailsSection } from "../components/proposals/details/TechnicalDetailsSection";
 import { VoteAction } from "../components/proposals/details/VoteAction";
-import { VotingPeriod } from "../components/proposals/details/VotingPeriod";
 import { AdminActions } from "../components/proposals/details/AdminActions";
+import { ProposalStatus } from "../components/proposals/details/ProposalStatus";
 
 export default function ProposalDetails() {
   const { id } = useParams<{ id: string }>();
@@ -90,6 +90,8 @@ export default function ProposalDetails() {
             />
           )}
 
+          <ProposalStatus proposal={proposal} />
+
           <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
             {loading ? (
               <Loading text="Loading vote data..." size="sm" />
@@ -104,12 +106,6 @@ export default function ProposalDetails() {
               />
             )}
           </div>
-
-          <VotingPeriod
-            creationTimestamp={proposal.creationTimestamp}
-            status={proposal.status}
-          />
-
           <AdminActions proposalId={proposal.id} status={proposal.status} />
         </div>
       </div>

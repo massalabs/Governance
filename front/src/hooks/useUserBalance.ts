@@ -3,7 +3,11 @@ import { useContractStore } from "../store/useContractStore";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { governanceKeys } from "./queryKeys/governance";
 
-export const useUserBalance = () => {
+interface UseUserBalanceOptions {
+  refetchInterval?: number;
+}
+
+export const useUserBalance = (options: UseUserBalanceOptions = {}) => {
   const { masOg } = useContractStore();
   const { connectedAccount } = useAccountStore();
 
@@ -23,7 +27,7 @@ export const useUserBalance = () => {
         throw error;
       }
     },
-    refetchInterval: 30000,
+    refetchInterval: options.refetchInterval ?? 30000,
     retry: 3,
     retryDelay: 1000,
     enabled: !!masOg?.public && !!connectedAccount,
