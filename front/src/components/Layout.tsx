@@ -8,6 +8,7 @@ import { NetworkIndicator } from "./NetworkIndicator";
 import bgDark from "../assets/bg-dark.png";
 import bgLight from "../assets/bg-light.png";
 import { useGovernanceData } from "@/hooks/useGovernanceData";
+import { useBalanceRefresh } from "@/hooks/useBalanceRefresh";
 
 export default function Layout() {
   const { theme } = useUIStore();
@@ -15,6 +16,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { refresh } = useGovernanceData();
+  useBalanceRefresh();
 
   useEffect(() => {
     // Remove both theme classes first
