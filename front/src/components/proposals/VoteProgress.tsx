@@ -37,7 +37,7 @@ const VOTE_COLORS = {
 function VoteBar({ label, percentage, votes, color }: VoteBarProps) {
   const formatPercentage = (value: number) => {
     if (value === 0) return "0";
-    if (value < 0.001) return "0.001";
+    if (value < 0.001) return "<0.001";
     return value.toFixed(3);
   };
 
@@ -85,6 +85,7 @@ function AcceptanceThreshold({
 }) {
   const formatProgress = (value: number) => {
     if (isNaN(value) || value === 0) return "0.0000";
+    if (value < 0.001) return "<0.001";
     return value.toFixed(4);
   };
 
@@ -130,7 +131,7 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
   const calculateSupplyPercentage = (votes: bigint) => {
     if (votes === 0n) return 0;
     const percentage = (Number(votes) / Number(totalSupply)) * 100;
-    return percentage < 0.001 ? 0.001 : percentage;
+    return percentage;
   };
 
   const yesPercentage = calculateSupplyPercentage(proposal.positiveVoteVolume);
