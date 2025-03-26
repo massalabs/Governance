@@ -35,30 +35,42 @@ const VOTE_COLORS = {
 } as const;
 
 function VoteBar({ label, percentage, votes, color }: VoteBarProps) {
+  const formatPercentage = (value: number) => {
+    if (value === 0) return "0";
+    if (value < 0.001) return "0.001";
+    return value.toFixed(3);
+  };
+
   return (
     <div>
       <div className="flex justify-between text-sm mb-2">
         <span className={`${color.text} font-medium`}>{label}</span>
         <span className="text-f-primary dark:text-darkText">
-          {percentage.toFixed(1)}%
+          {formatPercentage(percentage)}%
         </span>
       </div>
       <div
         className={`h-8 bg-secondary/20 dark:bg-darkCard/20 rounded-md overflow-hidden relative ${color.border}`}
       >
+        {/* Background bar */}
         <div
-          className="h-full transition-all duration-300 flex items-center px-4"
+          className="h-full transition-all duration-300 absolute inset-0"
           style={{
-            width: `${percentage}%`,
+            width: "100%",
             backgroundColor: percentage > 0 ? color.background : "transparent",
+            clipPath: `inset(0 ${100 - percentage}% 0 0)`,
           }}
-        >
-          {votes > 0n && (
-            <span className={`text-sm font-medium ${color.text}`}>
-              {votes.toString()}
+        />
+        {/* MASOG amount text */}
+        {votes > 0n && (
+          <div className="h-full flex items-center px-4">
+            <span
+              className={`text-sm font-medium ${color.text} whitespace-nowrap`}
+            >
+              {Number(votes).toLocaleString()} MASOG
             </span>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -111,13 +123,20 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
     proposal.negativeVoteVolume +
     proposal.blankVoteVolume;
 
-  // Calculate percentages with proper BigInt handling
-  const calculatePercentage = (votes: bigint) =>
-    totalVotes > 0n ? Number((votes * 100n) / totalVotes) : 0;
+  // Calculate abstain votes (total supply - total votes)
+  const abstainVotes = totalSupply - totalVotes;
 
-  const yesPercentage = calculatePercentage(proposal.positiveVoteVolume);
-  const noPercentage = calculatePercentage(proposal.negativeVoteVolume);
-  const blankPercentage = calculatePercentage(proposal.blankVoteVolume);
+  // Calculate percentages relative to total supply with proper decimal handling
+  const calculateSupplyPercentage = (votes: bigint) => {
+    if (votes === 0n) return 0;
+    const percentage = (Number(votes) / Number(totalSupply)) * 100;
+    return percentage < 0.001 ? 0.001 : percentage;
+  };
+
+  const yesPercentage = calculateSupplyPercentage(proposal.positiveVoteVolume);
+  const noPercentage = calculateSupplyPercentage(proposal.negativeVoteVolume);
+  const blankPercentage = calculateSupplyPercentage(proposal.blankVoteVolume);
+  const abstainPercentage = calculateSupplyPercentage(abstainVotes);
 
   // Calculate threshold percentage based on total supply
   const thresholdPercentage = Number((requiredScore * 100n) / totalSupply);
@@ -136,7 +155,7 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
           Vote Distribution
         </h3>
         <div className="text-sm text-f-tertiary dark:text-darkMuted">
-          {totalVotes.toString()} total votes
+          {Number(totalVotes).toLocaleString()} MASOG total voting power
         </div>
       </div>
 
@@ -155,9 +174,15 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
           color={VOTE_COLORS.no}
         />
         <VoteBar
-          label="Abstain"
+          label="Blank"
           percentage={blankPercentage}
           votes={proposal.blankVoteVolume}
+          color={VOTE_COLORS.abstain}
+        />
+        <VoteBar
+          label="Abstain"
+          percentage={abstainPercentage}
+          votes={abstainVotes}
           color={VOTE_COLORS.abstain}
         />
       </div>

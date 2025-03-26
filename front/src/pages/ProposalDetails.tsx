@@ -15,13 +15,13 @@ import { ProposalStatus } from "../components/proposals/details/ProposalStatus";
 
 export default function ProposalDetails() {
   const { id } = useParams<{ id: string }>();
-  const { proposals, userMasogBalance, userVotes, proposalVotesMap, loading } =
+  const { proposals, userMasogBalance, userVotes, loading } =
     useGovernanceData();
 
   const { openVoteModal } = useUIStore();
 
   const proposal = proposals.find((p) => p.id.toString() === id);
-  const proposalVotes = proposalVotesMap[id ?? ""] ?? [];
+  // const proposalVotes = proposalVotesMap[id ?? ""] ?? [];
 
   if (!proposal) {
     return (
@@ -34,14 +34,6 @@ export default function ProposalDetails() {
   const isVoting = proposal.status === "VOTING";
   const hasVoted = !!userVotes[proposal.id.toString()];
   const canVote = (userMasogBalance ?? 0n) >= 1n;
-
-  // Calculate vote counts from proposalVotes
-  const voteCounts = {
-    total: proposalVotes.length,
-    positive: proposalVotes.filter((v) => v.value === 1n).length,
-    negative: proposalVotes.filter((v) => v.value === -1n).length,
-    blank: proposalVotes.filter((v) => v.value === 0n).length,
-  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -99,9 +91,9 @@ export default function ProposalDetails() {
               <VoteProgress
                 proposal={{
                   ...proposal,
-                  positiveVoteVolume: BigInt(voteCounts.positive),
-                  negativeVoteVolume: BigInt(voteCounts.negative),
-                  blankVoteVolume: BigInt(voteCounts.blank),
+                  positiveVoteVolume: proposal.positiveVoteVolume,
+                  negativeVoteVolume: proposal.negativeVoteVolume,
+                  blankVoteVolume: proposal.blankVoteVolume,
                 }}
               />
             )}
