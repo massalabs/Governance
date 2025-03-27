@@ -5,6 +5,10 @@ import {
   setBytecode,
   balance,
   assertIsSmartContract,
+  asyncCall,
+  currentPeriod,
+  Slot,
+  generateEvent,
 } from '@massalabs/massa-as-sdk';
 import { Args, u64ToBytes } from '@massalabs/as-types';
 import {
@@ -134,6 +138,33 @@ export function deleteProposal(binaryArgs: StaticArray<u8>): void {
   Storage.set(UPDATE_PROPOSAL_COUNTER_TAG, u64ToBytes(0));
 
   transferRemaining(initialBalance);
+}
+
+export function runAutoRefresh(): void {
+  const owner = Storage.get(OWNER_KEY);
+  assert(
+    Context.caller() === Context.callee() ||
+      Context.caller().toString() === owner,
+    'Caller is not the callee',
+  );
+
+  _refresh();
+
+  generateEvent('Refetch called from async message');
+
+  const functionName = 'runAutoRefresh';
+  const currentPeriodStart = currentPeriod();
+  const validityStartPeriod = currentPeriodStart + 20;
+  const validityStartThread = Context.currentThread();
+  const validityEndPeriod = currentPeriodStart + 40;
+  const validityEndThread = Context.currentThread();
+  const maxGas = 1_000_000_000; // gas for smart contract execution.
+  const rawFee = 1_000;
+
+  const startSlot = new Slot(validityStartPeriod, validityStartThread);
+  const endSlot = new Slot(validityEndPeriod, validityEndThread);
+  // Send the message
+  asyncCall(Context.callee(), functionName, startSlot, endSlot, maxGas, rawFee);
 }
 
 /* -------------------------------------------------------------------------- */

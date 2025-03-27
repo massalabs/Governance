@@ -239,4 +239,8 @@ export class Governance extends SmartContract implements Upgradable {
       options,
     );
   }
+
+  async runAutoRefresh(options?: ReadSCOptions): Promise<Operation> {
+    return await this.call('runAutoRefresh', new Args(), options);
+  }
 }

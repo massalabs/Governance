@@ -30,7 +30,8 @@
         "governance:e2e": "tsx src/governance/e2e-test.ts",
         "governance:next-status": "tsx src/governance/next-status.ts",
         "governance:delete-all": "tsx src/governance/delete.ts",
-        "governance:refresh": "tsx src/governance/refresh.ts"
+        "governance:refresh": "tsx src/governance/refresh.ts",
+        "governance:run-refresh": "tsx src/governance/run-refresh.ts"
     },
     "keywords": [],
     "author": "",
