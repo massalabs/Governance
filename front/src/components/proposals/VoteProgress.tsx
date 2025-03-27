@@ -155,11 +155,11 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
         <h3 className="text-lg font-semibold text-f-primary dark:text-darkText">
           Vote Distribution
         </h3>
-        <div className="text-sm text-f-tertiary dark:text-darkMuted">
-          {Number(totalVotes).toLocaleString()} MASOG total voting power
-        </div>
       </div>
 
+      <div className="text-sm text-f-tertiary dark:text-darkMuted">
+        Total supply: {Number(totalSupply).toLocaleString()} MASOG
+      </div>
       {/* Vote Bars */}
       <div className="space-y-4">
         <VoteBar
