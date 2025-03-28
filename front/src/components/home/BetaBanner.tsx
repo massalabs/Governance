@@ -20,7 +20,7 @@ export function BetaBanner() {
   if (!isVisible) return null;
 
   return (
-    <div className="bg-f-primary text-white px-4 py-2 relative">
+    <div className="bg-neutral dark:bg-white text-white dark:text-neutral px-4 py-2 relative">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <p className="text-sm text-center flex-1">
           This is a beta test of decentralized governance, proposals and votes
@@ -28,7 +28,7 @@ export function BetaBanner() {
         </p>
         <button
           onClick={handleClose}
-          className="ml-4 text-white hover:text-gray-200 focus:outline-none"
+          className="ml-4 text-white dark:text-neutral hover:text-gray-200 dark:hover:text-gray-700 focus:outline-none"
           aria-label="Close banner"
         >
           <svg

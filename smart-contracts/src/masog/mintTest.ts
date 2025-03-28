@@ -2,14 +2,7 @@ import { OperationStatus } from '@massalabs/massa-web3';
 import { getProvider } from '../utils';
 import { MasOg } from './wrapper/MasOg';
 
-const ADDRESSES = [
-  'AU1xs4LUr2XsFhe4YB756bEB2aG59k2Dy2LzLYgYR8zH4o2ZWv5G',
-  'AU12wiZMwocjfWZKZhzP2dR86PBXJfGCoKY5wi6q1cSQoquMekvfJ',
-  'AU1bTSHvZG7cdUUu4ScKwQVFum3gB5TDpdi9yMRv2bnedYUyptsa',
-  'AU1DjgRMPCfnSvDcY3TXkbSQNDpsLQ3NUfCMrisT7xzwWsSe9V4s',
-  'AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5',
-  'AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX',
-];
+const ADDRESSES: string[] = [];
 
 const provider = await getProvider();
 const masOg = MasOg.buildnet(provider);
@@ -19,7 +12,7 @@ console.log('Total supply:', totalSupply);
 
 // If you want addresses to collectively own 99% of final supply
 const currentSupply = totalSupply;
-const desiredFinalPercentage = 99n;
+const desiredFinalPercentage = 1n;
 const numberOfAddresses = BigInt(ADDRESSES.length);
 
 // Calculate total new tokens needed so that minted amount is 99% of final supply
