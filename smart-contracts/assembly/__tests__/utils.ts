@@ -16,6 +16,10 @@ export function getRollsArgs(
     .serialize();
 }
 
+export function mockCheckLastAutoRefresh(): void {
+  mockMasogTotalSupply(u64(1000_000_000_000));
+}
+
 export function mockMasogBalance(balance: u64): void {
   mockScCall(u64ToBytes(balance));
 }
