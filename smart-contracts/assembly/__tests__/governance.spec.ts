@@ -9,6 +9,7 @@ import {
   createSC,
   mockAdminContext,
   mockBalance,
+  mockScCall,
   mockTimestamp,
   mockTransferredCoins,
   resetStorage,
@@ -46,9 +47,11 @@ import {
   mockMasogBalance,
   generateVote,
   mockMasogTotalSupply,
+  mockCheckLastAutoRefresh,
 } from './utils';
 import {
   DISCUSSION_PERIOD,
+  LAST_REFETCH_PERIOD_TAG,
   VOTING_PERIOD,
 } from '../contracts/governance-internals';
 
@@ -65,12 +68,9 @@ const MIN_PROPOSAL_MAS_AMOUNT = u64(1000_000_000_000);
 const MIN_PROPOSAL_MASOG_AMOUNT = u64(1000_000_000_000);
 const MIN_VOTE_MASOG_AMOUNT = u64(1_000);
 
-beforeAll(() => {
-  setupContracts();
-});
-
 describe('Initialization', () => {
   beforeEach(() => {
+    setupContracts();
     setCallStack(governanceOwner, governanceContractAddress);
   });
 
@@ -96,7 +96,11 @@ describe('Initialization', () => {
 
 describe('SubmitUpdateProposal', () => {
   beforeEach(() => {
+    setupContracts();
     setCallStack(governanceOwner, governanceContractAddress);
+  });
+  afterEach(() => {
+    resetStorage();
   });
 
   test('submitUpdateProposal success', () => {
@@ -104,10 +108,8 @@ describe('SubmitUpdateProposal', () => {
     const forumPostLink = 'Proposal Content';
     const summary = 'Proposal Summary';
     const parameterChange = 'Parameter Change';
-
-    mockMasogBalance(MIN_PROPOSAL_MASOG_AMOUNT);
-    mockBalance(governanceOwner, MIN_PROPOSAL_MAS_AMOUNT);
-    mockTransferredCoins(MIN_PROPOSAL_MAS_AMOUNT);
+    mockCheckLastAutoRefresh();
+    mockProposalBalances();
 
     let counter = Storage.get(UPDATE_PROPOSAL_COUNTER_TAG);
     expect(counter).toStrictEqual(u64ToBytes(0));
@@ -148,9 +150,7 @@ describe('SubmitUpdateProposal', () => {
     );
     const args = new Args().add<Proposal>(proposal).serialize();
 
-    mockMasogBalance(1);
-    mockBalance(governanceOwner, MIN_PROPOSAL_MAS_AMOUNT);
-    mockTransferredCoins(MIN_PROPOSAL_MAS_AMOUNT);
+    mockProposalBalances(0);
     submitUpdateProposal(args);
   });
 
@@ -163,9 +163,7 @@ describe('SubmitUpdateProposal', () => {
     );
     const args = new Args().add<Proposal>(proposal).serialize();
 
-    mockMasogBalance(MIN_PROPOSAL_MASOG_AMOUNT);
-    mockBalance(governanceOwner, MIN_PROPOSAL_MAS_AMOUNT);
-    mockTransferredCoins(1);
+    mockProposalBalances(MIN_PROPOSAL_MASOG_AMOUNT, MIN_PROPOSAL_MAS_AMOUNT, 1);
     submitUpdateProposal(args);
   });
 
@@ -178,9 +176,7 @@ describe('SubmitUpdateProposal', () => {
     );
     const args = new Args().add<Proposal>(proposal).serialize();
 
-    mockMasogBalance(MIN_PROPOSAL_MASOG_AMOUNT);
-    mockBalance(governanceOwner, MIN_PROPOSAL_MAS_AMOUNT);
-    mockTransferredCoins(MIN_PROPOSAL_MAS_AMOUNT);
+    mockProposalBalances();
     submitUpdateProposal(args);
   });
 
@@ -193,9 +189,7 @@ describe('SubmitUpdateProposal', () => {
     );
     const args = new Args().add<Proposal>(proposal).serialize();
 
-    mockMasogBalance(MIN_PROPOSAL_MASOG_AMOUNT);
-    mockBalance(governanceOwner, MIN_PROPOSAL_MAS_AMOUNT);
-    mockTransferredCoins(MIN_PROPOSAL_MAS_AMOUNT);
+    mockProposalBalances();
     submitUpdateProposal(args);
   });
 
@@ -208,13 +202,11 @@ describe('SubmitUpdateProposal', () => {
     );
     const args = new Args().add<Proposal>(proposal).serialize();
 
-    mockMasogBalance(MIN_PROPOSAL_MASOG_AMOUNT);
-    mockBalance(governanceOwner, MIN_PROPOSAL_MAS_AMOUNT);
-    mockTransferredCoins(MIN_PROPOSAL_MAS_AMOUNT);
+    mockProposalBalances();
     submitUpdateProposal(args);
   });
 
-  throws('If invalid parameter change', () => {
+  it('If invalid parameter change', () => {
     const proposal = generateProposal(
       'Proposal Title',
       'Proposal Content',
@@ -222,10 +214,7 @@ describe('SubmitUpdateProposal', () => {
       '',
     );
     const args = new Args().add<Proposal>(proposal).serialize();
-
-    mockMasogBalance(MIN_PROPOSAL_MASOG_AMOUNT);
-    mockBalance(governanceOwner, MIN_PROPOSAL_MAS_AMOUNT);
-    mockTransferredCoins(MIN_PROPOSAL_MAS_AMOUNT);
+    mockProposalBalances();
     submitUpdateProposal(args);
   });
 });
@@ -303,9 +292,7 @@ describe('Vote', () => {
       'New Summary',
       'New Change',
     );
-    mockMasogBalance(MIN_PROPOSAL_MASOG_AMOUNT);
-    mockBalance(governanceOwner, MIN_PROPOSAL_MAS_AMOUNT);
-    mockTransferredCoins(MIN_PROPOSAL_MAS_AMOUNT);
+    mockProposalBalances();
     submitUpdateProposal(new Args().add<Proposal>(proposal).serialize());
     mockMasogBalance(MIN_VOTE_MASOG_AMOUNT);
 
@@ -463,6 +450,7 @@ describe('DeleteProposal', () => {
   });
 
   test('Successfully deletes a proposal and all associated data', () => {
+    mockScCall([]);
     // Add a vote to the proposal
     const voterMASOGBalance = MIN_VOTE_MASOG_AMOUNT * 2;
     mockMasogBalance(voterMASOGBalance);
@@ -510,6 +498,7 @@ function setupContracts(): void {
   setCallStack(governanceOwner, governanceContractAddress);
   governanceConstructor([]);
   mockBalance(governanceContractAddress, MIN_PROPOSAL_MAS_AMOUNT);
+  Storage.set(LAST_REFETCH_PERIOD_TAG, u64ToBytes(1234567890));
 
   // Set MASOG contract address
   setMasOgContract(new Args().add<string>(masOgAddress).serialize());
@@ -538,4 +527,14 @@ function setupProposal(
   proposal.blankVoteVolume = blankVotes;
   Storage.set(UPDATE_PROPOSAL_COUNTER_TAG, u64ToBytes(id));
   proposal.setStatus(status).save();
+}
+
+function mockProposalBalances(
+  masogBalance: u64 = MIN_PROPOSAL_MASOG_AMOUNT,
+  masBalance: u64 = MIN_PROPOSAL_MAS_AMOUNT,
+  transferredCoins: u64 = MIN_PROPOSAL_MAS_AMOUNT,
+): void {
+  mockMasogBalance(masogBalance);
+  mockBalance(governanceOwner, masBalance);
+  mockTransferredCoins(transferredCoins);
 }

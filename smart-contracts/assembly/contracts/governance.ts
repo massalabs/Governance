@@ -5,12 +5,9 @@ import {
   setBytecode,
   balance,
   assertIsSmartContract,
-  asyncCall,
-  currentPeriod,
-  Slot,
   generateEvent,
 } from '@massalabs/massa-as-sdk';
-import { Args, u64ToBytes } from '@massalabs/as-types';
+import { Args, boolToByte, u64ToBytes } from '@massalabs/as-types';
 import {
   _onlyOwner,
   _setOwner,
@@ -29,17 +26,10 @@ import {
   _submitProposal,
   _vote,
   _deleteProposal,
+  _autoRefreshCall,
+  _checkLastAutoRefresh as _ensureAutoRefresh,
+  AUTO_REFRESH_STATUS_KEY,
 } from './governance-internals';
-
-const allowedAddresses = [
-  'AU1xs4LUr2XsFhe4YB756bEB2aG59k2Dy2LzLYgYR8zH4o2ZWv5G',
-  'AU12wiZMwocjfWZKZhzP2dR86PBXJfGCoKY5wi6q1cSQoquMekvfJ',
-  'AU1bTSHvZG7cdUUu4ScKwQVFum3gB5TDpdi9yMRv2bnedYUyptsa',
-  'AU1DjgRMPCfnSvDcY3TXkbSQNDpsLQ3NUfCMrisT7xzwWsSe9V4s',
-  'AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5',
-  'AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX',
-  'AU12FUbb8snr7qTEzSdTVH8tbmEouHydQTUAKDXY9LDwkdYMNBVGF',
-];
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.
@@ -79,6 +69,9 @@ export function submitUpdateProposal(binaryArgs: StaticArray<u8>): void {
     .nextSerializable<Proposal>()
     .expect('You need a proposal');
 
+  // This is to check if the asc is still running, if not, we re run it
+  _ensureAutoRefresh();
+
   _submitProposal(proposal);
 
   transferRemaining(initialBalance);
@@ -103,6 +96,8 @@ export function vote(binaryArgs: StaticArray<u8>): void {
 
   const args = new Args(binaryArgs);
   const vote = args.nextSerializable<Vote>().expect('Vote is required');
+
+  _ensureAutoRefresh();
 
   _vote(vote);
 
@@ -137,36 +132,44 @@ export function deleteProposal(binaryArgs: StaticArray<u8>): void {
   transferRemaining(initialBalance);
 }
 
+/**
+ * Runs the auto refresh manually
+ */
 export function runAutoRefresh(): void {
-  const owner = Storage.get(OWNER_KEY);
   assert(
     Context.caller() === Context.callee() ||
-    Context.caller().toString() === owner,
+    Context.caller().toString() === Storage.get(OWNER_KEY),
     'Caller is not the callee',
   );
 
-  _refresh();
+  _autoRefreshCall();
 
-  generateEvent('Refetch called from async message');
+  generateEvent(
+    `[Refetch called] from async message at ${Context.timestamp().toString()}`,
+  );
+}
 
-  const functionName = 'runAutoRefresh';
-  const currentPeriodStart = currentPeriod();
-  const validityStartPeriod = currentPeriodStart + 20;
-  const validityStartThread = Context.currentThread();
-  const validityEndPeriod = currentPeriodStart + 40;
-  const validityEndThread = Context.currentThread();
-  const maxGas = 1_000_000_000; // gas for smart contract execution.
-  const rawFee = 1_000;
+/**
+ * Allow the owner ot allow or stop the auto refresh
+ * @param binaryArgs - Serialized arguments: stop (bool).
+ */
+export function manageAutoRefresh(binaryArgs: StaticArray<u8>): void {
+  _onlyOwner();
+  const args = new Args(binaryArgs);
+  const stop = args.nextBool().expect('Boolean is required');
 
-  const startSlot = new Slot(validityStartPeriod, validityStartThread);
-  const endSlot = new Slot(validityEndPeriod, validityEndThread);
-  // Send the message
-  asyncCall(Context.callee(), functionName, startSlot, endSlot, maxGas, rawFee);
+  Storage.set(AUTO_REFRESH_STATUS_KEY, boolToByte(stop));
 }
 
 /* -------------------------------------------------------------------------- */
-/*                               TEMP FUNCTIONS                               */
+/*                         TEMP FUNCTIONS TO REMOVE                           */
 /* -------------------------------------------------------------------------- */
+
+// TODO: remove this
+const allowedAddresses = [
+  'AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5',
+  'AU12FUbb8snr7qTEzSdTVH8tbmEouHydQTUAKDXY9LDwkdYMNBVGF',
+];
 
 // TODO: remove this function
 export function nextStatus(binaryArgs: StaticArray<u8>): void {
