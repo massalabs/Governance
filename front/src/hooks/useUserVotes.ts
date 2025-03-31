@@ -5,6 +5,7 @@ import { governanceKeys } from "./queryKeys/governance";
 import { Vote } from "../serializable/Vote";
 import { FormattedProposal } from "../types/governance";
 
+
 export const useUserVotes = (proposals: FormattedProposal[]) => {
   const { governance } = useContractStore();
   const { connectedAccount } = useAccountStore();
