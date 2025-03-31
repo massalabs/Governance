@@ -16,12 +16,12 @@ const MAS_DECIMAL = u64(9);
  * @param address - The address of the caller.
  * @returns The MASOG balance of the caller.
  */
-export function getMasogBalance(address: Address): u64 {
+export function getMasogBalance(address: string): u64 {
   return bytesToU64(
     call(
       new Address(Storage.get(MASOG_KEY)),
       'balanceOf',
-      new Args().add(address.toString()),
+      new Args().add(address),
       0,
     ),
   );

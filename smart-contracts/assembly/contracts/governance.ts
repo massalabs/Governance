@@ -26,10 +26,8 @@ import {
   _submitProposal,
   _vote,
   _deleteProposal,
-  _autoRefreshCall,
-  _checkLastAutoRefresh as _ensureAutoRefresh,
-  AUTO_REFRESH_STATUS_KEY,
 } from './governance-internals';
+import { _ensureAutoRefresh, _autoRefreshCall, AUTO_REFRESH_STATUS_KEY } from './governance-internals/auto-refresh';
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.
