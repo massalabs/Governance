@@ -26,8 +26,7 @@ export const useUserVotes = (proposals: FormattedProposal[]) => {
       votes.forEach((vote) => {
         votesMap[vote.id.toString()] = new Vote(
           vote.id,
-          vote.value,
-          new Uint8Array()
+          vote.value
         );
       });
 
