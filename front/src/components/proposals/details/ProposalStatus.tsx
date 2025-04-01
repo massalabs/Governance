@@ -73,7 +73,7 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
     countdownLabel: "",
   };
 
-  const { endDate, isVotingEnded, isTimeExpired, nextTransitionTime } =
+  const { endDate, isVotingEnded, nextTransitionTime } =
     useMemo(() => {
       const start = new Date(
         Number(proposal.creationTimestamp) + DISCUSSION_PERIOD
@@ -81,6 +81,7 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
       const end = new Date(
         Number(proposal.creationTimestamp) + DISCUSSION_PERIOD + VOTING_PERIOD
       );
+
       const currentTime = new Date().getTime();
       const votingEndTime =
         Number(proposal.creationTimestamp) + DISCUSSION_PERIOD + VOTING_PERIOD;
@@ -97,9 +98,7 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
       return {
         startDate: start,
         endDate: end,
-        isVotingEnded:
-          proposal.status === "ACCEPTED" || proposal.status === "REJECTED",
-        isTimeExpired: currentTime > votingEndTime,
+        isVotingEnded: currentTime > votingEndTime,
         nextTransitionTime: nextTransition,
       };
     }, [proposal.creationTimestamp, proposal.status]);
@@ -140,7 +139,7 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
         </span>
       </div>
 
-      {isVotingEnded || (proposal.status === "VOTING" && isTimeExpired) ? (
+      {isVotingEnded ? (
         <div className="mt-4 text-center">
           <div className="text-sm text-f-tertiary dark:text-darkMuted">
             Voting ended on {formatDate(endDate)}

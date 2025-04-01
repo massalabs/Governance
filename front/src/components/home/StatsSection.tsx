@@ -24,7 +24,7 @@ export function StatsSection({ loading, stats }: StatsSectionProps) {
 
       <div className="bg-secondary dark:bg-darkCard border border-border dark:border-darkBorder p-6 rounded-lg shadow-sm">
         <h2 className="text-lg font-semibold text-f-primary dark:text-darkText mb-2 mas-h2">
-          Pending
+          Voting
         </h2>
         <p className="text-3xl font-bold text-brand dark:text-darkAccent">
           {formatValue(stats.votingProposals)}

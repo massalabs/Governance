@@ -34,7 +34,7 @@ const voteOptions = [
   },
   {
     type: "BLANK" as const,
-    label: "Abstain",
+    label: "Blank",
     icon: MinusIcon,
     color: "text-indigo-400",
     bgColor: "bg-indigo-400/10",
@@ -139,21 +139,21 @@ export default function VoteModal() {
                                 key={option.type}
                                 onClick={() => setSelectedVote(option.type)}
                                 className={`group relative p-4 rounded-xl border-2 transition-all duration-150 ease-out ${selectedVote === option.type
-                                    ? `${option.bgColor} ${option.borderColor} scale-105 shadow-lg shadow-brand/20`
-                                    : "border-border hover:border-brand/50 hover:shadow-md hover:shadow-brand/10"
+                                  ? `${option.bgColor} ${option.borderColor} scale-105 shadow-lg shadow-brand/20`
+                                  : "border-border hover:border-brand/50 hover:shadow-md hover:shadow-brand/10"
                                   }`}
                               >
                                 <div className="flex flex-col items-center gap-2">
                                   <Icon
                                     className={`h-8 w-8 transition-colors duration-150 ease-out ${selectedVote === option.type
-                                        ? option.color
-                                        : "text-f-tertiary group-hover:text-brand"
+                                      ? option.color
+                                      : "text-f-tertiary group-hover:text-brand"
                                       }`}
                                   />
                                   <span
                                     className={`font-medium ${selectedVote === option.type
-                                        ? option.color
-                                        : "text-f-primary"
+                                      ? option.color
+                                      : "text-f-primary"
                                       }`}
                                   >
                                     {option.label}
@@ -180,8 +180,8 @@ export default function VoteModal() {
                       <button
                         type="button"
                         className={`px-6 py-2 text-sm font-medium text-white rounded-lg transition-all duration-200 ${selectedVote && !voteMutation.isPending
-                            ? "bg-brand hover:bg-brand/90 active:scale-95"
-                            : "bg-brand/50 cursor-not-allowed"
+                          ? "bg-brand hover:bg-brand/90 active:scale-95"
+                          : "bg-brand/50 cursor-not-allowed"
                           }`}
                         onClick={handleVote}
                         disabled={!selectedVote || voteMutation.isPending}
