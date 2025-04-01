@@ -71,7 +71,7 @@ export default function CreateProposal() {
           Create New Proposal
         </h1>
         <p className="text-f-tertiary dark:text-darkMuted mas-body text-lg max-w-2xl mx-auto">
-          Submit a new governance proposal to improve Massa. Make sure to
+          Submit a new governance proposal to improve Massa Blockchain. Make sure to
           include a detailed forum post for discussion.
         </p>
       </div>
