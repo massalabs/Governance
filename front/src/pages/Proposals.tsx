@@ -44,9 +44,15 @@ export default function Proposals() {
         <div className="text-center py-8 text-f-tertiary">
           Loading proposals...
         </div>
+      ) : allProposals.length === 0 ? (
+        <div className="text-center">
+          <h3 className="text-gray-600">There is no proposals yet.</h3>
+
+        </div>
       ) : filteredProposals.length === 0 ? (
-        <div className="text-center py-8 text-f-tertiary">
-          No proposals found matching your criteria.
+        <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Matching Proposals</h3>
+          <p className="text-gray-600">No proposals found matching your search criteria. Try adjusting your filters.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
