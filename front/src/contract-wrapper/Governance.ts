@@ -149,7 +149,7 @@ export class Governance extends SmartContract implements Upgradable {
     );
 
     const values = await this.provider.readStorage(this.address, keys, final);
-    console.log("values", values);
+
     if (!values[0]) {
       return [];
     }

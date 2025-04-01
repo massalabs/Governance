@@ -32,16 +32,14 @@ const useAccountSync = () => {
   const getStoredAccount = useCallback(
     async (address: string, providerName: string) => {
       try {
-        console.log("Getting stored account for:", address, providerName);
+
         const wallets = await getWallets();
 
         const targetWallet = wallets.find((w) => w.name() === providerName);
-        console.log("Found target wallet:", targetWallet?.name());
 
         if (targetWallet) {
           const accounts = await targetWallet.accounts();
           const matchingAccount = accounts.find((a) => a.address === address);
-          console.log("Found matching account:", matchingAccount?.address);
 
           if (matchingAccount) {
             return { account: matchingAccount, wallet: targetWallet, wallets };
@@ -59,12 +57,11 @@ const useAccountSync = () => {
   const connectWallet = useCallback(
     async (stored: { account: any; wallet: any }) => {
       setConnectionStatus("Setting up wallet connection...");
-      console.log("Found stored account, setting current wallet");
       // @ts-ignore Version mismatch between react-ui-kit and wallet-provider
       await setCurrentWallet(stored.wallet, stored.account);
 
       setConnectionStatus("Initializing contracts...");
-      console.log("Initializing contracts");
+
       await initializeContracts(stored.account);
 
       // Invalidate queries to trigger a fresh fetch
@@ -89,12 +86,11 @@ const useAccountSync = () => {
     setIsConnecting(true);
 
     try {
-      console.log("Setting account from saved:", savedAccount);
 
       // If we have a saved account, try to restore it
       if (savedAccount.address && savedAccount.providerName) {
         setConnectionStatus("Attempting to restore saved account...");
-        console.log("Attempting to restore saved account");
+
 
         const stored = await getStoredAccount(
           savedAccount.address,
@@ -104,7 +100,6 @@ const useAccountSync = () => {
         if (stored) {
           await connectWallet(stored);
         } else {
-          console.log("No stored account found, clearing saved account");
           setConnectionStatus("No stored account found");
           setSavedAccount(EMPTY_ACCOUNT);
         }
@@ -135,7 +130,6 @@ const useAccountSync = () => {
       connectedAccount.providerName !== savedAccount.providerName;
 
     if (shouldUpdateSavedAccount) {
-      console.log("Updating saved account to:", connectedAccount.address);
       setSavedAccount({
         address: connectedAccount.address,
         providerName: connectedAccount.providerName,
@@ -149,7 +143,6 @@ const useAccountSync = () => {
     if (mountedRef.current) return;
     mountedRef.current = true;
 
-    console.log("Running initial account initialization");
     setAccountFromSaved();
   }, [setAccountFromSaved]);
 

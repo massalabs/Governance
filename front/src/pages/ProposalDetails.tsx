@@ -49,7 +49,13 @@ export default function ProposalDetails() {
       </div>
 
       {/* Header Section */}
-      <ProposalHeader proposal={proposal} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <ProposalHeader proposal={proposal} />
+        </div>
+        <ProposalStatus proposal={proposal} />
+      </div>
+
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -73,7 +79,6 @@ export default function ProposalDetails() {
             />
           )}
 
-          <ProposalStatus proposal={proposal} />
 
           <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
             {loading ? (

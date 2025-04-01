@@ -1,10 +1,10 @@
 import { FormattedProposal } from "@/types/governance";
 import { useEffect, useState, useMemo } from "react";
 import {
-  DISCUSSION_PERIOD,
   VOTING_PERIOD,
   formatDate,
   calculateTimeLeft,
+  DISCUSSION_PERIOD,
 } from "@/utils/date";
 
 interface ProposalStatusProps {

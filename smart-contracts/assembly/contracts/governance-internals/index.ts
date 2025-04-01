@@ -24,7 +24,7 @@ const MIN_VOTE_MASOG_AMOUNT = u64(1);
 // export const DISCUSSION_PERIOD = u64(3 * 7 * 24 * 60 * 60 * 1000); // 3 weeks in milliseconds
 // export const VOTING_PERIOD = u64(4 * 7 * 24 * 60 * 60 * 1000); // 4 weeks in milliseconds
 export const DISCUSSION_PERIOD = u64(5 * 60 * 1000);
-export const VOTING_PERIOD = u64(10 * 60 * 1000);
+export const VOTING_PERIOD = u64(5 * 60 * 1000);
 
 /**
  * Submits a new proposal.
@@ -85,7 +85,7 @@ export function _refresh(): void {
 
     const proposal = Proposal.getById(bytesToU64(id));
 
-    if (currentTimestamp - proposal.creationTimestamp >= VOTING_PERIOD) {
+    if (currentTimestamp - proposal.creationTimestamp >= DISCUSSION_PERIOD + VOTING_PERIOD) {
       const majority = totalSupply / 2;
       if (proposal.positiveVoteVolume > majority) {
         proposal.setStatus(acceptedStatus).save();
