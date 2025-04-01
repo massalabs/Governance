@@ -33,7 +33,7 @@ export const useUserVotes = (proposals: FormattedProposal[]) => {
 
       return votesMap;
     },
-    refetchInterval: 30000,
+    refetchInterval: 5000,
     retry: 3,
     retryDelay: 1000,
     enabled: !!governance?.public && !!connectedAccount && proposals.length > 0,

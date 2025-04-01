@@ -23,7 +23,7 @@ export const useProposals = () => {
         throw error;
       }
     },
-    refetchInterval: 60000,
+    refetchInterval: 10000,
     retry: 3,
     retryDelay: 1000,
     enabled: !!governance?.public,

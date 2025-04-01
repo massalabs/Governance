@@ -27,7 +27,7 @@ export const useUserBalance = (options: UseUserBalanceOptions = {}) => {
         throw error;
       }
     },
-    refetchInterval: options.refetchInterval ?? 30000,
+    refetchInterval: options.refetchInterval ?? 5000,
     retry: 3,
     retryDelay: 1000,
     enabled: !!masOg?.public && !!connectedAccount,

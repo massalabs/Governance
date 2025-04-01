@@ -5,6 +5,9 @@ const provider = await getProvider();
 
 const governanceSystem = await Governance.init(provider);
 
+const counter = await governanceSystem.getCounter();
+console.log('Counter:', counter);
+
 // const op = await governanceSystem.runAutoRefresh();
 // const status = await op.waitSpeculativeExecution();
 // const events = await op.getSpeculativeEvents();
@@ -44,4 +47,4 @@ setInterval(async () => {
   ]);
 
   console.log('Balance:', balance[0].balance);
-}, 5000);
+}, 10000);

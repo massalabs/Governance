@@ -31,7 +31,7 @@ export function useGovernanceData(): GovernanceData {
         throw error;
       }
     },
-    refetchInterval: 30000,
+    refetchInterval: 5000,
     retry: 3,
     retryDelay: 1000,
     enabled: !!governance?.public,
@@ -76,7 +76,7 @@ export function useGovernanceData(): GovernanceData {
           throw error;
         }
       },
-      refetchInterval: 30000,
+      refetchInterval: 5000,
       retry: 3,
       retryDelay: 1000,
       enabled: !!governance?.public && proposals.length > 0,
