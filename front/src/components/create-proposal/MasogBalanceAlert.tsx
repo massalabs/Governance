@@ -1,7 +1,7 @@
 import {
   REQUIRED_MASOG,
   REQUIRED_MAS,
-} from "@/hooks/useCreateProposalMutation";
+} from "@/hooks/queries/useCreateProposalMutation";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 import { formatAmount } from "@massalabs/react-ui-kit";
@@ -37,10 +37,10 @@ export function MasogBalanceAlert({
             {hasEnough
               ? "Your balance meets the requirements for proposal creation"
               : !hasEnoughMasog && !hasEnoughMas
-              ? "Insufficient MASOG and MAS balance"
-              : !hasEnoughMasog
-              ? "Insufficient MASOG balance"
-              : "Insufficient MAS balance"}
+                ? "Insufficient MASOG and MAS balance"
+                : !hasEnoughMasog
+                  ? "Insufficient MASOG balance"
+                  : "Insufficient MAS balance"}
           </h2>
           <div className="space-y-2">
             <div className="flex items-center gap-2">

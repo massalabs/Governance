@@ -1,19 +1,19 @@
+import { useContractStore } from "@/store/useContractStore";
+import { formatProposal } from "@/utils/governance";
 import { useQuery } from "@tanstack/react-query";
-import { useContractStore } from "../store/useContractStore";
-import { governanceKeys } from "./queryKeys/governance";
-import { formatProposal } from "../utils/governance";
+import { governanceKeys } from "../queryKeys/governance";
 
 export const useProposals = () => {
-  const { governance } = useContractStore();
+  const { governancePublic } = useContractStore();
 
   return useQuery({
     queryKey: governanceKeys.proposals(),
     queryFn: async () => {
-      if (!governance?.public)
+      if (!governancePublic)
         throw new Error("Governance contract not initialized");
 
       try {
-        const fetchedProposals = await governance.public.getProposals();
+        const fetchedProposals = await governancePublic.getProposals();
 
         return fetchedProposals
           .map(formatProposal)
@@ -26,7 +26,7 @@ export const useProposals = () => {
     refetchInterval: 10000,
     retry: 3,
     retryDelay: 1000,
-    enabled: !!governance?.public,
+    enabled: !!governancePublic,
     staleTime: 30000,
   });
 };

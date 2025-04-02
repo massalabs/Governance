@@ -1,18 +1,10 @@
-import App from "../App";
-import { useContractInitialization } from "../hooks/useContractInitialization";
-import useAccountSync from "../hooks/useAccountSync";
-import WalletConnectingLoader from "./WalletConnectingLoader";
+
+import App from "@/App";
+import { useInitApp } from "@/hooks/useInitApp";
 
 export function AppWithHooks() {
-  const { isConnecting, connectionStatus } = useAccountSync();
-  useContractInitialization();
-  return (
-    <>
-      <WalletConnectingLoader
-        isConnecting={isConnecting}
-        connectionStatus={connectionStatus}
-      />
-      <App />
-    </>
-  );
+
+  useInitApp();
+
+  return <App />
 }

@@ -1,5 +1,5 @@
 import { FormattedProposal } from "../../types/governance";
-import { useMasogTotalSupply } from "../../hooks/useMasogData";
+import { useMasogTotalSupply } from "../../hooks/queries/useMasogData";
 
 interface VoteProgressProps {
   proposal: FormattedProposal;

@@ -185,10 +185,9 @@ export function PixelButton({
         bg-white dark:bg-darkCard
         ${fullWidth ? "w-full" : ""}
         transition-all duration-200
-        ${
-          disabled
-            ? "opacity-50 cursor-not-allowed"
-            : "hover:scale-[1.02] active:scale-[0.98] focus:ring-2 focus:ring-brand/20 dark:focus:ring-darkAccent/20"
+        ${disabled
+          ? "opacity-50 cursor-not-allowed"
+          : "hover:scale-[1.02] active:scale-[0.98] focus:ring-2 focus:ring-brand/20 dark:focus:ring-darkAccent/20"
         }
         ${className}
       `}
@@ -199,10 +198,9 @@ export function PixelButton({
         <span
           className={`
             mas-buttons font-medium text-lg transition-colors duration-200
-            ${
-              filledPercentage > 30
-                ? variantClasses[variant].filled
-                : variantClasses[variant].default
+            ${filledPercentage > 30
+              ? variantClasses[variant].filled
+              : variantClasses[variant].default
             }
           `}
         >
@@ -219,9 +217,8 @@ export function PixelButton({
         {pixels.map((filled, i) => (
           <div
             key={i}
-            className={`${
-              filled ? variantClasses[variant].pixelBg : "bg-transparent"
-            }`}
+            className={`${filled ? variantClasses[variant].pixelBg : "bg-transparent"
+              }`}
             style={{
               transition: "background-color 0.1s ease",
               width: `${pixelSize}px`,

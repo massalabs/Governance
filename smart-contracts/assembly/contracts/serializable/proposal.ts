@@ -106,9 +106,14 @@ export class Proposal implements Serializable {
   assertIsValid(): void {
     assert(
       this.title.length > 0 &&
+      this.title.length <= 100 &&
       this.summary.length > 0 &&
+      this.summary.length <= 500 &&
       this.forumPostLink.length > 0 &&
-      'Invalid proposal data',
+      this.forumPostLink.length <= 200 &&
+      this.owner.length > 0 &&
+      this.parameterChange.length > 0 &&
+      this.parameterChange.length <= 500, "Invalid proposal data"
     );
   }
 

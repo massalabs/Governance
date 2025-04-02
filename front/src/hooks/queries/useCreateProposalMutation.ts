@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateProposalParams } from "../types/governance";
-import { Proposal } from "../serializable/Proposal";
+import { CreateProposalParams } from "../../types/governance";
+import { Proposal } from "../../serializable/Proposal";
 import {
   useAccountStore,
   useWriteSmartContract,
@@ -9,10 +9,10 @@ import { Args, Mas } from "@massalabs/massa-web3";
 import { useContractStore } from "@/store/useContractStore";
 import { useNavigate } from "react-router-dom";
 import { useGovernanceData } from "./useGovernanceData";
-import { governanceKeys } from "./queryKeys/governance";
+import { governanceKeys } from "../queryKeys/governance";
 
 export const REQUIRED_MASOG = 1n;
-export const REQUIRED_MAS = Mas.fromMas(1000n);
+export const REQUIRED_MAS = Mas.fromMas(1001n);
 
 export interface ValidationErrors {
   title?: string;
@@ -57,7 +57,7 @@ export function hasEnoughMas(userMasBalance: bigint | undefined): boolean {
 export function useCreateProposalMutation() {
   const navigate = useNavigate();
   const { connectedAccount, balance: userMasBalance } = useAccountStore();
-  const { governance } = useContractStore();
+  const { governancePrivate } = useContractStore();
   const { refresh, userMasogBalance } = useGovernanceData();
   const { callSmartContract } = useWriteSmartContract(connectedAccount!);
   const queryClient = useQueryClient();
@@ -70,7 +70,7 @@ export function useCreateProposalMutation() {
       formData: CreateProposalParams;
       parameterChangeInput: string;
     }) => {
-      if (!governance?.private) {
+      if (!governancePrivate) {
         throw new Error("Governance contract not initialized");
       }
 
@@ -91,12 +91,13 @@ export function useCreateProposalMutation() {
         formData.title.trim(),
         formData.forumPostLink.trim(),
         formData.summary.trim(),
+        // TODO: default should be null
         parameterChangeInput || "{}"
       );
 
       await callSmartContract(
         "submitUpdateProposal",
-        governance.private.address,
+        governancePrivate.address,
         new Args().addSerializable(proposal).serialize(),
         {
           success: "Proposal created successfully!",

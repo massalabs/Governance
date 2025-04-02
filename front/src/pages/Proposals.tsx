@@ -3,7 +3,7 @@ import VoteModal from "../components/VoteModal";
 import { ProposalCard } from "../components/proposals/ProposalCard";
 import { ProposalFilters } from "../components/proposals/ProposalFilters";
 import { ProposalStatus } from "../types/governance";
-import { useGovernanceData } from "../hooks/useGovernanceData";
+import { useGovernanceData } from "../hooks/queries/useGovernanceData";
 
 export default function Proposals() {
   const { proposals: allProposals, loading, refresh } = useGovernanceData();

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { useUIStore } from "../store/useUIStore";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import ThemeToggle from "./ThemeToggle";
@@ -7,16 +7,12 @@ import { ConnectButton } from "./connect-wallet-popup";
 import { NetworkIndicator } from "./NetworkIndicator";
 import bgDark from "../assets/bg-dark.png";
 import bgLight from "../assets/bg-light.png";
-import { useGovernanceData } from "@/hooks/useGovernanceData";
-import { useBalanceRefresh } from "@/hooks/useBalanceRefresh";
 
 export default function Layout() {
   const { theme } = useUIStore();
   const { connectedAccount } = useAccountStore();
-  const navigate = useNavigate();
   const location = useLocation();
-  const { refresh } = useGovernanceData();
-  useBalanceRefresh();
+
 
   useEffect(() => {
     // Remove both theme classes first
@@ -25,16 +21,6 @@ export default function Layout() {
     document.documentElement.classList.add(theme);
   }, [theme]);
 
-  useEffect(() => {
-    // If account changes and we're on a protected route, redirect to home
-    if (!connectedAccount && window.location.pathname !== "/") {
-      navigate("/");
-    }
-    if (connectedAccount) {
-      refresh();
-    }
-  }, [connectedAccount, navigate]);
-
   return (
     <div className="min-h-screen flex flex-col bg-background dark:bg-darkBg text-f-primary dark:text-f-primary">
       <header className="sticky top-0 z-50 border-b border-border/50 dark:border-darkBorder/50 bg-secondary/80 dark:bg-darkCard/80 backdrop-blur-md shadow-sm">
@@ -42,43 +28,39 @@ export default function Layout() {
           <div className="flex items-center space-x-8">
             <Link
               to="/"
-              className={`text-2xl text-neutral dark:text-white mas-title hover:opacity-90 transition-opacity ${
-                location.pathname === "/" ? "opacity-100" : "opacity-80"
-              }`}
+              className={`text-2xl text-neutral dark:text-white mas-title hover:opacity-90 transition-opacity ${location.pathname === "/" ? "opacity-100" : "opacity-80"
+                }`}
             >
               <div className="font-normal">MASSA</div>
               <div className="font-normal">GOVERNANCE</div>
             </Link>
-            {connectedAccount && (
-              <div className="flex items-center space-x-6">
-                <Link
-                  to="/proposals"
-                  className={`text-neutral dark:text-white hover:opacity-80 transition-all duration-200 mas-menu-default relative font-medium ${
-                    location.pathname.startsWith("/proposals")
-                      ? "opacity-100 font-semibold"
-                      : "opacity-70"
+            <div className="flex items-center space-x-6">
+              <Link
+                to="/proposals"
+                className={`text-neutral dark:text-white hover:opacity-80 transition-all duration-200 mas-menu-default relative font-medium ${location.pathname.startsWith("/proposals")
+                  ? "opacity-100 font-semibold"
+                  : "opacity-70"
                   }`}
-                >
-                  Proposals
-                  {location.pathname.startsWith("/proposals") && (
-                    <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-neutral dark:bg-neutral" />
-                  )}
-                </Link>
-                <Link
-                  to="/create"
-                  className={`text-neutral dark:text-white hover:opacity-80 transition-all duration-200 mas-menu-default relative font-medium ${
-                    location.pathname === "/create"
-                      ? "opacity-100 font-semibold"
-                      : "opacity-70"
+              >
+                Proposals
+                {location.pathname.startsWith("/proposals") && (
+                  <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-neutral dark:bg-neutral" />
+                )}
+              </Link>
+
+              <Link
+                to="/create"
+                className={`text-neutral dark:text-white hover:opacity-80 transition-all duration-200 mas-menu-default relative font-medium ${location.pathname === "/create"
+                  ? "opacity-100 font-semibold"
+                  : "opacity-70"
                   }`}
-                >
-                  Create Proposal
-                  {location.pathname === "/create" && (
-                    <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-neutral dark:bg-neutral" />
-                  )}
-                </Link>
-              </div>
-            )}
+              >
+                Create Proposal
+                {location.pathname === "/create" && (
+                  <div className="absolute -bottom-3 left-0 w-full h-0.5 bg-neutral dark:bg-neutral" />
+                )}
+              </Link>
+            </div>
           </div>
           <div className="flex items-center space-x-4">
             {connectedAccount && (

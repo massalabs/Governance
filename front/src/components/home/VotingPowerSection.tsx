@@ -1,4 +1,5 @@
-import { useMasogTotalSupply } from "../../hooks/useMasogData";
+
+import { useMasogTotalSupply } from "../../hooks/queries/useMasogData";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 
 interface VotingPowerSectionProps {
@@ -11,7 +12,7 @@ export function VotingPowerSection({
   loading,
   userMasogBalance,
 }: VotingPowerSectionProps) {
-  const { data: totalSupply } = useMasogTotalSupply();
+  const { data: totalSupply } = useMasogTotalSupply()
 
   const formatValue = (value: bigint | null) => {
     if (loading || value === null) return "...";
