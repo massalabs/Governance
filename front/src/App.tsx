@@ -1,33 +1,32 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Suspense, lazy } from "react";
+
 import Layout from "./components/Layout";
 import { Loading } from "@/components/ui/Loading";
+import CreateProposal from "./pages/CreateProposal";
+import Home from "./pages/Home";
+import ProposalDetails from "./pages/ProposalDetails";
+import Proposals from "./pages/Proposals";
 
-// Lazy load pages
-const Home = lazy(() => import("./pages/Home"));
-const Proposals = lazy(() => import("./pages/Proposals"));
-const CreateProposal = lazy(() => import("./pages/CreateProposal"));
-const ProposalDetails = lazy(() => import("./pages/ProposalDetails"));
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Suspense
+      {/* <Suspense
         fallback={
           <div className="min-h-screen bg-secondary dark:bg-darkCard h-screen w-screen flex items-center justify-center">
             <Loading text="" size="lg" />
           </div>
         }
-      >
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/proposals" element={<Proposals />} />
-            <Route path="/create" element={<CreateProposal />} />
-            <Route path="/proposals/:id" element={<ProposalDetails />} />
-          </Route>
-        </Routes>
-      </Suspense>
+      > */}
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/proposals" element={<Proposals />} />
+          <Route path="/create" element={<CreateProposal />} />
+          <Route path="/proposals/:id" element={<ProposalDetails />} />
+        </Route>
+      </Routes>
+      {/* </Suspense> */}
     </BrowserRouter>
   );
 }

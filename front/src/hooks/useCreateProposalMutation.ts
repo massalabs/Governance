@@ -44,23 +44,6 @@ export function validateForm(
   return errors;
 }
 
-export function formatJson(parameterChangeInput: string): {
-  formatted: string;
-  error?: string;
-} {
-  try {
-    const parsed = JSON.parse(parameterChangeInput);
-    return {
-      formatted: JSON.stringify(parsed, null, 2),
-    };
-  } catch {
-    return {
-      formatted: parameterChangeInput,
-      error: "Invalid JSON format",
-    };
-  }
-}
-
 export function hasEnoughMasog(
   userMasogBalance: bigint | null | undefined
 ): boolean {

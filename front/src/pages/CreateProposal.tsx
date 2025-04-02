@@ -1,7 +1,6 @@
 import {
   useCreateProposalMutation,
   validateForm,
-  formatJson,
   hasEnoughMasog,
   hasEnoughMas,
   type ValidationErrors,
@@ -47,22 +46,6 @@ export default function CreateProposal() {
     );
   };
 
-  const handleFormatJson = () => {
-    const result = formatJson(parameterChangeInput);
-    setParameterChangeInput(result.formatted);
-    if (result.error) {
-      setErrors((prev: ValidationErrors) => ({
-        ...prev,
-        parameterChange: result.error,
-      }));
-    } else {
-      setErrors((prev: ValidationErrors) => ({
-        ...prev,
-        parameterChange: undefined,
-      }));
-    }
-  };
-
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header Section */}
@@ -96,7 +79,6 @@ export default function CreateProposal() {
             parameterChangeInput={parameterChangeInput}
             setParameterChangeInput={setParameterChangeInput}
             error={errors.parameterChange}
-            onFormatJson={handleFormatJson}
           />
 
           <div className="h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-darkAccent/20 to-transparent" />

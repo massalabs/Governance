@@ -15,14 +15,12 @@ interface ParameterChangeFormProps {
   parameterChangeInput: string;
   setParameterChangeInput: (value: string) => void;
   error?: string;
-  onFormatJson?: () => void;
 }
 
 export function ParameterChangeForm({
   parameterChangeInput,
   setParameterChangeInput,
   error,
-  onFormatJson,
 }: ParameterChangeFormProps) {
   const [changes, setChanges] = useState<ParameterChange[]>([
     { parameter: "", value: "", isObjectValue: false },
@@ -108,15 +106,6 @@ export function ParameterChangeForm({
             </p>
           </div>
         </div>
-        {onFormatJson && (
-          <button
-            type="button"
-            onClick={onFormatJson}
-            className="px-4 py-2 text-sm font-medium text-primary dark:text-darkAccent hover:text-primary/80 dark:hover:text-darkAccent/80"
-          >
-            Format JSON
-          </button>
-        )}
       </div>
 
       <div className="space-y-6">
@@ -160,7 +149,7 @@ export function ParameterChangeForm({
               </div>
 
               {/* Value Type Toggle */}
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label className="block text-f-primary dark:text-darkText text-sm font-medium">
                   Value Type
                 </label>
@@ -188,41 +177,41 @@ export function ParameterChangeForm({
                     </span>
                   </label>
                 </div>
+              </div> */}
+              <div className="space-y-2">
+                <label
+                  htmlFor={`value-${index}`}
+                  className="block text-f-primary dark:text-darkText text-sm font-medium"
+                >
+                  New Value
+                </label>
+                {change.isObjectValue ? (
+                  <textarea
+                    id={`value-${index}`}
+                    value={change.value}
+                    onChange={(e) => handleValueChange(index, e.target.value)}
+                    className="w-full px-4 py-3 bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand/30 dark:focus:ring-darkAccent/30 text-f-primary dark:text-darkText placeholder:text-f-tertiary/50 dark:placeholder:text-darkMuted/50 transition-all hover:border-border/80 dark:hover:border-darkAccent/80"
+                    rows={4}
+                    placeholder='{
+  "key": "value",
+  "number": 123
+}'
+                    spellCheck="false"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    id={`value-${index}`}
+                    value={change.value}
+                    onChange={(e) => handleValueChange(index, e.target.value)}
+                    className="w-full px-4 py-2.5 bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg text-f-primary dark:text-darkText placeholder:text-f-tertiary/50 dark:placeholder:text-darkMuted/50 focus:outline-none focus:ring-2 focus:ring-brand/30 dark:focus:ring-darkAccent/30 text-sm transition-all hover:border-border/80 dark:hover:border-darkAccent/80"
+                    placeholder="Enter new value"
+                  />
+                )}
               </div>
             </div>
 
             {/* Value Input */}
-            <div className="space-y-2">
-              <label
-                htmlFor={`value-${index}`}
-                className="block text-f-primary dark:text-darkText text-sm font-medium"
-              >
-                New Value
-              </label>
-              {change.isObjectValue ? (
-                <textarea
-                  id={`value-${index}`}
-                  value={change.value}
-                  onChange={(e) => handleValueChange(index, e.target.value)}
-                  className="w-full px-4 py-3 bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand/30 dark:focus:ring-darkAccent/30 text-f-primary dark:text-darkText placeholder:text-f-tertiary/50 dark:placeholder:text-darkMuted/50 transition-all hover:border-border/80 dark:hover:border-darkAccent/80"
-                  rows={4}
-                  placeholder='{
-  "key": "value",
-  "number": 123
-}'
-                  spellCheck="false"
-                />
-              ) : (
-                <input
-                  type="text"
-                  id={`value-${index}`}
-                  value={change.value}
-                  onChange={(e) => handleValueChange(index, e.target.value)}
-                  className="w-full px-4 py-2.5 bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg text-f-primary dark:text-darkText placeholder:text-f-tertiary/50 dark:placeholder:text-darkMuted/50 focus:outline-none focus:ring-2 focus:ring-brand/30 dark:focus:ring-darkAccent/30 text-sm transition-all hover:border-border/80 dark:hover:border-darkAccent/80"
-                  placeholder="Enter new value"
-                />
-              )}
-            </div>
           </div>
         ))}
 
