@@ -6,7 +6,6 @@ import { RecentProposalsSection } from "../components/home/RecentProposalsSectio
 import { ActionLinks } from "../components/home/ActionLinks";
 import { BetaBanner } from "../components/home/BetaBanner";
 import { useAccountStore } from "@massalabs/react-ui-kit";
-// import { useAccountStore } from "@massalabs/react-ui-kit";
 
 export default function Home() {
   const { connectedAccount } = useAccountStore();
@@ -15,13 +14,13 @@ export default function Home() {
   return (
     <div className="space-y-8">
       <BetaBanner />
-      <WelcomeSection isConnected={true} />
-      <StatsSection loading={loading} stats={stats} />
+      <WelcomeSection />
+      <StatsSection isLoading={loading} stats={stats} />
       {connectedAccount && (
         <VotingPowerSection
           loading={loading}
           userMasogBalance={userMasogBalance}
-          userVotingPower={userMasogBalance} // Using MASOG balance as voting power
+          userVotingPower={userMasogBalance}
         />
       )}
       <RecentProposalsSection loading={loading} proposals={proposals} />
