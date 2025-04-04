@@ -38,6 +38,7 @@ export function constructor(_: StaticArray<u8>): void {
   _setOwner(Context.caller().toString());
 
   Storage.set(UPDATE_PROPOSAL_COUNTER_TAG, u64ToBytes(0));
+  Storage.set(AUTO_REFRESH_STATUS_KEY, boolToByte(true));
 
   transferRemaining(Context.transferredCoins());
 }
@@ -132,12 +133,14 @@ export function deleteProposal(binaryArgs: StaticArray<u8>): void {
 
 /**
  * Runs the auto refresh manually
+ * 
+ * @remarks This function is used in case the ASC is not running
  */
 export function runAutoRefresh(): void {
   assert(
     Context.caller() === Context.callee() ||
     Context.caller().toString() === Storage.get(OWNER_KEY),
-    'Caller is not the callee',
+    'Caller must be the callee or the owner',
   );
 
   _autoRefreshCall();
@@ -150,6 +153,7 @@ export function runAutoRefresh(): void {
 /**
  * Allow the owner ot allow or stop the auto refresh
  * @param binaryArgs - Serialized arguments: stop (bool).
+ * @remarks This function is used to allow or stop or allow the auto refresh
  */
 export function manageAutoRefresh(binaryArgs: StaticArray<u8>): void {
   _onlyOwner();

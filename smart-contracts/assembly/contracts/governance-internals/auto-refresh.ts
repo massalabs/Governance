@@ -14,8 +14,8 @@ export const LIMIT_REFETCH_PERIOD = 40;
  */
 export function _autoRefreshCall(): void {
     _assertAutoRefreshStatus();
+
     _refresh();
-    Storage.set(LAST_REFETCH_PERIOD_TAG, u64ToBytes(Context.currentPeriod()));
 
     const currentPeriodStart = currentPeriod();
     const validityStartPeriod = currentPeriodStart + START_REFETCH_PERIOD;
@@ -44,6 +44,7 @@ export function _autoRefreshCall(): void {
         1_000_000_000, // maxGas
         1_000, // rawFee
     );
+
     Storage.set(LAST_REFETCH_PERIOD_TAG, u64ToBytes(Context.currentPeriod()));
 }
 
@@ -68,12 +69,9 @@ export function _ensureAutoRefresh(): void {
 }
 
 /**
- * Asserts that the auto refresh status is enabled
+ * Asserts that the auto refresh is enabled
  */
 export function _assertAutoRefreshStatus(): void {
-    if (!Storage.has(AUTO_REFRESH_STATUS_KEY)) {
-        Storage.set(AUTO_REFRESH_STATUS_KEY, boolToByte(true));
-    }
     const autoRefreshStatus = Storage.get(AUTO_REFRESH_STATUS_KEY);
     assert(autoRefreshStatus, 'Auto refresh is disabled');
 }
