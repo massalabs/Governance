@@ -1,4 +1,4 @@
-import { useGovernanceData } from "../hooks/useGovernanceData";
+import { useGovernanceData } from "../hooks/queries/useGovernanceData";
 import { WelcomeSection } from "../components/home/WelcomeSection";
 import { StatsSection } from "../components/home/StatsSection";
 import { VotingPowerSection } from "../components/home/VotingPowerSection";
@@ -11,27 +11,18 @@ export default function Home() {
   const { connectedAccount } = useAccountStore();
   const { stats, loading, proposals, userMasogBalance } = useGovernanceData();
 
-  const isConnected = !!connectedAccount;
-
-  if (!isConnected) {
-    return (
-      <>
-        <BetaBanner />
-        <WelcomeSection isConnected={false} />
-      </>
-    );
-  }
-
   return (
     <div className="space-y-8">
       <BetaBanner />
-      <WelcomeSection isConnected={true} />
-      <StatsSection loading={loading} stats={stats} />
-      <VotingPowerSection
-        loading={loading}
-        userMasogBalance={userMasogBalance}
-        userVotingPower={userMasogBalance} // Using MASOG balance as voting power
-      />
+      <WelcomeSection />
+      <StatsSection isLoading={loading} stats={stats} />
+      {connectedAccount && (
+        <VotingPowerSection
+          loading={loading}
+          userMasogBalance={userMasogBalance}
+          userVotingPower={userMasogBalance}
+        />
+      )}
       <RecentProposalsSection loading={loading} proposals={proposals} />
       <ActionLinks />
     </div>

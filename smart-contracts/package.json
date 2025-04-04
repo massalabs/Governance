@@ -31,7 +31,8 @@
         "governance:next-status": "tsx src/governance/next-status.ts",
         "governance:delete-all": "tsx src/governance/delete.ts",
         "governance:refresh": "tsx src/governance/refresh.ts",
-        "governance:run-refresh": "tsx src/governance/run-refresh.ts"
+        "governance:run-refresh": "tsx src/governance/run-refresh.ts",
+        "governance:manage-auto-refresh": "tsx src/governance/manage-auto-refresh.ts"
     },
     "keywords": [],
     "author": "",

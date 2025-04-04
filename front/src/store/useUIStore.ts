@@ -8,8 +8,6 @@ interface UIState {
   selectedProposalId: bigint | null;
   theme: "light" | "dark";
 
-  // Actions
-  toggleWalletModal: () => void;
   toggleCreateProposalModal: () => void;
   openVoteModal: (proposalId: bigint) => void;
   closeVoteModal: () => void;
@@ -26,9 +24,6 @@ export const useUIStore = create<UIState>()(
       theme: window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light",
-
-      toggleWalletModal: () =>
-        set((state) => ({ isWalletModalOpen: !state.isWalletModalOpen })),
 
       toggleCreateProposalModal: () =>
         set((state) => ({

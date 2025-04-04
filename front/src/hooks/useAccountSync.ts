@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { useLocalStorage } from "@massalabs/react-ui-kit/src/lib/util/hooks/useLocalStorage";
 import { getWallets } from "@massalabs/wallet-provider";
-import { useContractStore } from "../store/useContractStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { governanceKeys } from "./queryKeys/governance";
 
@@ -18,7 +17,6 @@ const EMPTY_ACCOUNT: SavedAccount = {
 
 const useAccountSync = () => {
   const { connectedAccount, setCurrentWallet } = useAccountStore();
-  const { initializeContracts } = useContractStore();
   const queryClient = useQueryClient();
   const initializingRef = useRef(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -62,13 +60,12 @@ const useAccountSync = () => {
 
       setConnectionStatus("Initializing contracts...");
 
-      await initializeContracts(stored.account);
 
       // Invalidate queries to trigger a fresh fetch
       queryClient.invalidateQueries({ queryKey: governanceKeys.all });
       setConnectionStatus("Connected successfully!");
     },
-    [setCurrentWallet, initializeContracts, queryClient]
+    [setCurrentWallet, queryClient]
   );
 
   const handleConnectionError = useCallback(

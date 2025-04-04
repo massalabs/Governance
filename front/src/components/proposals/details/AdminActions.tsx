@@ -21,13 +21,16 @@ interface AdminActionsProps {
 
 export function AdminActions({ proposalId, status }: AdminActionsProps) {
   const { connectedAccount } = useAccountStore();
-  const { governance } = useContractStore();
+  const { governancePrivate } = useContractStore();
   const { callSmartContract } = useWriteSmartContract(connectedAccount!);
 
   if (
     !connectedAccount ||
     !allowedAddresses.includes(connectedAccount.address)
   ) {
+    console.log(connectedAccount);
+    console.log(allowedAddresses);
+    console.log("Not allowed");
     return null;
   }
 
@@ -35,10 +38,10 @@ export function AdminActions({ proposalId, status }: AdminActionsProps) {
     status.toUpperCase() === "DISCUSSION" || status.toUpperCase() === "VOTING";
 
   const handleNextStatus = async () => {
-    if (!governance?.private) return;
+    if (!governancePrivate) return;
     await callSmartContract(
       "nextStatus",
-      governance.private.address,
+      governancePrivate.address,
       new Args().addU64(proposalId).serialize(),
       {
         success: "Status updated successfully!",
@@ -49,10 +52,10 @@ export function AdminActions({ proposalId, status }: AdminActionsProps) {
   };
 
   const handleDelete = async () => {
-    if (!governance?.private) return;
+    if (!governancePrivate) return;
     await callSmartContract(
       "deleteProposal",
-      governance.private.address,
+      governancePrivate.address,
       new Args().addU64(proposalId).serialize(),
       {
         success: "Proposal deleted successfully!",

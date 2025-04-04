@@ -1,23 +1,23 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useContractStore } from "../store/useContractStore";
+import { useContractStore } from "../../store/useContractStore";
 import {
   useAccountStore,
   useWriteSmartContract,
 } from "@massalabs/react-ui-kit";
-import { governanceKeys } from "./queryKeys/governance";
-import { Vote } from "../serializable/Vote";
-import { VoteMutationParams } from "../types/governance";
+import { governanceKeys } from "../queryKeys/governance";
+import { Vote } from "../../serializable/Vote";
+import { VoteMutationParams } from "../../types/governance";
 import { Args, Mas } from "@massalabs/massa-web3";
 
 export const useVoteMutation = () => {
-  const { governance } = useContractStore();
+  const { governancePrivate } = useContractStore();
   const { connectedAccount } = useAccountStore();
   const { callSmartContract } = useWriteSmartContract(connectedAccount!);
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ proposalId, voteValue }: VoteMutationParams) => {
-      if (!governance?.private || !connectedAccount) {
+      if (!governancePrivate || !connectedAccount) {
         throw new Error("Governance contract not initialized or no account");
       }
 
@@ -25,7 +25,7 @@ export const useVoteMutation = () => {
 
       await callSmartContract(
         "vote",
-        governance.private.address,
+        governancePrivate.address,
         new Args().addSerializable(vote).serialize(),
         {
           success: "Vote submitted successfully!",

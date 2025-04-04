@@ -1,16 +1,16 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useContractStore } from "../store/useContractStore";
-import { governanceKeys } from "./queryKeys/governance";
-import { useProposals } from "./useProposals";
-import { useUserBalance } from "./useUserBalance";
+import { useContractStore } from "../../store/useContractStore";
+import { governanceKeys } from "../queryKeys/governance";
 import { useUserVotes } from "./useUserVotes";
 import { useMasogTotalSupply } from "./useMasogData";
-import { calculateStats } from "../utils/governance";
-import { GovernanceData, VoteDetails } from "../types/governance";
+import { calculateStats } from "../../utils/governance";
+import { GovernanceData, VoteDetails } from "../../types/governance";
 import { useCallback } from "react";
+import { useProposals } from "./useProposals";
+import { useUserBalance } from "./useUserBalance";
 
 export function useGovernanceData(): GovernanceData {
-  const { governance } = useContractStore();
+  const { governancePublic } = useContractStore();
   const queryClient = useQueryClient();
 
   // Fetch proposals
@@ -20,12 +20,12 @@ export function useGovernanceData(): GovernanceData {
   const { data: totalVotes = 0n, isLoading: loadingTotalVotes } = useQuery({
     queryKey: governanceKeys.all,
     queryFn: async () => {
-      if (!governance?.public) {
+      if (!governancePublic) {
         throw new Error("Governance contract not initialized");
       }
 
       try {
-        return await governance.public.getTotalNbVotes();
+        return await governancePublic.getTotalNbVotes();
       } catch (error) {
         console.error("[Error] Error fetching total votes:", error);
         throw error;
@@ -34,7 +34,7 @@ export function useGovernanceData(): GovernanceData {
     refetchInterval: 5000,
     retry: 3,
     retryDelay: 1000,
-    enabled: !!governance?.public,
+    enabled: !!governancePublic,
   });
 
   // Fetch user's MASOG balance
@@ -50,7 +50,7 @@ export function useGovernanceData(): GovernanceData {
     useQuery({
       queryKey: governanceKeys.allProposalVotes(),
       queryFn: async () => {
-        if (!governance?.public || !proposals.length) {
+        if (!governancePublic || !proposals.length) {
           throw new Error("Missing dependencies for fetching proposal votes");
         }
 
@@ -59,7 +59,7 @@ export function useGovernanceData(): GovernanceData {
 
           // Get all votes for each proposal
           for (const proposal of proposals) {
-            const votes = await governance.public.getVotes(proposal.id);
+            const votes = await governancePublic.getVotes(proposal.id);
 
             // Create vote details for each vote
             const voteDetails: VoteDetails[] = votes.map((voteValue) => ({
@@ -79,7 +79,7 @@ export function useGovernanceData(): GovernanceData {
       refetchInterval: 5000,
       retry: 3,
       retryDelay: 1000,
-      enabled: !!governance?.public && proposals.length > 0,
+      enabled: !!governancePublic && proposals.length > 0,
     });
 
   // Calculate stats

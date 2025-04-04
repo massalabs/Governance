@@ -1,10 +1,16 @@
-import { bytesToU64, u64ToBytes, stringToBytes } from '@massalabs/as-types';
-import { Storage, Context, getKeys } from '@massalabs/massa-as-sdk';
+import {
+  bytesToU64,
+  u64ToBytes,
+  stringToBytes,
+} from '@massalabs/as-types';
+import {
+  Storage,
+  Context,
+  getKeys,
+} from '@massalabs/massa-as-sdk';
 import { Proposal } from '../serializable/proposal';
 import {
-  acceptedStatus,
   discussionStatus,
-  rejectedStatus,
   votingStatus,
   statusKeyPrefix,
   UPDATE_PROPOSAL_COUNTER_TAG,
@@ -13,19 +19,22 @@ import { Vote } from '../serializable/vote';
 import {
   assertSufficientMasogBalance,
   getMasogBalance,
-  getMasogTotalSupply,
   validateAndBurnMas,
 } from './helpers';
+import { isInVotingPeriod, updateProposalStatus } from './proposal-status';
 
-const MIN_PROPOSAL_MAS_AMOUNT = u64(1000_000_000_000);
-const MIN_PROPOSAL_MASOG_AMOUNT = u64(1000);
-const MIN_VOTE_MASOG_AMOUNT = u64(1);
+export const MIN_PROPOSAL_MAS_AMOUNT = u64(1000_000_000_000);
+export const MIN_PROPOSAL_MASOG_AMOUNT = u64(1000);
+export const MIN_VOTE_MASOG_AMOUNT = u64(1);
 
 // export const DISCUSSION_PERIOD = u64(3 * 7 * 24 * 60 * 60 * 1000); // 3 weeks in milliseconds
 // export const VOTING_PERIOD = u64(4 * 7 * 24 * 60 * 60 * 1000); // 4 weeks in milliseconds
-export const DISCUSSION_PERIOD = u64(5 * 60 * 1000);
-export const VOTING_PERIOD = u64(5 * 60 * 1000);
+export const DISCUSSION_PERIOD = u64(24 * 60 * 60 * 1000); // 1 day in milliseconds
+export const VOTING_PERIOD = u64(24 * 60 * 60 * 1000); // 1 day in milliseconds
 
+
+
+/**
 /**
  * Submits a new proposal.
  * @param proposal - The proposal to be submitted.
@@ -33,7 +42,7 @@ export const VOTING_PERIOD = u64(5 * 60 * 1000);
  */
 export function _submitProposal(proposal: Proposal): void {
   assertSufficientMasogBalance(
-    getMasogBalance(Context.caller()),
+    getMasogBalance(Context.caller().toString()),
     MIN_PROPOSAL_MASOG_AMOUNT,
   );
 
@@ -54,45 +63,26 @@ export function _submitProposal(proposal: Proposal): void {
  * and from votingStatus to accepted or rejected status.
  */
 export function _refresh(): void {
-  const discussionProposalsKeys = getKeys(statusKeyPrefix(discussionStatus));
   const currentTimestamp = Context.timestamp();
 
-  // First handle Discussion proposals
+  // Process discussion proposals
+  const discussionProposalsKeys = getKeys(statusKeyPrefix(discussionStatus));
   for (let i = 0; i < discussionProposalsKeys.length; i++) {
     const id = StaticArray.fromArray(
-      discussionProposalsKeys[i].slice(
-        statusKeyPrefix(discussionStatus).length,
-      ),
+      discussionProposalsKeys[i].slice(statusKeyPrefix(discussionStatus).length)
     );
-
     const proposal = Proposal.getById(bytesToU64(id));
-
-    if (currentTimestamp - proposal.creationTimestamp >= DISCUSSION_PERIOD) {
-      proposal.setStatus(votingStatus).save();
-    }
+    updateProposalStatus(proposal, currentTimestamp);
   }
 
-  // Then handle votingStatus proposals
-  const votingStatusProposalsKeys = getKeys(statusKeyPrefix(votingStatus));
-  const totalSupply = getMasogTotalSupply();
-
-  if (votingStatusProposalsKeys.length == 0) return;
-
-  for (let i = 0; i < votingStatusProposalsKeys.length; i++) {
+  // Process voting proposals
+  const votingProposalsKeys = getKeys(statusKeyPrefix(votingStatus));
+  for (let i = 0; i < votingProposalsKeys.length; i++) {
     const id = StaticArray.fromArray(
-      votingStatusProposalsKeys[i].slice(statusKeyPrefix(votingStatus).length),
+      votingProposalsKeys[i].slice(statusKeyPrefix(votingStatus).length)
     );
-
     const proposal = Proposal.getById(bytesToU64(id));
-
-    if (currentTimestamp - proposal.creationTimestamp >= DISCUSSION_PERIOD + VOTING_PERIOD) {
-      const majority = totalSupply / 2;
-      if (proposal.positiveVoteVolume > majority) {
-        proposal.setStatus(acceptedStatus).save();
-      } else {
-        proposal.setStatus(rejectedStatus).save();
-      }
-    }
+    updateProposalStatus(proposal, currentTimestamp);
   }
 }
 
@@ -103,28 +93,16 @@ export function _refresh(): void {
  */
 export function _vote(vote: Vote): void {
   const proposal = Proposal.getById(vote.proposalId);
+  const currentTimestamp = Context.timestamp();
 
-  assert(
-    proposal.status.toString() === votingStatus.toString(),
-    'Proposal must be in VOTING status',
-  );
+  assert(isInVotingPeriod(proposal, currentTimestamp), 'Voting is not allowed at this time');
 
-  vote.save();
-
-  const balance = getMasogBalance(Context.caller());
+  const balance = getMasogBalance(Context.caller().toString());
   assertSufficientMasogBalance(balance, MIN_VOTE_MASOG_AMOUNT);
 
-  if (vote.value == 1) {
-    proposal.positiveVoteVolume = proposal.positiveVoteVolume + balance;
-  } else if (vote.value == 0) {
-    proposal.blankVoteVolume = proposal.blankVoteVolume + balance;
-  } else if (vote.value == -1) {
-    proposal.negativeVoteVolume = proposal.negativeVoteVolume + balance;
-  } else {
-    assert(false, 'Invalid vote value. Use 1 (yes), 0 (blank), or -1 (no)');
-  }
+  assert(vote.value === 1 || vote.value === 0 || vote.value === -1, 'Invalid vote value. Use 1 (yes), 0 (blank), or -1 (no)');
 
-  proposal.save();
+  vote.save();
 }
 
 /**
@@ -135,3 +113,4 @@ export function _deleteProposal(proposalId: u64): void {
   const proposal = Proposal.getById(proposalId);
   proposal.delete();
 }
+

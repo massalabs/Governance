@@ -1,24 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
-import { useContractStore } from "../store/useContractStore";
+import { useContractStore } from "../../store/useContractStore";
 import { useAccountStore } from "@massalabs/react-ui-kit";
-import { governanceKeys } from "./queryKeys/governance";
-import { Vote } from "../serializable/Vote";
-import { FormattedProposal } from "../types/governance";
+import { governanceKeys } from "../queryKeys/governance";
+import { Vote } from "../../serializable/Vote";
+import { FormattedProposal } from "../../types/governance";
 
 
 export const useUserVotes = (proposals: FormattedProposal[]) => {
-  const { governance } = useContractStore();
+  const { governancePublic } = useContractStore();
   const { connectedAccount } = useAccountStore();
 
   return useQuery({
     queryKey: governanceKeys.userVotes(),
     queryFn: async () => {
-      if (!governance?.public || !connectedAccount || !proposals.length) {
+      if (!governancePublic || !connectedAccount || !proposals.length) {
         throw new Error("Missing dependencies for fetching votes");
       }
 
       const proposalIds = proposals.map((p) => p.id);
-      const votes = await governance.public.getUserVotes(
+      const votes = await governancePublic.getUserVotes(
         connectedAccount.address,
         proposalIds
       );
@@ -36,7 +36,7 @@ export const useUserVotes = (proposals: FormattedProposal[]) => {
     refetchInterval: 5000,
     retry: 3,
     retryDelay: 1000,
-    enabled: !!governance?.public && !!connectedAccount && proposals.length > 0,
+    enabled: !!governancePublic && !!connectedAccount && proposals.length > 0,
     staleTime: 15000,
   });
 };

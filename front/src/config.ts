@@ -1,7 +1,7 @@
 import { NetworkName } from "@massalabs/massa-web3";
 
 export const isMainnet = false;
-
+export const networkName = isMainnet ? NetworkName.Mainnet : NetworkName.Buildnet;
 export const contracts = {
   [NetworkName.Mainnet]: {
     oracle: "AS1OracleAddress",

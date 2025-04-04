@@ -63,6 +63,40 @@ const statusConfigs: Record<
 
 export function ProposalStatus({ proposal }: ProposalStatusProps) {
   const [timeLeft, setTimeLeft] = useState<string>("");
+  const { endDate, isVotingEnded, nextTransitionTime } = useMemo(() => {
+    const start = new Date(
+      Number(proposal.creationTimestamp) + DISCUSSION_PERIOD
+    );
+    const end = new Date(
+      Number(proposal.creationTimestamp) + DISCUSSION_PERIOD + VOTING_PERIOD
+    );
+
+    const currentTime = new Date().getTime();
+    const votingEndTime =
+      Number(proposal.creationTimestamp) + DISCUSSION_PERIOD + VOTING_PERIOD;
+
+    let nextTransition: number;
+    if (proposal.status === "DISCUSSION") {
+      nextTransition = Number(proposal.creationTimestamp) + DISCUSSION_PERIOD;
+    } else if (proposal.status === "VOTING") {
+      nextTransition = votingEndTime;
+    } else {
+      nextTransition = 0;
+    }
+
+    return {
+      endDate: end,
+      isVotingEnded: currentTime > votingEndTime,
+      nextTransitionTime: nextTransition,
+    };
+  }, [proposal.creationTimestamp, proposal.status]);
+
+  const isDiscussionEnded = useMemo(() => {
+    if (!proposal.creationTimestamp) return false;
+    const discussionEndTime = Number(proposal.creationTimestamp) + DISCUSSION_PERIOD;
+    return new Date().getTime() > discussionEndTime;
+  }, [proposal.creationTimestamp]);
+
   const statusConfig = statusConfigs[proposal.status] || {
     label: proposal.status,
     color: "text-f-tertiary",
@@ -72,36 +106,6 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
     nextStatus: "Unknown",
     countdownLabel: "",
   };
-
-  const { endDate, isVotingEnded, nextTransitionTime } =
-    useMemo(() => {
-      const start = new Date(
-        Number(proposal.creationTimestamp) + DISCUSSION_PERIOD
-      );
-      const end = new Date(
-        Number(proposal.creationTimestamp) + DISCUSSION_PERIOD + VOTING_PERIOD
-      );
-
-      const currentTime = new Date().getTime();
-      const votingEndTime =
-        Number(proposal.creationTimestamp) + DISCUSSION_PERIOD + VOTING_PERIOD;
-
-      let nextTransition: number;
-      if (proposal.status === "DISCUSSION") {
-        nextTransition = Number(proposal.creationTimestamp) + DISCUSSION_PERIOD;
-      } else if (proposal.status === "VOTING") {
-        nextTransition = votingEndTime;
-      } else {
-        nextTransition = 0;
-      }
-
-      return {
-        startDate: start,
-        endDate: end,
-        isVotingEnded: currentTime > votingEndTime,
-        nextTransitionTime: nextTransition,
-      };
-    }, [proposal.creationTimestamp, proposal.status]);
 
   useEffect(() => {
     const updateTimeLeft = () => {
@@ -135,7 +139,11 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
         <span
           className={`text-lg font-medium px-4 py-2 rounded-full ${statusConfig.bgColor} ${statusConfig.color} ${statusConfig.darkBgColor} ${statusConfig.darkColor}`}
         >
-          {statusConfig.label}
+          {isVotingEnded && proposal.status === "VOTING"
+            ? "Calculating Results"
+            : isDiscussionEnded && proposal.status === "DISCUSSION"
+              ? "Starting Voting"
+              : statusConfig.label}
         </span>
       </div>
 
@@ -144,6 +152,11 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
           <div className="text-sm text-f-tertiary dark:text-darkMuted">
             Voting ended on {formatDate(endDate)}
           </div>
+          {proposal.status === "VOTING" && (
+            <div className="mt-2 text-sm text-amber-500 dark:text-amber-400">
+              Please wait for the final results
+            </div>
+          )}
         </div>
       ) : (
         <>

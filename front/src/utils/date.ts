@@ -3,6 +3,7 @@
 // TODO: Change this when tests done
 export const DISCUSSION_PERIOD = 5 * 60 * 1000 // 5 minutes
 export const VOTING_PERIOD = 5 * 60 * 1000 // 5 minutes
+export const MIN_VOTING_BALANCE = 1n; // 1 MASOG
 
 export const formatDate = (date: Date) => {
   return date.toLocaleDateString(undefined, {

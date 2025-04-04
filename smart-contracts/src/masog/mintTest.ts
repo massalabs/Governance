@@ -10,30 +10,46 @@ const masOg = MasOg.buildnet(provider);
 const totalSupply = await masOg.totalSupply();
 console.log('Total supply:', totalSupply);
 
-// If you want addresses to collectively own 99% of final supply
-const currentSupply = totalSupply;
-const desiredFinalPercentage = 1n;
-const numberOfAddresses = BigInt(ADDRESSES.length);
-
-// Calculate total new tokens needed so that minted amount is 99% of final supply
-const totalToMint =
-  (currentSupply * desiredFinalPercentage) / (100n - desiredFinalPercentage);
-// Then divide among addresses
-const AMOUNT = totalToMint / numberOfAddresses;
-const op = await masOg.mintForTest(ADDRESSES, AMOUNT);
-
-const status = await op.waitFinalExecution();
-
-if (status !== OperationStatus.Success) {
-  throw new Error('Failed to update proposal status');
+// Calculate how many tokens the addresses currently have
+let currentAddressesBalance = 0n;
+for (let i = 0; i < ADDRESSES.length; i++) {
+  const balance = await masOg.balanceOf(ADDRESSES[i]);
+  currentAddressesBalance += balance;
+  console.log('Current balance of address', ADDRESSES[i], ':', balance);
 }
 
-console.log('Proposal status updated');
+// Calculate how many tokens are needed to reach 60% of total supply
+const desiredPercentage = 70n;
+const targetBalance = (totalSupply * desiredPercentage) / 100n;
+const additionalTokensNeeded = targetBalance - currentAddressesBalance;
 
+// If we need to mint more tokens
+if (additionalTokensNeeded > 0n) {
+  const AMOUNT = additionalTokensNeeded / BigInt(ADDRESSES.length);
+  console.log('Minting', AMOUNT.toString(), 'tokens to each address');
+
+  const op = await masOg.mintForTest(ADDRESSES, AMOUNT);
+  const status = await op.waitFinalExecution();
+
+  if (status !== OperationStatus.Success) {
+    throw new Error('Failed to mint tokens');
+  }
+
+  console.log('Tokens minted successfully');
+} else {
+  console.log('No additional tokens needed to reach 60% ownership');
+}
+
+// Check final balances
 const newTotalSupply = await masOg.totalSupply();
 console.log('New total supply:', newTotalSupply);
 
+let finalAddressesBalance = 0n;
 for (let i = 0; i < ADDRESSES.length; i++) {
   const balance = await masOg.balanceOf(ADDRESSES[i]);
-  console.log('Balance of address', ADDRESSES[i], ':', balance);
+  finalAddressesBalance += balance;
+  console.log('Final balance of address', ADDRESSES[i], ':', balance);
 }
+
+console.log('Total balance of all addresses:', finalAddressesBalance);
+console.log('Percentage of total supply:', (finalAddressesBalance * 100n) / newTotalSupply, '%');

@@ -1,27 +1,34 @@
 import {
   useCreateProposalMutation,
   validateForm,
-  formatJson,
   hasEnoughMasog,
   hasEnoughMas,
   type ValidationErrors,
-} from "../hooks/useCreateProposalMutation";
+} from "../hooks/queries/useCreateProposalMutation";
 import { MasogBalanceAlert } from "../components/create-proposal/MasogBalanceAlert";
 import { BasicInformationSection } from "../components/create-proposal/BasicInformationSection";
 import { TechnicalDetailsSection } from "../components/create-proposal/TechnicalDetailsSection";
 import { SubmitSection } from "../components/create-proposal/SubmitSection";
 import { useState } from "react";
 import { CreateProposalParams } from "../types/governance";
-import { useGovernanceData } from "../hooks/useGovernanceData";
+import { useGovernanceData } from "../hooks/queries/useGovernanceData";
 import { useAccountStore } from "@massalabs/react-ui-kit";
+import { WalletNotConnected } from "@/components/wallet-not-connected";
+import { Divider } from "@/components/ui/Divider";
+import { HeaderSection } from "@/components/create-proposal/HeaderSection";
+
+
+
 
 export default function CreateProposal() {
+  const { connectedAccount } = useAccountStore();
   const [formData, setFormData] = useState<CreateProposalParams>({
     title: "",
     forumPostLink: "",
     summary: "",
     parameterChange: undefined,
   });
+
   const [parameterChangeInput, setParameterChangeInput] = useState("");
   const [errors, setErrors] = useState<ValidationErrors>({});
 
@@ -31,6 +38,7 @@ export default function CreateProposal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const validationErrors = validateForm(formData, parameterChangeInput);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -47,34 +55,13 @@ export default function CreateProposal() {
     );
   };
 
-  const handleFormatJson = () => {
-    const result = formatJson(parameterChangeInput);
-    setParameterChangeInput(result.formatted);
-    if (result.error) {
-      setErrors((prev: ValidationErrors) => ({
-        ...prev,
-        parameterChange: result.error,
-      }));
-    } else {
-      setErrors((prev: ValidationErrors) => ({
-        ...prev,
-        parameterChange: undefined,
-      }));
-    }
-  };
+  if (!connectedAccount) {
+    return <WalletNotConnected />;
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Header Section */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-f-primary dark:text-darkText bg-gradient-to-r from-primary dark:from-darkAccent to-primary/80 dark:to-darkAccent/80 bg-clip-text text-transparent">
-          Create New Proposal
-        </h1>
-        <p className="text-f-tertiary dark:text-darkMuted mas-body text-lg max-w-2xl mx-auto">
-          Submit a new governance proposal to improve Massa Blockchain. Make sure to
-          include a detailed forum post for discussion.
-        </p>
-      </div>
+      <HeaderSection />
 
       <MasogBalanceAlert
         hasEnoughMasog={hasEnoughMasog(userMasogBalance)}
@@ -83,30 +70,33 @@ export default function CreateProposal() {
         userMasBalance={userMasBalance}
       />
 
-      <div className="bg-secondary/40 dark:bg-darkCard/40 backdrop-blur-sm border border-primary/10 dark:border-darkAccent/10 rounded-2xl shadow-lg">
-        <form onSubmit={handleSubmit} className="p-8 space-y-12">
-          <BasicInformationSection
-            formData={formData}
-            setFormData={setFormData}
-          />
+      {hasEnoughMasog(userMasogBalance) && hasEnoughMas(userMasBalance) && (
+        <div className="bg-secondary/40 dark:bg-darkCard/40 backdrop-blur-sm border border-primary/10 dark:border-darkAccent/10 rounded-2xl shadow-lg">
+          <form onSubmit={handleSubmit} className="p-8 space-y-12">
+            <BasicInformationSection
+              formData={formData}
+              setFormData={setFormData}
+            />
 
-          <div className="h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-darkAccent/20 to-transparent" />
+            <Divider />
 
-          <TechnicalDetailsSection
-            parameterChangeInput={parameterChangeInput}
-            setParameterChangeInput={setParameterChangeInput}
-            error={errors.parameterChange}
-            onFormatJson={handleFormatJson}
-          />
+            <TechnicalDetailsSection
+              parameterChangeInput={parameterChangeInput}
+              setParameterChangeInput={setParameterChangeInput}
+              error={errors.parameterChange}
+            />
 
-          <div className="h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-darkAccent/20 to-transparent" />
+            <Divider />
 
-          <SubmitSection
-            loading={isPending}
-            hasEnoughMasog={hasEnoughMasog(userMasogBalance)}
-          />
-        </form>
-      </div>
+            <SubmitSection
+              loading={isPending}
+              hasEnoughMasog={hasEnoughMasog(userMasogBalance)}
+            />
+          </form>
+        </div>
+      )}
     </div>
   );
 }
+
+

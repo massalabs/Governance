@@ -1,24 +1,6 @@
-import { ConnectButton } from "../connect-wallet-popup";
 import { FORUM_URLS } from "../../constants/urls";
 
-interface WelcomeSectionProps {
-  isConnected: boolean;
-}
-
-export function WelcomeSection({ isConnected }: WelcomeSectionProps) {
-  if (!isConnected) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[80vh] space-y-6">
-        <h1 className="text-2xl font-bold text-f-primary mas-title">
-          Welcome to Massa Governance
-        </h1>
-        <p className="text-f-tertiary mas-body text-center max-w-md">
-          Connect your wallet to view and participate in governance proposals
-        </p>
-        <ConnectButton />
-      </div>
-    );
-  }
+export function WelcomeSection() {
 
   return (
     <section className="text-center">

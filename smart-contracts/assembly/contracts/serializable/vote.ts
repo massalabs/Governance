@@ -41,5 +41,5 @@ export class Vote implements Serializable {
     );
 
     Storage.set(voteKeyBytes, i32ToBytes(this.value));
-  }
+  } 
 }

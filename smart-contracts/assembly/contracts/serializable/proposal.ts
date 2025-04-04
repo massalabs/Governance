@@ -16,7 +16,7 @@ export class Proposal implements Serializable {
     public positiveVoteVolume: u64 = 0,
     public negativeVoteVolume: u64 = 0,
     public blankVoteVolume: u64 = 0,
-  ) {}
+  ) { }
 
   /**
    * Serializes the Proposal object into a byte array.
@@ -106,9 +106,13 @@ export class Proposal implements Serializable {
   assertIsValid(): void {
     assert(
       this.title.length > 0 &&
-        this.summary.length > 0 &&
-        this.forumPostLink.length > 0 &&
-        'Invalid proposal data',
+      this.title.length <= 100 &&
+      this.summary.length > 0 &&
+      this.summary.length <= 500 &&
+      this.forumPostLink.length > 0 &&
+      this.forumPostLink.length <= 200 &&
+      this.parameterChange.length >= 0 &&
+      this.parameterChange.length <= 500, "Invalid proposal data"
     );
   }
 
@@ -117,8 +121,10 @@ export class Proposal implements Serializable {
    * @param status - The new status of the proposal.
    * @returns The updated Proposal object.
    */
+  // TODO: TO OPTIMIZE
   setStatus(status: StaticArray<u8>): Proposal {
     const previousStatus = this.status;
+    // TODO: TO OPTIMIZE: It means we have the same info 2 times in the storage
     this.status = status;
 
     if (previousStatus.length > 0) {

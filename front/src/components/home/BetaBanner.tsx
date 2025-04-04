@@ -1,26 +1,19 @@
-import { useEffect, useState } from "react";
+import { useLocalStorage } from "@massalabs/react-ui-kit/src/lib/util/hooks/useLocalStorage";
 
 const BANNER_STORAGE_KEY = "beta_banner_closed";
 
 export function BetaBanner() {
-  const [isVisible, setIsVisible] = useState(true);
 
-  useEffect(() => {
-    const isBannerClosed = localStorage.getItem(BANNER_STORAGE_KEY);
-    if (isBannerClosed === "true") {
-      setIsVisible(false);
-    }
-  }, []);
+  const [isClosed, setIsClosed] = useLocalStorage(BANNER_STORAGE_KEY, false);
 
   const handleClose = () => {
-    localStorage.setItem(BANNER_STORAGE_KEY, "true");
-    setIsVisible(false);
+    setIsClosed(true);
   };
 
-  if (!isVisible) return null;
+  if (isClosed) return null;
 
   return (
-    <div className="bg-neutral dark:bg-white text-white dark:text-neutral px-4 py-2 relative">
+    <div className="bg-neutral dark:bg-white text-white dark:text-neutral px-4 py-2 relative rounded-lg">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <p className="text-sm text-center flex-1">
           This is a beta test of decentralized governance, proposals and votes
