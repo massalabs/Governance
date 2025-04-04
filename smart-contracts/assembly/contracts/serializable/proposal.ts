@@ -111,8 +111,7 @@ export class Proposal implements Serializable {
       this.summary.length <= 500 &&
       this.forumPostLink.length > 0 &&
       this.forumPostLink.length <= 200 &&
-      this.owner.length > 0 &&
-      this.parameterChange.length > 0 &&
+      this.parameterChange.length >= 0 &&
       this.parameterChange.length <= 500, "Invalid proposal data"
     );
   }

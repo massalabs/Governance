@@ -207,16 +207,87 @@ describe('SubmitUpdateProposal', () => {
     submitUpdateProposal(args);
   });
 
-  it('If invalid parameter change', () => {
+  throws('If invalid parameter change', () => {
     const proposal = generateProposal(
       'Proposal Title',
       'Proposal Content',
       'Proposal Summary',
-      '',
+      // More than 500 characters
+      '{"aaaaaa": "bbbbbb"}' + 'a'.repeat(490),
     );
     const args = new Args().add<Proposal>(proposal).serialize();
     mockProposalBalances();
     submitUpdateProposal(args);
+  });
+
+  throws('If title length exceeds 100 characters', () => {
+    const proposal = generateProposal(
+      'a'.repeat(101), // 101 characters
+      'Proposal Content',
+      'Proposal Summary',
+      'Parameter Change',
+    );
+    const args = new Args().add<Proposal>(proposal).serialize();
+    mockProposalBalances();
+    submitUpdateProposal(args);
+  });
+
+  throws('If summary length exceeds 500 characters', () => {
+    const proposal = generateProposal(
+      'Proposal Title',
+      'Proposal Content',
+      'a'.repeat(501), // 501 characters
+      'Parameter Change',
+    );
+    const args = new Args().add<Proposal>(proposal).serialize();
+    mockProposalBalances();
+    submitUpdateProposal(args);
+  });
+
+  throws('If forumPostLink length exceeds 200 characters', () => {
+    const proposal = generateProposal(
+      'Proposal Title',
+      'a'.repeat(201), // 201 characters
+      'Proposal Summary',
+      'Parameter Change',
+    );
+    const args = new Args().add<Proposal>(proposal).serialize();
+    mockProposalBalances();
+    submitUpdateProposal(args);
+  });
+
+  throws('If parameterChange length exceeds 500 characters', () => {
+    const proposal = generateProposal(
+      'Proposal Title',
+      'Proposal Content',
+      'Proposal Summary',
+      'a'.repeat(501), // 501 characters
+    );
+    const args = new Args().add<Proposal>(proposal).serialize();
+    mockProposalBalances();
+    submitUpdateProposal(args);
+  });
+
+  test('Proposal with maximum allowed lengths is accepted', () => {
+    const proposal = generateProposal(
+      'a'.repeat(100), // 100 characters (max)
+      'a'.repeat(200), // 200 characters (max)
+      'a'.repeat(500), // 500 characters (max)
+      'a'.repeat(500), // 500 characters (max)
+    );
+    const args = new Args().add<Proposal>(proposal).serialize();
+    mockProposalBalances();
+    mockCheckLastAutoRefresh();
+    submitUpdateProposal(args);
+
+    const proposalBytes = Storage.get(proposalKey(0));
+    const proposalStored = new Proposal();
+    proposalStored.deserialize(proposalBytes, 0);
+
+    expect(bytesToString(proposalStored.title).length).toBe(100);
+    expect(bytesToString(proposalStored.forumPostLink).length).toBe(200);
+    expect(bytesToString(proposalStored.summary).length).toBe(500);
+    expect(bytesToString(proposalStored.parameterChange).length).toBe(500);
   });
 });
 
