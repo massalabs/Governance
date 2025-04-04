@@ -68,11 +68,11 @@ export function submitUpdateProposal(binaryArgs: StaticArray<u8>): void {
     .nextSerializable<Proposal>()
     .expect('You need a proposal');
 
-  // This is to check if the asc is still running, if not, we re run it
-  _ensureAutoRefresh();
 
   _submitProposal(proposal);
 
+  // This is to check if the asc is still running, if not, we re run it
+  _ensureAutoRefresh();
   transferRemaining(initialBalance);
 }
 
@@ -96,10 +96,10 @@ export function vote(binaryArgs: StaticArray<u8>): void {
   const args = new Args(binaryArgs);
   const vote = args.nextSerializable<Vote>().expect('Vote is required');
 
-  _ensureAutoRefresh();
 
   _vote(vote);
 
+  _ensureAutoRefresh();
   transferRemaining(initialBalance);
 }
 

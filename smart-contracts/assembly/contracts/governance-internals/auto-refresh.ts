@@ -1,5 +1,5 @@
 import { u64ToBytes, bytesToU64, boolToByte, stringToBytes } from "@massalabs/as-types";
-import { Storage, Context, currentPeriod, getKeys, asyncCall, Slot } from "@massalabs/massa-as-sdk";
+import { Storage, Context, currentPeriod, getKeys, asyncCall, Slot, generateEvent } from "@massalabs/massa-as-sdk";
 import { _refresh } from ".";
 import { statusKeyPrefix, votingStatus, discussionStatus } from "./keys";
 // Auto refresh constants
@@ -7,6 +7,10 @@ export const AUTO_REFRESH_STATUS_KEY = stringToBytes('auto_refresh');
 export const LAST_REFETCH_PERIOD_TAG = stringToBytes('last_refetch_timestamp');
 export const START_REFETCH_PERIOD = 20;
 export const LIMIT_REFETCH_PERIOD = 40;
+
+const MAX_ASYNC_CALL_GAS = 1_000_000_000;
+const MAX_ASYNC_CALL_FEE = 1_000;
+
 /**
  * Refreshes the status of proposals based on the current timestamp.
  * @remarks This function moves proposals from discussion to votingStatus status
@@ -29,10 +33,16 @@ export function _autoRefreshCall(): void {
         statusKeyPrefix(discussionStatus),
     );
 
+    generateEvent('Voting status proposals keys: ' + votingStatusProposalsKeys.length.toString());
+    generateEvent('Discussion status proposals keys: ' + discussionStatusProposalsKeys.length.toString());
+
+    // If no proposals to refresh, we can stop the ASC
+    // It will be restarted when a proposal is created
     if (
         votingStatusProposalsKeys.length === 0 &&
         discussionStatusProposalsKeys.length === 0
     ) {
+        generateEvent('No proposals to refresh, stopping ASC');
         return;
     }
 
@@ -41,8 +51,8 @@ export function _autoRefreshCall(): void {
         'runAutoRefresh', // functionName
         new Slot(validityStartPeriod, validityStartThread), // startSlot
         new Slot(validityEndPeriod, validityEndThread), // endSlot
-        1_000_000_000, // maxGas
-        1_000, // rawFee
+        MAX_ASYNC_CALL_GAS, // maxGas
+        MAX_ASYNC_CALL_FEE, // rawFee
     );
 
     Storage.set(LAST_REFETCH_PERIOD_TAG, u64ToBytes(Context.currentPeriod()));
@@ -56,6 +66,7 @@ export function _ensureAutoRefresh(): void {
     const currentPeriod = Context.currentPeriod();
 
     if (!Storage.has(LAST_REFETCH_PERIOD_TAG)) {
+        generateEvent('No last refetch period, calling runAutoRefresh');
         _autoRefreshCall();
         return;
     }
@@ -64,8 +75,11 @@ export function _ensureAutoRefresh(): void {
 
     // Restart if beyond tolerance window
     if (currentPeriod > lastPeriod + LIMIT_REFETCH_PERIOD + 1) {
+        generateEvent('Restarting ASC because of old last refetch period');
         _autoRefreshCall();
     }
+
+    generateEvent('ASC is running or limit period is not reached');
 }
 
 /**

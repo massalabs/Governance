@@ -2,11 +2,7 @@ import { getProvider } from '../utils';
 import { Governance } from './wrapper/Governance';
 
 const provider = await getProvider();
-
 const governanceSystem = await Governance.init(provider);
-
-const counter = await governanceSystem.getCounter();
-console.log('Counter:', counter);
 
 // const op = await governanceSystem.runAutoRefresh();
 // const status = await op.waitSpeculativeExecution();
@@ -21,13 +17,19 @@ console.log('Counter:', counter);
 setInterval(async () => {
   const events = await governanceSystem.provider.getEvents({
     smartContractAddress: governanceSystem.address,
-    callerAddress: governanceSystem.address,
   });
-  console.log('Events:', events.length);
 
+  console.log('Events:', events.length);
+  const callStack = events[events.length - 1].context.call_stack;
+  console.log('Call stack:', callStack);
   const data = events[events.length - 1].data;
   // data should look like this: [Refetch called] from async message at 1716873600
   console.log(data);
+
+  // log last 5 events
+  console.log('Last 5 events:', events.slice(-5));
+
+
   const timestamp = data.split('at ')[1];
   // convert to date
   const date = new Date(parseInt(timestamp));
