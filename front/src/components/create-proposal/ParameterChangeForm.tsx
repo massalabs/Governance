@@ -40,12 +40,12 @@ export function ParameterChangeForm({
     updateJsonInput(newChanges);
   };
 
-  const handleIsObjectToggle = (index: number, checked: boolean) => {
-    const newChanges = [...changes];
-    newChanges[index] = { ...newChanges[index], isObjectValue: checked };
-    setChanges(newChanges);
-    updateJsonInput(newChanges);
-  };
+  // const handleIsObjectToggle = (index: number, checked: boolean) => {
+  //   const newChanges = [...changes];
+  //   newChanges[index] = { ...newChanges[index], isObjectValue: checked };
+  //   setChanges(newChanges);
+  //   updateJsonInput(newChanges);
+  // };
 
   const addChange = () => {
     setChanges([

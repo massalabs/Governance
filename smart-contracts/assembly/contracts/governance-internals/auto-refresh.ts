@@ -17,8 +17,7 @@ const MAX_ASYNC_CALL_FEE = 1_000;
  * and from votingStatus to accepted or rejected status.
  */
 export function _autoRefreshCall(): void {
-    _assertAutoRefreshStatus();
-
+    _assertAutoRefreshAllowed();
     _refresh();
 
     const currentPeriodStart = currentPeriod();
@@ -43,6 +42,7 @@ export function _autoRefreshCall(): void {
         discussionStatusProposalsKeys.length === 0
     ) {
         generateEvent('No proposals to refresh, stopping ASC');
+        Storage.set(LAST_REFETCH_PERIOD_TAG, u64ToBytes(0));
         return;
     }
 
@@ -65,11 +65,6 @@ export function _autoRefreshCall(): void {
 export function _ensureAutoRefresh(): void {
     const currentPeriod = Context.currentPeriod();
 
-    if (!Storage.has(LAST_REFETCH_PERIOD_TAG)) {
-        generateEvent('No last refetch period, calling runAutoRefresh');
-        _autoRefreshCall();
-        return;
-    }
 
     const lastPeriod = bytesToU64(Storage.get(LAST_REFETCH_PERIOD_TAG));
 
@@ -85,7 +80,7 @@ export function _ensureAutoRefresh(): void {
 /**
  * Asserts that the auto refresh is enabled
  */
-export function _assertAutoRefreshStatus(): void {
+export function _assertAutoRefreshAllowed(): void {
     const autoRefreshStatus = Storage.get(AUTO_REFRESH_STATUS_KEY);
     assert(autoRefreshStatus, 'Auto refresh is disabled');
 }

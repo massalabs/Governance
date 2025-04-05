@@ -64,9 +64,9 @@ const statusConfigs: Record<
 export function ProposalStatus({ proposal }: ProposalStatusProps) {
   const [timeLeft, setTimeLeft] = useState<string>("");
   const { endDate, isVotingEnded, nextTransitionTime } = useMemo(() => {
-    const start = new Date(
-      Number(proposal.creationTimestamp) + DISCUSSION_PERIOD
-    );
+    // const start = new Date(
+    //   Number(proposal.creationTimestamp) + DISCUSSION_PERIOD
+    // );
     const end = new Date(
       Number(proposal.creationTimestamp) + DISCUSSION_PERIOD + VOTING_PERIOD
     );
