@@ -17,11 +17,11 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
   const displayStatus = getDisplayStatus(proposal);
 
   return (
-    <div className="bg-secondary dark:bg-darkCard border border-border dark:border-darkBorder p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group">
-      <Link to={`/proposals/${proposal.id}`} className="block space-y-4">
+    <div className="bg-secondary dark:bg-darkCard border border-border dark:border-darkBorder p-8 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group">
+      <Link to={`/proposals/${proposal.id}`} className="block space-y-5">
         {/* Header with title and status */}
         <div className="flex justify-between items-start gap-3">
-          <h3 className="text-xl font-semibold text-f-primary dark:text-darkText group-hover:text-brand dark:group-hover:text-darkAccent mas-h2 line-clamp-1 flex-1">
+          <h3 className="text-xl font-semibold text-f-primary dark:text-darkText group-hover:text-brand dark:group-hover:text-darkAccent mas-h2 line-clamp-2 flex-1">
             {proposal.title}
           </h3>
           <span

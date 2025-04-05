@@ -39,12 +39,6 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
     };
   }, [proposal.creationTimestamp, proposal.status]);
 
-  const isDiscussionEnded = useMemo(() => {
-    if (!proposal.creationTimestamp) return false;
-    const discussionEndTime = Number(proposal.creationTimestamp) + DISCUSSION_PERIOD;
-    return new Date().getTime() > discussionEndTime;
-  }, [proposal.creationTimestamp]);
-
   const statusConfig = getStatusConfig(proposal.status);
   const displayStatus = getDisplayStatus(proposal);
 

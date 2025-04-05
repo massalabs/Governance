@@ -1,7 +1,6 @@
 import { useEffect, useCallback } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useUIStore } from "../store/useUIStore";
-import { useAccountStore } from "@massalabs/react-ui-kit";
 import ThemeToggle from "./ThemeToggle";
 import { ConnectButton } from "./connect-wallet-popup";
 import { NetworkIndicator } from "./NetworkIndicator";
