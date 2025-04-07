@@ -3,6 +3,7 @@ import { useMasogTotalSupply } from "../../hooks/queries/useMasogData";
 import { useSingleProposalVotes } from "../../hooks/queries/useProposalVotes";
 import { useMemo } from "react";
 import { TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE } from "../../config";
+import Big from 'big.js';
 
 interface VoteProgressProps {
   proposal: FormattedProposal;
@@ -38,6 +39,7 @@ const VOTE_COLORS = {
 } as const;
 
 function VoteBar({ label, percentage, votes, color }: VoteBarProps) {
+
   const formatPercentage = (value: number) => {
     if (value === 0) return "0";
     if (value < 0.001) return "<0.001";
@@ -159,7 +161,17 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
   // Calculate percentages relative to total supply with proper decimal handling
   const calculateSupplyPercentage = (votes: bigint) => {
     if (!totalSupply) return 0;
-    return Number((votes * 100n) / totalSupply);
+
+    // Convert BigInt to string to avoid precision loss
+    const votesStr = votes.toString();
+    const totalSupplyStr = totalSupply.toString();
+
+    // Use big.js for precise decimal arithmetic
+    const votesBig = new Big(votesStr);
+    const totalSupplyBig = new Big(totalSupplyStr);
+
+    // Calculate percentage with high precision
+    return votesBig.div(totalSupplyBig).times(100).toNumber();
   };
 
   const yesPercentage = calculateSupplyPercentage(positiveVoteVolume);
@@ -192,7 +204,7 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
       {/* Estimation notice - only shown during voting status */}
       {proposal.status === "VOTING" && (
         <div className="text-xs text-amber-400 dark:text-amber-400 bg-amber-400/10 dark:bg-amber-400/10 p-2 rounded-md">
-          <p>This is an estimation only. The final result will be computed at the end of the voting session. As the MASOG supply will evolve until then, this is just an approximation.</p>
+          <p>Note: This is an estimated result only. The final outcome will be calculated at the voting session's end. As the MASOG supply may change until then, these figures are approximate and subject to change.</p>
         </div>
       )}
 
