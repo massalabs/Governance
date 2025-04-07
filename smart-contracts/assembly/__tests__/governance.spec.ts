@@ -49,14 +49,9 @@ import {
   mockMasogTotalSupply,
   mockCheckLastAutoRefresh,
 } from './utils';
-import {
-  DISCUSSION_PERIOD,
-  MIN_PROPOSAL_MAS_AMOUNT,
-  MIN_PROPOSAL_MASOG_AMOUNT,
-  MIN_VOTE_MASOG_AMOUNT,
-  VOTING_PERIOD,
-} from '../contracts/governance-internals';
-import { LAST_REFETCH_PERIOD_TAG } from '../contracts/governance-internals/auto-refresh';
+import { MIN_PROPOSAL_MASOG_AMOUNT, MIN_PROPOSAL_MAS_AMOUNT, MIN_VOTE_MASOG_AMOUNT, DISCUSSION_PERIOD, VOTING_PERIOD, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE } from '../contracts/governance-internals/config';
+import { ASC_END_PERIOD } from '../contracts/governance-internals/auto-refresh';
+
 
 const governanceOwner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
 const masOgOwner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
@@ -498,7 +493,7 @@ describe('Refresh', () => {
   test('Refresh transitions VOTING to REJECTED after voting period without majority', () => {
     const baseTime = u64(1000000);
     const totalSupply = u64(1000_000_000_000);
-    setupProposal(1, votingStatus, baseTime, totalSupply / 2); // Exactly 50%
+    setupProposal(1, votingStatus, baseTime, totalSupply * TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE / 100); // Exactly at threshold
     mockMasogTotalSupply(totalSupply);
     mockTimestamp(baseTime + DISCUSSION_PERIOD + VOTING_PERIOD + 1); // 15:00.001
     refresh([]);
@@ -593,7 +588,7 @@ function setupContracts(): void {
   setCallStack(governanceOwner, governanceContractAddress);
   governanceConstructor([]);
   mockBalance(governanceContractAddress, MIN_PROPOSAL_MAS_AMOUNT);
-  Storage.set(LAST_REFETCH_PERIOD_TAG, u64ToBytes(1234567890));
+  Storage.set(ASC_END_PERIOD, u64ToBytes(1234567890));
 
   // Set MASOG contract address
   setMasOgContract(new Args().add<string>(masOgAddress).serialize());

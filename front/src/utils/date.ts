@@ -1,10 +1,3 @@
-// export const DISCUSSION_PERIOD = 3 * 7 * 24 * 60 * 60 * 1000; // 3 weeks in milliseconds
-// export const VOTING_PERIOD = 4 * 7 * 24 * 60 * 60 * 1000; // 4 weeks in milliseconds
-// TODO: Change this when tests done
-export const DISCUSSION_PERIOD = 10 * 60 * 1000 // 5 minutes
-export const VOTING_PERIOD = 10 * 60 * 1000 // 5 minutes
-export const MIN_VOTING_BALANCE = 1n; // 1 MASOG
-
 export const formatDate = (date: Date) => {
   return date.toLocaleDateString(undefined, {
     day: "2-digit",

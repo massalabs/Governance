@@ -10,11 +10,14 @@ import {
   strToBytes,
   U64,
   I32,
+  bytesToStr,
 } from "@massalabs/massa-web3";
 import { Proposal } from "../serializable/Proposal";
 import { Vote } from "../serializable/Vote";
 import { getContracts } from "../config";
 import { I32_t } from "@massalabs/massa-web3/dist/esm/basicElements/serializers/number/i32";
+import { MasOg } from "./MasOg";
+import { VoteDetails } from "@/types/governance";
 
 export type Upgradable = SmartContract & {
   upgradeSC: (
@@ -159,6 +162,54 @@ export class Governance extends SmartContract implements Upgradable {
     });
   }
 
+  async getVotesPower(proposalId: bigint, final = false): Promise<VoteDetails[]> {
+    try {
+      // Get storage keys for votes
+      const voteKeyPrefix = new Uint8Array([
+        ...UPDATE_VOTE_TAG,
+        ...U64.toBytes(proposalId)
+      ]);
+
+      const keys = await this.provider.getStorageKeys(
+        this.address,
+        voteKeyPrefix,
+        final
+      );
+
+      // Extract addresses from keys
+      const addressOffset = UPDATE_VOTE_TAG.length + U64.toBytes(proposalId).length;
+      const addresses = keys.map(key => key.slice(addressOffset));
+
+      // Fetch storage values
+      const values = await this.provider.readStorage(this.address, keys, final);
+
+      // Map addresses to their vote values
+      const votes: VoteDetails[] = values.map((value, index) => {
+        if (!value) {
+          throw new Error(`Missing value for address at index ${index}`);
+        }
+        return {
+          address: bytesToStr(addresses[index]),
+          value: I32.fromBytes(value),
+          balance: 0n // Initialize balance
+        };
+      });
+
+      // Get MasOg balances for voting power
+      const masog = await MasOg.init(this.provider);
+      const userBalances = await masog.balancesOf(votes.map(vote => vote.address));
+
+      // Combine votes with their balances
+      return votes.map(vote => {
+        const balance = userBalances.find(b => b.address === vote.address)?.balance ?? 0n;
+        return { ...vote, balance };
+      });
+
+    } catch (error) {
+      console.error(`Failed to get votes power for proposal ${proposalId}:`, error);
+      throw error; // Re-throw to allow caller to handle
+    }
+  }
   /**
    * Gets all votes for a specific address
    * @param address - The address to get votes for

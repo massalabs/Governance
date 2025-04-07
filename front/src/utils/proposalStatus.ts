@@ -1,5 +1,5 @@
+import { DISCUSSION_PERIOD, VOTING_PERIOD } from "@/config";
 import { ProposalStatus } from "../types/governance";
-import { DISCUSSION_PERIOD, VOTING_PERIOD } from "./date";
 
 export interface StatusConfig {
     label: string;
@@ -25,8 +25,8 @@ export const getDisplayStatus = (
     proposal: { status: ProposalStatus; creationTimestamp: bigint }
 ): string => {
     const currentTime = new Date().getTime();
-    const discussionEndTime = Number(proposal.creationTimestamp) + DISCUSSION_PERIOD;
-    const votingEndTime = discussionEndTime + VOTING_PERIOD;
+    const discussionEndTime = Number(proposal.creationTimestamp) + Number(DISCUSSION_PERIOD);
+    const votingEndTime = discussionEndTime + Number(VOTING_PERIOD);
 
     const isDiscussionEnded = currentTime > discussionEndTime;
     const isVotingEnded = currentTime > votingEndTime;

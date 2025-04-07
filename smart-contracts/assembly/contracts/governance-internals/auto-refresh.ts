@@ -1,12 +1,13 @@
-import { u64ToBytes, bytesToU64, boolToByte, stringToBytes } from "@massalabs/as-types";
+import { u64ToBytes, bytesToU64, boolToByte, stringToBytes, byteToBool } from "@massalabs/as-types";
 import { Storage, Context, currentPeriod, getKeys, asyncCall, Slot, generateEvent } from "@massalabs/massa-as-sdk";
 import { _refresh } from ".";
 import { statusKeyPrefix, votingStatus, discussionStatus } from "./keys";
 // Auto refresh constants
 export const AUTO_REFRESH_STATUS_KEY = stringToBytes('auto_refresh');
-export const LAST_REFETCH_PERIOD_TAG = stringToBytes('last_refetch_timestamp');
 export const START_REFETCH_PERIOD = 20;
 export const LIMIT_REFETCH_PERIOD = 40;
+export const ASC_START_PERIOD = stringToBytes('ASC_START_PERIOD');
+export const ASC_END_PERIOD = stringToBytes('ASC_END_PERIOD');
 
 const MAX_ASYNC_CALL_GAS = 1_000_000_000;
 const MAX_ASYNC_CALL_FEE = 1_000;
@@ -17,8 +18,10 @@ const MAX_ASYNC_CALL_FEE = 1_000;
  * and from votingStatus to accepted or rejected status.
  */
 export function _autoRefreshCall(): void {
-    _assertAutoRefreshAllowed();
-    _refresh();
+    if (!byteToBool(Storage.get(AUTO_REFRESH_STATUS_KEY))) {
+        generateEvent("ASC is not allowed")
+        return
+    }
 
     const currentPeriodStart = currentPeriod();
     const validityStartPeriod = currentPeriodStart + START_REFETCH_PERIOD;
@@ -32,9 +35,6 @@ export function _autoRefreshCall(): void {
         statusKeyPrefix(discussionStatus),
     );
 
-    generateEvent('Voting status proposals keys: ' + votingStatusProposalsKeys.length.toString());
-    generateEvent('Discussion status proposals keys: ' + discussionStatusProposalsKeys.length.toString());
-
     // If no proposals to refresh, we can stop the ASC
     // It will be restarted when a proposal is created
     if (
@@ -42,7 +42,8 @@ export function _autoRefreshCall(): void {
         discussionStatusProposalsKeys.length === 0
     ) {
         generateEvent('No proposals to refresh, stopping ASC');
-        Storage.set(LAST_REFETCH_PERIOD_TAG, u64ToBytes(0));
+        Storage.set(ASC_START_PERIOD, u64ToBytes(0));
+        Storage.set(ASC_END_PERIOD, u64ToBytes(0));
         return;
     }
 
@@ -55,7 +56,9 @@ export function _autoRefreshCall(): void {
         MAX_ASYNC_CALL_FEE, // rawFee
     );
 
-    Storage.set(LAST_REFETCH_PERIOD_TAG, u64ToBytes(Context.currentPeriod()));
+    Storage.set(ASC_END_PERIOD, u64ToBytes(validityEndPeriod));
+
+    generateEvent(`ASC validity period: ${validityStartPeriod} to ${validityEndPeriod}`);
 }
 
 /**
@@ -64,23 +67,14 @@ export function _autoRefreshCall(): void {
  */
 export function _ensureAutoRefresh(): void {
     const currentPeriod = Context.currentPeriod();
+    // const lastStart = bytesToU64(Storage.get(ASC_START_PERIOD));
+    const lastEnd = bytesToU64(Storage.get(ASC_END_PERIOD));
 
-
-    const lastPeriod = bytesToU64(Storage.get(LAST_REFETCH_PERIOD_TAG));
-
-    // Restart if beyond tolerance window
-    if (currentPeriod > lastPeriod + LIMIT_REFETCH_PERIOD + 1) {
-        generateEvent('Restarting ASC because of old last refetch period');
+    if (currentPeriod > lastEnd) {
+        // Expired ASC: refresh and restart
         _autoRefreshCall();
+    } else {
+        generateEvent(`ASC is still running, current period: ${currentPeriod}, last end: ${lastEnd}`);
     }
-
-    generateEvent('ASC is running or limit period is not reached');
 }
 
-/**
- * Asserts that the auto refresh is enabled
- */
-export function _assertAutoRefreshAllowed(): void {
-    const autoRefreshStatus = Storage.get(AUTO_REFRESH_STATUS_KEY);
-    assert(autoRefreshStatus, 'Auto refresh is disabled');
-}

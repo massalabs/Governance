@@ -5,18 +5,14 @@ import {
   setBytecode,
   balance,
   assertIsSmartContract,
-  generateEvent,
 } from '@massalabs/massa-as-sdk';
 import { Args, boolToByte, u64ToBytes } from '@massalabs/as-types';
 import {
   _onlyOwner,
   _setOwner,
-  OWNER_KEY,
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
 import {
-  proposalKey,
   UPDATE_PROPOSAL_COUNTER_TAG,
-  votingStatus,
 } from './governance-internals/keys';
 import { MASOG_KEY } from './rolls-oracle';
 import { Proposal } from './serializable/proposal';
@@ -27,7 +23,7 @@ import {
   _vote,
   _deleteProposal,
 } from './governance-internals';
-import { _ensureAutoRefresh, _autoRefreshCall, AUTO_REFRESH_STATUS_KEY } from './governance-internals/auto-refresh';
+import { _ensureAutoRefresh, _autoRefreshCall, AUTO_REFRESH_STATUS_KEY, ASC_END_PERIOD, ASC_START_PERIOD } from './governance-internals/auto-refresh';
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.
@@ -39,6 +35,8 @@ export function constructor(_: StaticArray<u8>): void {
 
   Storage.set(UPDATE_PROPOSAL_COUNTER_TAG, u64ToBytes(0));
   Storage.set(AUTO_REFRESH_STATUS_KEY, boolToByte(true));
+  Storage.set(ASC_START_PERIOD, u64ToBytes(0));
+  Storage.set(ASC_END_PERIOD, u64ToBytes(0));
 
   transferRemaining(Context.transferredCoins());
 }
@@ -77,16 +75,6 @@ export function submitUpdateProposal(binaryArgs: StaticArray<u8>): void {
 }
 
 /**
- * Refreshes proposal statuses in batches.
- * @param binaryArgs - Serialized arguments: startId (u64), maxProposals (u32).
- */
-export function refresh(_: StaticArray<u8>): void {
-  const initialBalance = balance();
-  _refresh();
-  transferRemaining(initialBalance);
-}
-
-/**
  * Casts a vote on a proposal.
  * @param binaryArgs - Serialized arguments: proposalId (u64), vote (i32).
  */
@@ -96,12 +84,36 @@ export function vote(binaryArgs: StaticArray<u8>): void {
   const args = new Args(binaryArgs);
   const vote = args.nextSerializable<Vote>().expect('Vote is required');
 
-
   _vote(vote);
 
   _ensureAutoRefresh();
+
   transferRemaining(initialBalance);
 }
+
+/**
+ * Refreshes proposal statuses in batches.
+ * @param binaryArgs - Serialized arguments: startId (u64), maxProposals (u32).
+ */
+export function refresh(_: StaticArray<u8>): void {
+  const initialBalance = balance();
+
+  _refresh();
+  _ensureAutoRefresh();
+
+  transferRemaining(initialBalance);
+}
+
+/**
+ * Run the auto refresh manually
+ */
+export function runAutoRefresh(): void {
+  assert(Context.caller() === Context.callee(), 'Caller must be the callee');
+  _refresh();
+  _autoRefreshCall();
+}
+
+
 
 /**
  * Upgrade the smart contract bytecode
@@ -109,7 +121,9 @@ export function vote(binaryArgs: StaticArray<u8>): void {
 export function upgradeSC(bytecode: StaticArray<u8>): void {
   _onlyOwner();
   const initialBalance = balance();
+
   setBytecode(bytecode);
+
   transferRemaining(initialBalance);
 }
 
@@ -119,7 +133,7 @@ export function upgradeSC(bytecode: StaticArray<u8>): void {
  * @param binaryArgs - Serialized proposal ID (u64).
  */
 export function deleteProposal(binaryArgs: StaticArray<u8>): void {
-  onlyAllowedAddresses();
+  onlyAllowedAddresses()
 
   const initialBalance = balance();
 
@@ -131,24 +145,8 @@ export function deleteProposal(binaryArgs: StaticArray<u8>): void {
   transferRemaining(initialBalance);
 }
 
-/**
- * Runs the auto refresh manually
- * 
- * @remarks This function is used in case the ASC is not running
- */
-export function runAutoRefresh(): void {
-  assert(
-    Context.caller() === Context.callee() ||
-    Context.caller().toString() === Storage.get(OWNER_KEY),
-    'Caller must be the callee or the owner',
-  );
 
-  _autoRefreshCall();
 
-  generateEvent(
-    `[Refetch called] from async message at ${Context.timestamp().toString()}`,
-  );
-}
 
 /**
  * Allow the owner ot allow or stop the auto refresh
@@ -167,36 +165,15 @@ export function manageAutoRefresh(binaryArgs: StaticArray<u8>): void {
 /*                         TEMP FUNCTIONS TO REMOVE                           */
 /* -------------------------------------------------------------------------- */
 
-// TODO: remove this
-const allowedAddresses = [
-  'AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5',
-  'AU12FUbb8snr7qTEzSdTVH8tbmEouHydQTUAKDXY9LDwkdYMNBVGF',
-];
 
-// TODO: remove this function
-export function nextStatus(binaryArgs: StaticArray<u8>): void {
-  onlyAllowedAddresses();
-  // Update the status of a proposal to next status
-  const args = new Args(binaryArgs);
-  const proposalId = args.nextU64().expect('Proposal ID is required');
-
-  // get Proposal
-  assert(Storage.has(proposalKey(proposalId)), 'Proposal does not exist');
-  const proposal = Proposal.getById(proposalId);
-  proposal.setStatus(votingStatus).save();
-}
-// TODO: remove this function
 function onlyAllowedAddresses(): void {
-  assert(Storage.has(OWNER_KEY), 'Owner is not set');
-  const owner = Storage.get(OWNER_KEY);
-
-  const addresses = allowedAddresses;
-  addresses.push(owner);
-
-  assert(
-    addresses.includes(Context.caller().toString()),
-    'Caller is not allowed to call this function',
-  );
+  const allowedAddresses = [
+    'AU1tpPDs8KULWUWFssVzyBcyV2otP2L1EGf2hNzwvDy4bh5orMqM',
+    'AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5',
+    'AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX',
+    'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq'
+  ];
+  assert(allowedAddresses.includes(Context.caller().toString()), 'Address is not allowed');
 }
 
 /* -------------------------------------------------------------------------- */

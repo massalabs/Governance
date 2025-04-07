@@ -4,7 +4,7 @@ import { governanceKeys } from "../queryKeys/governance";
 import { useUserVotes } from "./useUserVotes";
 import { useMasogTotalSupply } from "./useMasogData";
 import { calculateStats } from "../../utils/governance";
-import { GovernanceData, VoteDetails } from "../../types/governance";
+import { GovernanceData } from "../../types/governance";
 import { useCallback } from "react";
 import { useProposals } from "./useProposals";
 import { useUserBalance } from "./useUserBalance";
@@ -45,43 +45,6 @@ export function useGovernanceData(): GovernanceData {
   const { data: userVotes = {}, isLoading: loadingUserVotes } =
     useUserVotes(proposals);
 
-  // Fetch all proposal votes with details
-  const { data: proposalVotesMap = {}, isLoading: loadingProposalVotes } =
-    useQuery({
-      queryKey: governanceKeys.allProposalVotes(),
-      queryFn: async () => {
-        if (!governancePublic || !proposals.length) {
-          throw new Error("Missing dependencies for fetching proposal votes");
-        }
-
-        try {
-          const votesMap: Record<string, VoteDetails[]> = {};
-
-          // Get all votes for each proposal
-          for (const proposal of proposals) {
-            const votes = await governancePublic.getVotes(proposal.id);
-
-            // Create vote details for each vote
-            const voteDetails: VoteDetails[] = votes.map((voteValue) => ({
-              value: BigInt(voteValue),
-              address: "Unknown", // We don't have the voter address in the current implementation
-            }));
-
-            votesMap[proposal.id.toString()] = voteDetails;
-          }
-
-          return votesMap;
-        } catch (error) {
-          console.error("[Error] Error fetching proposal votes:", error);
-          throw error;
-        }
-      },
-      refetchInterval: 5000,
-      retry: 3,
-      retryDelay: 1000,
-      enabled: !!governancePublic && proposals.length > 0,
-    });
-
   // Calculate stats
   const { data: totalSupply } = useMasogTotalSupply();
   const stats = calculateStats(
@@ -101,13 +64,12 @@ export function useGovernanceData(): GovernanceData {
     stats,
     userMasogBalance,
     userVotes,
-    proposalVotesMap,
+    proposalVotesMap: {}, // Empty object as this is now handled separately
     loading:
       loadingProposals ||
       loadingTotalVotes ||
       loadingBalance ||
-      loadingUserVotes ||
-      loadingProposalVotes,
+      loadingUserVotes,
     refresh,
   };
 }

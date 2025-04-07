@@ -12,8 +12,8 @@ import { VoteAction } from "../components/proposals/details/VoteAction";
 import { AdminActions } from "../components/proposals/details/AdminActions";
 import { ProposalStatus } from "../components/proposals/details/ProposalStatus";
 import { useAccountStore } from "@massalabs/react-ui-kit";
-import { DISCUSSION_PERIOD, MIN_VOTING_BALANCE, VOTING_PERIOD } from "@/utils/date";
 import { useMemo } from "react";
+import { DISCUSSION_PERIOD, MIN_VOTE_MASOG_AMOUNT, VOTING_PERIOD } from "@/config";
 
 const BackButton = () => (
   <Link
@@ -48,8 +48,8 @@ export default function ProposalDetails() {
     if (!proposal) return { canShowVoting: false, hasVoted: false, canVote: false, isVotingEnded: false };
     const isVoting = proposal.status === "VOTING";
     const hasVoted = !!userVotes[proposal.id.toString()];
-    const canVote = (userMasogBalance ?? 0n) >= MIN_VOTING_BALANCE;
-    const isVotingEnded = new Date().getTime() > Number(proposal.creationTimestamp) + DISCUSSION_PERIOD + VOTING_PERIOD;
+    const canVote = (userMasogBalance ?? 0n) >= MIN_VOTE_MASOG_AMOUNT;
+    const isVotingEnded = new Date().getTime() > Number(proposal.creationTimestamp) + Number(DISCUSSION_PERIOD) + Number(VOTING_PERIOD);
     return { canShowVoting: isVoting && !isVotingEnded, hasVoted, canVote, isVotingEnded };
   }, [proposal, userMasogBalance, userVotes]);
 
@@ -95,18 +95,20 @@ export default function ProposalDetails() {
               <ConnectWalletPrompt />
             )
           )}
-          <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
-            <VoteProgress
-              proposal={{
-                ...proposal,
-                positiveVoteVolume: proposal.positiveVoteVolume,
-                negativeVoteVolume: proposal.negativeVoteVolume,
-                blankVoteVolume: proposal.blankVoteVolume,
-              }}
-            />
-          </div>
+          {proposal.status !== "DISCUSSION" && (
+            <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
+              <VoteProgress
+                proposal={{
+                  ...proposal,
+                  positiveVoteVolume: proposal.positiveVoteVolume,
+                  negativeVoteVolume: proposal.negativeVoteVolume,
+                  blankVoteVolume: proposal.blankVoteVolume,
+                }}
+              />
+            </div>
+          )}
           {connectedAccount && (
-            <AdminActions proposalId={proposal.id} status={proposal.status} />
+            <AdminActions proposalId={proposal.id} />
           )}
         </div>
       </div>

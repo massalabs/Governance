@@ -17,9 +17,6 @@ import { WalletNotConnected } from "@/components/wallet-not-connected";
 import { Divider } from "@/components/ui/Divider";
 import { HeaderSection } from "@/components/create-proposal/HeaderSection";
 
-
-
-
 export default function CreateProposal() {
   const { connectedAccount } = useAccountStore();
   const [formData, setFormData] = useState<CreateProposalParams>({

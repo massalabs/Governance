@@ -1,5 +1,9 @@
 import { FormattedProposal } from "../../types/governance";
 import { useMasogTotalSupply } from "../../hooks/queries/useMasogData";
+import { useSingleProposalVotes } from "../../hooks/queries/useProposalVotes";
+import { useMemo } from "react";
+import { TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE } from "../../config";
+import Big from 'big.js';
 
 interface VoteProgressProps {
   proposal: FormattedProposal;
@@ -35,6 +39,7 @@ const VOTE_COLORS = {
 } as const;
 
 function VoteBar({ label, percentage, votes, color }: VoteBarProps) {
+
   const formatPercentage = (value: number) => {
     if (value === 0) return "0";
     if (value < 0.001) return "<0.001";
@@ -112,40 +117,75 @@ function AcceptanceThreshold({
 
 export function VoteProgress({ proposal }: VoteProgressProps) {
   const { data: totalSupply } = useMasogTotalSupply();
+  const { data: proposalVotes = [] } = useSingleProposalVotes(proposal.id);
 
-  if (!totalSupply) return null;
+  // Calculate vote volumes from individual votes
+  const calculatedVoteVolumes = useMemo(() => {
+    if (!totalSupply) return { positive: 0n, negative: 0n, blank: 0n };
 
-  // Calculate required score (50% of total masog supply)
-  const requiredScore = totalSupply / 2n + 1n;
+    let positive = 0n;
+    let negative = 0n;
+    let blank = 0n;
+
+    proposalVotes.forEach(vote => {
+      // Convert vote.value to BigInt if it's not already
+      const voteValue = typeof vote.value === 'bigint' ? vote.value : BigInt(vote.value);
+
+      if (voteValue === 1n) {
+        positive += vote.balance;
+      } else if (voteValue === -1n) {
+        negative += vote.balance;
+      } else {
+        blank += vote.balance;
+      }
+    });
+
+    return { positive, negative, blank };
+  }, [proposalVotes]);
+
+  // Use proposal's vote volumes when voting has ended, otherwise use calculated volumes
+  const isVotingEnded = proposal.status === "ACCEPTED" || proposal.status === "REJECTED";
+  const positiveVoteVolume = isVotingEnded ? proposal.positiveVoteVolume : calculatedVoteVolumes.positive;
+  const negativeVoteVolume = isVotingEnded ? proposal.negativeVoteVolume : calculatedVoteVolumes.negative;
+  const blankVoteVolume = isVotingEnded ? proposal.blankVoteVolume : calculatedVoteVolumes.blank;
 
   // Calculate total votes
   const totalVotes =
-    proposal.positiveVoteVolume +
-    proposal.negativeVoteVolume +
-    proposal.blankVoteVolume;
+    positiveVoteVolume +
+    negativeVoteVolume +
+    blankVoteVolume;
 
   // Calculate abstain votes (total supply - total votes)
-  const abstainVotes = totalSupply - totalVotes;
+  const abstainVotes = totalSupply ? totalSupply - totalVotes : 0n;
 
   // Calculate percentages relative to total supply with proper decimal handling
   const calculateSupplyPercentage = (votes: bigint) => {
-    if (votes === 0n) return 0;
-    const percentage = (Number(votes) / Number(totalSupply)) * 100;
-    return percentage;
+    if (!totalSupply) return 0;
+
+    // Convert BigInt to string to avoid precision loss
+    const votesStr = votes.toString();
+    const totalSupplyStr = totalSupply.toString();
+
+    // Use big.js for precise decimal arithmetic
+    const votesBig = new Big(votesStr);
+    const totalSupplyBig = new Big(totalSupplyStr);
+
+    // Calculate percentage with high precision
+    return votesBig.div(totalSupplyBig).times(100).toNumber();
   };
 
-  const yesPercentage = calculateSupplyPercentage(proposal.positiveVoteVolume);
-  const noPercentage = calculateSupplyPercentage(proposal.negativeVoteVolume);
-  const blankPercentage = calculateSupplyPercentage(proposal.blankVoteVolume);
+  const yesPercentage = calculateSupplyPercentage(positiveVoteVolume);
+  const noPercentage = calculateSupplyPercentage(negativeVoteVolume);
+  const blankPercentage = calculateSupplyPercentage(blankVoteVolume);
   const abstainPercentage = calculateSupplyPercentage(abstainVotes);
 
   // Calculate threshold percentage based on total supply
-  const thresholdPercentage = Number((requiredScore * 100n) / totalSupply);
+  const thresholdPercentage = TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE;
 
   // Calculate current progress towards threshold
   const currentProgress =
     Number(totalSupply) > 0
-      ? (Number(proposal.positiveVoteVolume) / Number(totalSupply)) * 100
+      ? (Number(positiveVoteVolume) / Number(totalSupply)) * 100
       : 0;
 
   return (
@@ -160,24 +200,32 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
       <div className="text-sm text-f-tertiary dark:text-darkMuted">
         Total supply: {Number(totalSupply).toLocaleString()} MASOG
       </div>
+
+      {/* Estimation notice - only shown during voting status */}
+      {proposal.status === "VOTING" && (
+        <div className="text-xs text-amber-400 dark:text-amber-400 bg-amber-400/10 dark:bg-amber-400/10 p-2 rounded-md">
+          <p>Note: This is an estimated result only. The final outcome will be calculated at the voting session's end. As the MASOG supply may change until then, these figures are approximate and subject to change.</p>
+        </div>
+      )}
+
       {/* Vote Bars */}
       <div className="space-y-4">
         <VoteBar
           label="Yes"
           percentage={yesPercentage}
-          votes={proposal.positiveVoteVolume}
+          votes={positiveVoteVolume}
           color={VOTE_COLORS.yes}
         />
         <VoteBar
           label="No"
           percentage={noPercentage}
-          votes={proposal.negativeVoteVolume}
+          votes={negativeVoteVolume}
           color={VOTE_COLORS.no}
         />
         <VoteBar
           label="Blank"
           percentage={blankPercentage}
-          votes={proposal.blankVoteVolume}
+          votes={blankVoteVolume}
           color={VOTE_COLORS.abstain}
         />
         <VoteBar
