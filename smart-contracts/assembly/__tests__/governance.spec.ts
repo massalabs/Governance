@@ -49,14 +49,9 @@ import {
   mockMasogTotalSupply,
   mockCheckLastAutoRefresh,
 } from './utils';
-import {
-  DISCUSSION_PERIOD,
-  MIN_PROPOSAL_MAS_AMOUNT,
-  MIN_PROPOSAL_MASOG_AMOUNT,
-  MIN_VOTE_MASOG_AMOUNT,
-  VOTING_PERIOD,
-} from '../contracts/governance-internals';
-import { LAST_REFETCH_PERIOD_TAG } from '../contracts/governance-internals/auto-refresh';
+import { MIN_PROPOSAL_MASOG_AMOUNT, MIN_PROPOSAL_MAS_AMOUNT, MIN_VOTE_MASOG_AMOUNT, DISCUSSION_PERIOD, VOTING_PERIOD } from '../contracts/governance-internals/config';
+import { ASC_END_PERIOD } from '../contracts/governance-internals/auto-refresh';
+
 
 const governanceOwner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
 const masOgOwner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
@@ -593,7 +588,7 @@ function setupContracts(): void {
   setCallStack(governanceOwner, governanceContractAddress);
   governanceConstructor([]);
   mockBalance(governanceContractAddress, MIN_PROPOSAL_MAS_AMOUNT);
-  Storage.set(LAST_REFETCH_PERIOD_TAG, u64ToBytes(1234567890));
+  Storage.set(ASC_END_PERIOD, u64ToBytes(1234567890));
 
   // Set MASOG contract address
   setMasOgContract(new Args().add<string>(masOgAddress).serialize());

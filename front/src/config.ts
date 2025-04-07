@@ -1,4 +1,4 @@
-import { NetworkName } from "@massalabs/massa-web3";
+import { NetworkName, U64 } from "@massalabs/massa-web3";
 
 export const isMainnet = false;
 export const networkName = isMainnet ? NetworkName.Mainnet : NetworkName.Buildnet;
@@ -11,7 +11,7 @@ export const contracts = {
   [NetworkName.Buildnet]: {
     masOg: "AS1RBDkKmg4DNxH4niuUZaec7rXe6qcbmZi8UeTFCBYp9zwxmBrF",
     oracle: "AS1yUyqvqoQhEw1BEm6k2P3gHz1hvr4mLy5BwCujnTdiBNjYLPAs",
-    governance: "AS1jZnxHqt184vzMmGRmmznayoqvXiz1WzCQVfa3VYmUEHN9sMUx",
+    governance: "AS12qAQPHf7JHvZXAFPemSxe7erCiGjX8J24sK4qQNwFLt2C5GToY",
   },
 };
 
@@ -20,3 +20,9 @@ export function getContracts() {
     ? contracts[NetworkName.Mainnet]
     : contracts[NetworkName.Buildnet];
 }
+
+export const MIN_PROPOSAL_MAS_AMOUNT = U64.fromNumber(1000_000_000_000);
+export const MIN_PROPOSAL_MASOG_AMOUNT = U64.fromNumber(1000);
+export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
+export const DISCUSSION_PERIOD = U64.fromNumber(10 * 60 * 1000); // 10 minutes
+export const VOTING_PERIOD = U64.fromNumber(10 * 60 * 1000); // 10 minutes

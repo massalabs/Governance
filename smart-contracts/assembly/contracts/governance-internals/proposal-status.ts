@@ -1,10 +1,11 @@
 import { bytesToString } from "@massalabs/as-types";
 import { Storage } from "@massalabs/massa-as-sdk";
-import { DISCUSSION_PERIOD, VOTING_PERIOD } from ".";
+
 import { Proposal } from "../serializable/proposal";
 import { Vote } from "../serializable/vote";
 import { getMasogTotalSupply, getMasogBalance } from "./helpers";
 import { discussionStatus, votingStatus, voteKey, acceptedStatus, rejectedStatus } from "./keys";
+import { DISCUSSION_PERIOD, VOTING_PERIOD } from "./config";
 
 /**
  * Calculates the timestamp when voting period begins for a proposal.

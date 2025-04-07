@@ -9,7 +9,6 @@ export const LIMIT_REFETCH_PERIOD = 40;
 export const ASC_START_PERIOD = stringToBytes('ASC_START_PERIOD');
 export const ASC_END_PERIOD = stringToBytes('ASC_END_PERIOD');
 
-
 const MAX_ASYNC_CALL_GAS = 1_000_000_000;
 const MAX_ASYNC_CALL_FEE = 1_000;
 

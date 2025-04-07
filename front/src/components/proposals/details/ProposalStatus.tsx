@@ -1,12 +1,8 @@
 import { FormattedProposal } from "@/types/governance";
 import { useEffect, useState, useMemo } from "react";
-import {
-  VOTING_PERIOD,
-  formatDate,
-  calculateTimeLeft,
-  DISCUSSION_PERIOD,
-} from "@/utils/date";
+import { formatDate, calculateTimeLeft } from "@/utils/date";
 import { getStatusConfig, getDisplayStatus } from "@/utils/proposalStatus";
+import { DISCUSSION_PERIOD, VOTING_PERIOD } from "@/config";
 
 interface ProposalStatusProps {
   proposal: FormattedProposal;
@@ -16,16 +12,16 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
   const [timeLeft, setTimeLeft] = useState<string>("");
   const { endDate, isVotingEnded, nextTransitionTime } = useMemo(() => {
     const end = new Date(
-      Number(proposal.creationTimestamp) + DISCUSSION_PERIOD + VOTING_PERIOD
+      Number(proposal.creationTimestamp) + Number(DISCUSSION_PERIOD) + Number(VOTING_PERIOD)
     );
 
     const currentTime = new Date().getTime();
     const votingEndTime =
-      Number(proposal.creationTimestamp) + DISCUSSION_PERIOD + VOTING_PERIOD;
+      Number(proposal.creationTimestamp) + Number(DISCUSSION_PERIOD) + Number(VOTING_PERIOD);
 
     let nextTransition: number;
     if (proposal.status === "DISCUSSION") {
-      nextTransition = Number(proposal.creationTimestamp) + DISCUSSION_PERIOD;
+      nextTransition = Number(proposal.creationTimestamp) + Number(DISCUSSION_PERIOD);
     } else if (proposal.status === "VOTING") {
       nextTransition = votingEndTime;
     } else {
@@ -59,7 +55,7 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
 
   const getNextStatusDate = () => {
     if (proposal.status === "DISCUSSION") {
-      return new Date(Number(proposal.creationTimestamp) + DISCUSSION_PERIOD);
+      return new Date(Number(proposal.creationTimestamp) + Number(DISCUSSION_PERIOD));
     } else if (proposal.status === "VOTING") {
       return endDate;
     }
