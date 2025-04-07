@@ -11,7 +11,7 @@ export const MIN_PROPOSAL_MAS_AMOUNT = u64(1_000_000_000);
 export const MIN_PROPOSAL_MASOG_AMOUNT = u64(1000);
 export const MIN_VOTE_MASOG_AMOUNT = u64(1);
 
-export const DISCUSSION_PERIOD = u64(10 * 60 * 1000); // 10 minutes
-export const VOTING_PERIOD = u64(10 * 60 * 1000); // 10 minutes
+export const DISCUSSION_PERIOD = u64(5 * 60 * 1000); // 10 minutes
+export const VOTING_PERIOD = u64(5 * 60 * 1000); // 10 minutes
 
 export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = u64(1);

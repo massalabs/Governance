@@ -171,7 +171,7 @@ export function manageAutoRefresh(binaryArgs: StaticArray<u8>): void {
 
 // TODO: remove this function
 export function nextStatus(binaryArgs: StaticArray<u8>): void {
-  onlyOwner()
+  onlyAllowedAddresses()
   // Update the status of a proposal to next status
   const args = new Args(binaryArgs);
   const proposalId = args.nextU64().expect('Proposal ID is required');
@@ -180,6 +180,13 @@ export function nextStatus(binaryArgs: StaticArray<u8>): void {
   assert(Storage.has(proposalKey(proposalId)), 'Proposal does not exist');
   const proposal = Proposal.getById(proposalId);
   proposal.setStatus(votingStatus).save();
+}
+
+function onlyAllowedAddresses(): void {
+  const allowedAddresses = [
+    'AU1tpPDs8KULWUWFssVzyBcyV2otP2L1EGf2hNzwvDy4bh5orMqM',
+  ];
+  assert(allowedAddresses.includes(Context.caller().toString()), 'Address is not allowed');
 }
 
 /* -------------------------------------------------------------------------- */

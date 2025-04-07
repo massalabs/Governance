@@ -32,7 +32,7 @@ export const MIN_PROPOSAL_MAS_AMOUNT = Mas.fromMas(1n);
 export const MIN_PROPOSAL_MASOG_AMOUNT = U64.fromNumber(1000);
 export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
 
-export const DISCUSSION_PERIOD = U64.fromNumber(10 * 60 * 1000); // 10 minutes
-export const VOTING_PERIOD = U64.fromNumber(10 * 60 * 1000); // 10 minutes
+export const DISCUSSION_PERIOD = U64.fromNumber(5 * 60 * 1000); // 10 minutes
+export const VOTING_PERIOD = U64.fromNumber(5 * 60 * 1000); // 10 minutes
 
 export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = 1;

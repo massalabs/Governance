@@ -17,10 +17,9 @@ const allowedAddresses = [
 
 interface AdminActionsProps {
   proposalId: bigint;
-  status: string;
 }
 
-export function AdminActions({ proposalId, status }: AdminActionsProps) {
+export function AdminActions({ proposalId }: AdminActionsProps) {
   const { connectedAccount } = useAccountStore();
   const { governancePrivate } = useContractStore();
   const { callSmartContract } = useWriteSmartContract(connectedAccount!);
@@ -33,22 +32,7 @@ export function AdminActions({ proposalId, status }: AdminActionsProps) {
     return null;
   }
 
-  const canChangeStatus =
-    status.toUpperCase() === "DISCUSSION" || status.toUpperCase() === "VOTING";
 
-  const handleNextStatus = async () => {
-    if (!governancePrivate) return;
-    await callSmartContract(
-      "nextStatus",
-      governancePrivate.address,
-      new Args().addU64(proposalId).serialize(),
-      {
-        success: "Status updated successfully!",
-        pending: "Updating status...",
-        error: "Failed to update status",
-      }
-    );
-  };
 
   const handleDelete = async () => {
     if (!governancePrivate) return;
@@ -70,11 +54,6 @@ export function AdminActions({ proposalId, status }: AdminActionsProps) {
         Admin Actions
       </h3>
       <div className="flex flex-col gap-4">
-        {canChangeStatus && (
-          <PixelButton onClick={handleNextStatus} fullWidth variant="primary">
-            Next Status
-          </PixelButton>
-        )}
         <PixelButton onClick={handleDelete} fullWidth variant="secondary">
           Delete Proposal
         </PixelButton>

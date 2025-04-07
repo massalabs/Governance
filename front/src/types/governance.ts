@@ -36,8 +36,9 @@ export interface GovernanceStats {
 }
 
 export interface VoteDetails {
-  value: bigint;
   address: string;
+  value: bigint;
+  balance: bigint;
 }
 
 export interface VoteMutationParams {

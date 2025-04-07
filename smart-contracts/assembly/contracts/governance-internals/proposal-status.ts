@@ -1,4 +1,4 @@
-import { bytesToString } from "@massalabs/as-types";
+import { bytesToI32, bytesToString } from "@massalabs/as-types";
 import { generateEvent, Storage } from "@massalabs/massa-as-sdk";
 
 import { Proposal } from "../serializable/proposal";
@@ -48,34 +48,6 @@ export function hasVotingPeriodEnded(proposal: Proposal, currentTimestamp: u64):
 }
 
 /**
- * Tally votes for a proposal by processing all vote records.
- * Updates proposal's vote volume fields (positive, blank, negative).
- * @param proposal - The proposal to tally votes for
- * @param allVotesKeys - Array of storage keys containing vote data
- */
-function tallyVotes(proposal: Proposal, allVotesKeys: StaticArray<u8>[]): void {
-
-  generateEvent(`allVotesKeys: ${allVotesKeys.length}`);
-  for (let i = 0; i < allVotesKeys.length; i++) {
-    const userAddr = StaticArray.fromArray(allVotesKeys[i].slice(voteKey(proposal.id, '').length));
-    const voteBytes = Storage.get(allVotesKeys[i]);
-
-    const vote = new Vote();
-    const result = vote.deserialize(voteBytes, 0);
-    if (result.isErr()) continue;  // Skip invalid votes
-    const balance = getMasogBalance(bytesToString(userAddr));
-
-    if (vote.value === 1) {
-      proposal.positiveVoteVolume += balance;
-    } else if (vote.value === 0) {
-      proposal.blankVoteVolume += balance;
-    } else if (vote.value === -1) {
-      proposal.negativeVoteVolume += balance;
-    }
-  }
-}
-
-/**
  * Updates a proposal's status based on the current timestamp.
  * Handles transitions from discussion to voting, and processes voting results.
  * @param proposal - The proposal to update
@@ -102,7 +74,21 @@ export function updateProposalStatus(proposal: Proposal, currentTimestamp: u64):
   if (currentStatus === bytesToString(votingStatus) &&
     hasVotingPeriodEnded(proposal, currentTimestamp)) {
     const allVotesKeys = Storage.getKeys(voteKey(proposal.id, ''));
-    tallyVotes(proposal, allVotesKeys);
+
+    for (let i = 0; i < allVotesKeys.length; i++) {
+      const userAddr = StaticArray.fromArray(allVotesKeys[i].slice(voteKey(proposal.id, '').length));
+      const voteValue = bytesToI32(Storage.get(allVotesKeys[i]))
+
+      const balance = getMasogBalance(bytesToString(userAddr));
+
+      if (voteValue === 1) {
+        proposal.positiveVoteVolume += balance;
+      } else if (voteValue === 0) {
+        proposal.blankVoteVolume += balance;
+      } else if (voteValue === -1) {
+        proposal.negativeVoteVolume += balance;
+      }
+    }
 
     const totalSupply = getMasogTotalSupply();
 

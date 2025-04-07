@@ -95,16 +95,18 @@ export default function ProposalDetails() {
               <ConnectWalletPrompt />
             )
           )}
-          <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
-            <VoteProgress
-              proposal={{
-                ...proposal,
-                positiveVoteVolume: proposal.positiveVoteVolume,
-                negativeVoteVolume: proposal.negativeVoteVolume,
-                blankVoteVolume: proposal.blankVoteVolume,
-              }}
-            />
-          </div>
+          {proposal.status !== "DISCUSSION" && (
+            <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
+              <VoteProgress
+                proposal={{
+                  ...proposal,
+                  positiveVoteVolume: proposal.positiveVoteVolume,
+                  negativeVoteVolume: proposal.negativeVoteVolume,
+                  blankVoteVolume: proposal.blankVoteVolume,
+                }}
+              />
+            </div>
+          )}
           {connectedAccount && (
             <AdminActions proposalId={proposal.id} status={proposal.status} />
           )}
