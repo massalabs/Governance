@@ -10,9 +10,10 @@ import { useContractStore } from "@/store/useContractStore";
 import { useNavigate } from "react-router-dom";
 import { useGovernanceData } from "./useGovernanceData";
 import { governanceKeys } from "../queryKeys/governance";
+import { MIN_PROPOSAL_MAS_AMOUNT, MIN_PROPOSAL_MASOG_AMOUNT } from "@/config";
 
-export const REQUIRED_MASOG = 1n;
-export const REQUIRED_MAS = Mas.fromMas(1001n);
+export const REQUIRED_MASOG = MIN_PROPOSAL_MASOG_AMOUNT
+export const REQUIRED_MAS = MIN_PROPOSAL_MAS_AMOUNT + Mas.fromMas(1n);
 
 export interface ValidationErrors {
   title?: string;
@@ -104,7 +105,7 @@ export function useCreateProposalMutation() {
           pending: "Creating proposal...",
           error: "Failed to create proposal",
         },
-        Mas.fromString("1001"),
+        REQUIRED_MAS,
         undefined,
         true
       );

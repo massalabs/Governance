@@ -1,11 +1,11 @@
 import { bytesToString } from "@massalabs/as-types";
-import { Storage } from "@massalabs/massa-as-sdk";
+import { generateEvent, Storage } from "@massalabs/massa-as-sdk";
 
 import { Proposal } from "../serializable/proposal";
 import { Vote } from "../serializable/vote";
 import { getMasogTotalSupply, getMasogBalance } from "./helpers";
 import { discussionStatus, votingStatus, voteKey, acceptedStatus, rejectedStatus } from "./keys";
-import { DISCUSSION_PERIOD, VOTING_PERIOD } from "./config";
+import { DISCUSSION_PERIOD, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE, VOTING_PERIOD } from "./config";
 
 /**
  * Calculates the timestamp when voting period begins for a proposal.
@@ -54,6 +54,8 @@ export function hasVotingPeriodEnded(proposal: Proposal, currentTimestamp: u64):
  * @param allVotesKeys - Array of storage keys containing vote data
  */
 function tallyVotes(proposal: Proposal, allVotesKeys: StaticArray<u8>[]): void {
+
+  generateEvent(`allVotesKeys: ${allVotesKeys.length}`);
   for (let i = 0; i < allVotesKeys.length; i++) {
     const userAddr = StaticArray.fromArray(allVotesKeys[i].slice(voteKey(proposal.id, '').length));
     const voteBytes = Storage.get(allVotesKeys[i]);
@@ -61,7 +63,6 @@ function tallyVotes(proposal: Proposal, allVotesKeys: StaticArray<u8>[]): void {
     const vote = new Vote();
     const result = vote.deserialize(voteBytes, 0);
     if (result.isErr()) continue;  // Skip invalid votes
-
     const balance = getMasogBalance(bytesToString(userAddr));
 
     if (vote.value === 1) {
@@ -81,6 +82,7 @@ function tallyVotes(proposal: Proposal, allVotesKeys: StaticArray<u8>[]): void {
  * @param currentTimestamp - Current blockchain timestamp
  */
 export function updateProposalStatus(proposal: Proposal, currentTimestamp: u64): void {
+  generateEvent(`updateProposalStatus: ${proposal.id}`);
   const elapsedTime = currentTimestamp - proposal.creationTimestamp;
 
   // Still in discussion period
@@ -103,7 +105,8 @@ export function updateProposalStatus(proposal: Proposal, currentTimestamp: u64):
     tallyVotes(proposal, allVotesKeys);
 
     const totalSupply = getMasogTotalSupply();
-    const majority = totalSupply / 2;
+
+    const majority = totalSupply * TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE / 100;
 
     proposal.setStatus(
       proposal.positiveVoteVolume > majority ? acceptedStatus : rejectedStatus

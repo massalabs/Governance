@@ -56,8 +56,9 @@ export function _autoRefreshCall(): void {
         MAX_ASYNC_CALL_FEE, // rawFee
     );
 
-    Storage.set(ASC_START_PERIOD, u64ToBytes(validityStartPeriod));
     Storage.set(ASC_END_PERIOD, u64ToBytes(validityEndPeriod));
+
+    generateEvent(`ASC validity period: ${validityStartPeriod} to ${validityEndPeriod}`);
 }
 
 /**

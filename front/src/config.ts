@@ -1,4 +1,4 @@
-import { NetworkName, U64 } from "@massalabs/massa-web3";
+import { Mas, NetworkName, U64 } from "@massalabs/massa-web3";
 
 export const isMainnet = false;
 export const networkName = isMainnet ? NetworkName.Mainnet : NetworkName.Buildnet;
@@ -21,8 +21,18 @@ export function getContracts() {
     : contracts[NetworkName.Buildnet];
 }
 
-export const MIN_PROPOSAL_MAS_AMOUNT = U64.fromNumber(1000_000_000_000);
+// export const MIN_PROPOSAL_MAS_AMOUNT = U64.fromNumber(1000_000_000_000);
+// export const MIN_PROPOSAL_MASOG_AMOUNT = U64.fromNumber(1000);
+// export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
+// export const DISCUSSION_PERIOD = U64.fromNumber(10 * 60 * 1000); // 10 minutes
+// export const VOTING_PERIOD = U64.fromNumber(10 * 60 * 1000); // 10 minutes
+// export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = 50
+// BETA CONFIG
+export const MIN_PROPOSAL_MAS_AMOUNT = Mas.fromMas(1n);
 export const MIN_PROPOSAL_MASOG_AMOUNT = U64.fromNumber(1000);
 export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
+
 export const DISCUSSION_PERIOD = U64.fromNumber(10 * 60 * 1000); // 10 minutes
 export const VOTING_PERIOD = U64.fromNumber(10 * 60 * 1000); // 10 minutes
+
+export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = 1;
