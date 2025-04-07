@@ -154,7 +154,7 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
     blankVoteVolume;
 
   // Calculate abstain votes (total supply - total votes)
-  const abstainVotes = totalSupply - totalVotes;
+  const abstainVotes = totalSupply ? totalSupply - totalVotes : 0n;
 
   // Calculate percentages relative to total supply with proper decimal handling
   const calculateSupplyPercentage = (votes: bigint) => {

@@ -108,7 +108,7 @@ export default function ProposalDetails() {
             </div>
           )}
           {connectedAccount && (
-            <AdminActions proposalId={proposal.id} status={proposal.status} />
+            <AdminActions proposalId={proposal.id} />
           )}
         </div>
       </div>

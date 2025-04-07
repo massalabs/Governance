@@ -12,9 +12,7 @@ import {
   _setOwner,
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
 import {
-  proposalKey,
   UPDATE_PROPOSAL_COUNTER_TAG,
-  votingStatus,
 } from './governance-internals/keys';
 import { MASOG_KEY } from './rolls-oracle';
 import { Proposal } from './serializable/proposal';
@@ -26,7 +24,6 @@ import {
   _deleteProposal,
 } from './governance-internals';
 import { _ensureAutoRefresh, _autoRefreshCall, AUTO_REFRESH_STATUS_KEY, ASC_END_PERIOD, ASC_START_PERIOD } from './governance-internals/auto-refresh';
-import { onlyOwner } from '@massalabs/sc-standards/assembly/contracts/utils/ownership';
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.
@@ -136,7 +133,7 @@ export function upgradeSC(bytecode: StaticArray<u8>): void {
  * @param binaryArgs - Serialized proposal ID (u64).
  */
 export function deleteProposal(binaryArgs: StaticArray<u8>): void {
-  onlyOwner();
+  onlyAllowedAddresses()
 
   const initialBalance = balance();
 
@@ -169,22 +166,11 @@ export function manageAutoRefresh(binaryArgs: StaticArray<u8>): void {
 /* -------------------------------------------------------------------------- */
 
 
-// TODO: remove this function
-export function nextStatus(binaryArgs: StaticArray<u8>): void {
-  onlyAllowedAddresses()
-  // Update the status of a proposal to next status
-  const args = new Args(binaryArgs);
-  const proposalId = args.nextU64().expect('Proposal ID is required');
-
-  // get Proposal
-  assert(Storage.has(proposalKey(proposalId)), 'Proposal does not exist');
-  const proposal = Proposal.getById(proposalId);
-  proposal.setStatus(votingStatus).save();
-}
-
 function onlyAllowedAddresses(): void {
   const allowedAddresses = [
     'AU1tpPDs8KULWUWFssVzyBcyV2otP2L1EGf2hNzwvDy4bh5orMqM',
+    'AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5',
+    'AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX'
   ];
   assert(allowedAddresses.includes(Context.caller().toString()), 'Address is not allowed');
 }

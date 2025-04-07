@@ -28,7 +28,7 @@ export function AdminActions({ proposalId }: AdminActionsProps) {
     !connectedAccount ||
     !allowedAddresses.includes(connectedAccount.address)
   ) {
-    console.log("Not allowed");
+
     return null;
   }
 

@@ -11,7 +11,7 @@ export const contracts = {
   [NetworkName.Buildnet]: {
     masOg: "AS1RBDkKmg4DNxH4niuUZaec7rXe6qcbmZi8UeTFCBYp9zwxmBrF",
     oracle: "AS1yUyqvqoQhEw1BEm6k2P3gHz1hvr4mLy5BwCujnTdiBNjYLPAs",
-    governance: "AS12qAQPHf7JHvZXAFPemSxe7erCiGjX8J24sK4qQNwFLt2C5GToY",
+    governance: "AS12k9LK17UVQGp96dPGhKiQ7xWmMihbN81DhagaCrcdgcRNHJQbE",
   },
 };
 
@@ -24,15 +24,15 @@ export function getContracts() {
 // export const MIN_PROPOSAL_MAS_AMOUNT = U64.fromNumber(1000_000_000_000);
 // export const MIN_PROPOSAL_MASOG_AMOUNT = U64.fromNumber(1000);
 // export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
-// export const DISCUSSION_PERIOD = U64.fromNumber(10 * 60 * 1000); // 10 minutes
-// export const VOTING_PERIOD = U64.fromNumber(10 * 60 * 1000); // 10 minutes
+// export const DISCUSSION_PERIOD = u64(3 * 7 * 24 * 60 * 60 * 1000); // 3 weeks in milliseconds
+// export const VOTING_PERIOD = u64(4 * 7 * 24 * 60 * 60 * 1000); // 4 weeks in milliseconds
 // export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = 50
 // BETA CONFIG
-export const MIN_PROPOSAL_MAS_AMOUNT = Mas.fromMas(1n);
+export const MIN_PROPOSAL_MAS_AMOUNT = Mas.fromMas(100n);
 export const MIN_PROPOSAL_MASOG_AMOUNT = U64.fromNumber(1000);
 export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
 
-export const DISCUSSION_PERIOD = U64.fromNumber(5 * 60 * 1000); // 10 minutes
-export const VOTING_PERIOD = U64.fromNumber(5 * 60 * 1000); // 10 minutes
+export const DISCUSSION_PERIOD = U64.fromNumber(3 * 60 * 60 * 1000); // 3 hours
+export const VOTING_PERIOD = U64.fromNumber(3 * 60 * 60 * 1000); // 3 hours
 
 export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = 1;
