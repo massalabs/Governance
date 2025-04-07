@@ -170,7 +170,8 @@ function onlyAllowedAddresses(): void {
   const allowedAddresses = [
     'AU1tpPDs8KULWUWFssVzyBcyV2otP2L1EGf2hNzwvDy4bh5orMqM',
     'AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5',
-    'AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX'
+    'AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX',
+    'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq'
   ];
   assert(allowedAddresses.includes(Context.caller().toString()), 'Address is not allowed');
 }
