@@ -88,6 +88,7 @@ export function _refresh(): void {
   }
 }
 
+
 /**
  * Casts a vote on a proposal.
  * @param vote - The vote to be cast.
