@@ -16,13 +16,12 @@ export default function Home() {
       <BetaBanner />
       <WelcomeSection />
       <StatsSection isLoading={loading} stats={stats} />
-      {connectedAccount && (
-        <VotingPowerSection
-          loading={loading}
-          userMasogBalance={userMasogBalance}
-          userVotingPower={userMasogBalance}
-        />
-      )}
+      <VotingPowerSection
+        loading={loading}
+        userMasogBalance={userMasogBalance}
+        userVotingPower={userMasogBalance}
+        isConnected={!!connectedAccount}
+      />
       <RecentProposalsSection loading={loading} proposals={proposals} />
       <ActionLinks />
     </div>
