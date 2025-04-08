@@ -101,17 +101,17 @@ export default function VoteModal() {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-secondary p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-secondary dark:bg-darkCard p-6 text-left align-middle shadow-xl transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <Dialog.Title
                     as="h3"
-                    className="text-xl font-semibold leading-6 text-f-primary flex items-center gap-2"
+                    className="text-xl font-semibold leading-6 text-f-primary dark:text-white flex items-center gap-2"
                   >
-                    <span className="text-brand">Cast Your Vote</span>
+                    <span className="text-brand dark:text-darkAccent">Cast Your Vote</span>
                   </Dialog.Title>
                   <button
                     onClick={closeVoteModal}
-                    className="text-f-tertiary hover:text-f-primary transition-colors"
+                    className="text-f-tertiary dark:text-gray-300 hover:text-f-primary dark:hover:text-white transition-colors"
                   >
                     <XMarkIcon className="h-6 w-6" />
                   </button>
@@ -140,25 +140,25 @@ export default function VoteModal() {
                                 onClick={() => setSelectedVote(option.type)}
                                 className={`group relative p-4 rounded-xl border-2 transition-all duration-150 ease-out ${selectedVote === option.type
                                   ? `${option.bgColor} ${option.borderColor} scale-105 shadow-lg shadow-brand/20`
-                                  : "border-border hover:border-brand/50 hover:shadow-md hover:shadow-brand/10"
+                                  : "border-border dark:border-darkBorder hover:border-brand/50 dark:hover:border-darkAccent/50 hover:shadow-md hover:shadow-brand/10"
                                   }`}
                               >
                                 <div className="flex flex-col items-center gap-2">
                                   <Icon
                                     className={`h-8 w-8 transition-colors duration-150 ease-out ${selectedVote === option.type
                                       ? option.color
-                                      : "text-f-tertiary group-hover:text-brand"
+                                      : "text-f-tertiary dark:text-darkMuted group-hover:text-brand dark:group-hover:text-darkAccent"
                                       }`}
                                   />
                                   <span
                                     className={`font-medium ${selectedVote === option.type
                                       ? option.color
-                                      : "text-f-primary"
+                                      : "text-f-primary dark:text-white"
                                       }`}
                                   >
                                     {option.label}
                                   </span>
-                                  <span className="text-xs text-f-tertiary text-center">
+                                  <span className="text-xs text-f-tertiary dark:text-gray-300 text-center">
                                     {option.description}
                                   </span>
                                 </div>
@@ -172,7 +172,7 @@ export default function VoteModal() {
                     <div className="mt-6 flex justify-end gap-3">
                       <button
                         type="button"
-                        className="px-4 py-2 text-sm font-medium text-f-primary bg-border rounded-lg hover:bg-border/80 transition-colors"
+                        className="px-4 py-2 text-sm font-medium text-f-primary dark:text-white bg-border dark:bg-darkTertiary rounded-lg hover:bg-border/80 dark:hover:bg-darkTertiary/80 transition-colors"
                         onClick={closeVoteModal}
                       >
                         Cancel
@@ -180,8 +180,8 @@ export default function VoteModal() {
                       <button
                         type="button"
                         className={`px-6 py-2 text-sm font-medium text-white rounded-lg transition-all duration-200 ${selectedVote && !voteMutation.isPending
-                          ? "bg-brand hover:bg-brand/90 active:scale-95"
-                          : "bg-brand/50 cursor-not-allowed"
+                          ? "bg-brand dark:bg-darkAccent hover:bg-brand/90 dark:hover:bg-darkAccent/90 active:scale-95"
+                          : "bg-brand/50 dark:bg-darkAccent/50 cursor-not-allowed"
                           }`}
                         onClick={handleVote}
                         disabled={!selectedVote || voteMutation.isPending}
