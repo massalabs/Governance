@@ -54,11 +54,13 @@ export function hasVotingPeriodEnded(proposal: Proposal, currentTimestamp: u64):
  * @param currentTimestamp - Current blockchain timestamp
  */
 export function updateProposalStatus(proposal: Proposal, currentTimestamp: u64): void {
-  generateEvent(`Checking proposal status of: ${proposal.id}`);
+
   const elapsedTime = currentTimestamp - proposal.creationTimestamp;
 
   // Still in discussion period
   if (elapsedTime < DISCUSSION_PERIOD) {
+    generateEvent(`Checking proposal status of: ${proposal.id} - still in discussion period`);
+
     return;
   }
 
@@ -67,6 +69,7 @@ export function updateProposalStatus(proposal: Proposal, currentTimestamp: u64):
   if (currentStatus === bytesToString(discussionStatus) &&
     isInVotingPeriod(proposal, currentTimestamp)) {
     proposal.setStatus(votingStatus).save();
+    generateEvent(`Checking proposal status of: ${proposal.id} - transitioned to voting status`);
     return;
   }
 
@@ -94,8 +97,10 @@ export function updateProposalStatus(proposal: Proposal, currentTimestamp: u64):
 
     const majority = totalSupply * TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE / 100;
 
-    proposal.setStatus(
-      proposal.positiveVoteVolume > majority ? acceptedStatus : rejectedStatus
-    ).save();
+    const status = proposal.positiveVoteVolume > majority ? acceptedStatus : rejectedStatus;
+
+    generateEvent(`Checking proposal status of: ${proposal.id} - ${bytesToString(status)}`);
+
+    proposal.setStatus(status).save();
   }
 }
