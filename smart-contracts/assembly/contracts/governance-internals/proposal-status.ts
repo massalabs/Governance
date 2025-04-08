@@ -54,7 +54,7 @@ export function hasVotingPeriodEnded(proposal: Proposal, currentTimestamp: u64):
  * @param currentTimestamp - Current blockchain timestamp
  */
 export function updateProposalStatus(proposal: Proposal, currentTimestamp: u64): void {
-  generateEvent(`updateProposalStatus: ${proposal.id}`);
+  generateEvent(`Checking proposal status of: ${proposal.id}`);
   const elapsedTime = currentTimestamp - proposal.creationTimestamp;
 
   // Still in discussion period

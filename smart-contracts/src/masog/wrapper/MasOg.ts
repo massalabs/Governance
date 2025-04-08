@@ -46,4 +46,10 @@ export class MasOg extends MRC20 {
       },
     );
   }
+
+  async removeTestMint(addresses: string[]): Promise<Operation> {
+    return this.call('removeTestMint', new Args().addArray(addresses, ArrayTypes.STRING), {
+      coins: Mas.fromString('1'),
+    });
+  }
 }

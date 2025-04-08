@@ -326,4 +326,21 @@ export class Governance extends SmartContract implements Upgradable {
     vote.deserialize(result[0], 0);
     return vote;
   }
+
+  /**
+   * Manages the auto refresh
+   * @param enable - Whether to enable or disable the auto refresh
+   * @param maxGas - The maximum gas for the auto refresh
+   * @param maxFee - The maximum fee for the auto refresh
+   */
+  async manageAutoRefresh(
+    enable: boolean,
+    maxGas: bigint,
+    maxFee: bigint,
+    options?: ReadSCOptions,
+  ): Promise<Operation> {
+    return await this.call('manageAutoRefresh', new Args().addBool(enable).addU64(maxGas).addU64(maxFee),
+      options,
+    );
+  }
 }

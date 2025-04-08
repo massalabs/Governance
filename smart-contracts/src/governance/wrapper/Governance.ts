@@ -246,9 +246,11 @@ export class Governance extends SmartContract implements Upgradable {
 
   async manageAutoRefresh(
     enable: boolean,
+    maxGas: bigint,
+    maxFee: bigint,
     options?: ReadSCOptions,
   ): Promise<Operation> {
-    return await this.call('manageAutoRefresh', new Args().addBool(enable),
+    return await this.call('manageAutoRefresh', new Args().addBool(enable).addU64(maxGas).addU64(maxFee),
       options,
     );
   }

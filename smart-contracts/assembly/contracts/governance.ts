@@ -23,7 +23,8 @@ import {
   _vote,
   _deleteProposal,
 } from './governance-internals';
-import { _ensureAutoRefresh, _autoRefreshCall, AUTO_REFRESH_STATUS_KEY, ASC_END_PERIOD, ASC_START_PERIOD } from './governance-internals/auto-refresh';
+import { _ensureAutoRefresh, _autoRefreshCall, MAX_ASYNC_CALL_GAS_KEY, MAX_ASYNC_CALL_FEE_KEY } from './governance-internals/auto-refresh';
+import { AUTO_REFRESH_STATUS_KEY, ASC_START_PERIOD, ASC_END_PERIOD } from './governance-internals/config';
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.
@@ -145,9 +146,6 @@ export function deleteProposal(binaryArgs: StaticArray<u8>): void {
   transferRemaining(initialBalance);
 }
 
-
-
-
 /**
  * Allow the owner ot allow or stop the auto refresh
  * @param binaryArgs - Serialized arguments: stop (bool).
@@ -157,8 +155,12 @@ export function manageAutoRefresh(binaryArgs: StaticArray<u8>): void {
   _onlyOwner();
   const args = new Args(binaryArgs);
   const stop = args.nextBool().expect('Boolean is required');
+  const maxGas = args.nextU64().expect('maxGas is required');
+  const maxFee = args.nextU64().expect('maxFee is required');
 
   Storage.set(AUTO_REFRESH_STATUS_KEY, boolToByte(stop));
+  if (maxGas > 0) Storage.set(MAX_ASYNC_CALL_GAS_KEY, u64ToBytes(maxGas));
+  if (maxFee > 0) Storage.set(MAX_ASYNC_CALL_FEE_KEY, u64ToBytes(maxFee));
 }
 
 /* -------------------------------------------------------------------------- */

@@ -8,7 +8,7 @@ const provider = await getProvider();
 
 const governanceSystem = await Governance.init(provider);
 
-const op = await governanceSystem.manageAutoRefresh(false);
+const op = await governanceSystem.manageAutoRefresh(false, 0n, 0n);
 const status = await op.waitSpeculativeExecution();
 
 if (status !== OperationStatus.SpeculativeSuccess) {

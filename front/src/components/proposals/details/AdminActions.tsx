@@ -3,17 +3,7 @@ import { useWriteSmartContract } from "@massalabs/react-ui-kit";
 import { useContractStore } from "../../../store/useContractStore";
 import { Args } from "@massalabs/massa-web3";
 import { PixelButton } from "@/components/ui/PixelButton";
-
-const allowedAddresses = [
-  // "AU1xs4LUr2XsFhe4YB756bEB2aG59k2Dy2LzLYgYR8zH4o2ZWv5G",
-  // "AU12wiZMwocjfWZKZhzP2dR86PBXJfGCoKY5wi6q1cSQoquMekvfJ",
-  // "AU1bTSHvZG7cdUUu4ScKwQVFum3gB5TDpdi9yMRv2bnedYUyptsa",
-  // "AU1DjgRMPCfnSvDcY3TXkbSQNDpsLQ3NUfCMrisT7xzwWsSe9V4s",
-  // "AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5",
-  // "AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX",
-  // "AU12FUbb8snr7qTEzSdTVH8tbmEouHydQTUAKDXY9LDwkdYMNBVGF",
-  "AU1tpPDs8KULWUWFssVzyBcyV2otP2L1EGf2hNzwvDy4bh5orMqM"
-];
+import { ADMIN_ADDRESSES } from "@/config";
 
 interface AdminActionsProps {
   proposalId: bigint;
@@ -26,7 +16,7 @@ export function AdminActions({ proposalId }: AdminActionsProps) {
 
   if (
     !connectedAccount ||
-    !allowedAddresses.includes(connectedAccount.address)
+    !ADMIN_ADDRESSES.includes(connectedAccount.address)
   ) {
 
     return null;

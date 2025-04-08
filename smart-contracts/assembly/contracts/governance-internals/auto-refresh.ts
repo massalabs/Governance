@@ -2,15 +2,11 @@ import { u64ToBytes, bytesToU64, boolToByte, stringToBytes, byteToBool } from "@
 import { Storage, Context, currentPeriod, getKeys, asyncCall, Slot, generateEvent } from "@massalabs/massa-as-sdk";
 import { _refresh } from ".";
 import { statusKeyPrefix, votingStatus, discussionStatus } from "./keys";
+import { AUTO_REFRESH_STATUS_KEY, START_REFETCH_PERIOD, LIMIT_REFETCH_PERIOD, ASC_START_PERIOD, ASC_END_PERIOD, MAX_ASYNC_CALL_GAS, MAX_ASYNC_CALL_FEE } from "./config";
 // Auto refresh constants
-export const AUTO_REFRESH_STATUS_KEY = stringToBytes('auto_refresh');
-export const START_REFETCH_PERIOD = 20;
-export const LIMIT_REFETCH_PERIOD = 40;
-export const ASC_START_PERIOD = stringToBytes('ASC_START_PERIOD');
-export const ASC_END_PERIOD = stringToBytes('ASC_END_PERIOD');
 
-const MAX_ASYNC_CALL_GAS = 1_000_000_000;
-const MAX_ASYNC_CALL_FEE = 1_000;
+export const MAX_ASYNC_CALL_GAS_KEY = stringToBytes('MAX_ASYNC_CALL_GAS');
+export const MAX_ASYNC_CALL_FEE_KEY = stringToBytes('MAX_ASYNC_CALL_FEE');
 
 /**
  * Refreshes the status of proposals based on the current timestamp.
@@ -47,18 +43,21 @@ export function _autoRefreshCall(): void {
         return;
     }
 
+    const maxGas = Storage.has(MAX_ASYNC_CALL_GAS_KEY) ? bytesToU64(Storage.get(MAX_ASYNC_CALL_GAS_KEY)) : MAX_ASYNC_CALL_GAS;
+    const maxFee = Storage.has(MAX_ASYNC_CALL_FEE_KEY) ? bytesToU64(Storage.get(MAX_ASYNC_CALL_FEE_KEY)) : MAX_ASYNC_CALL_FEE;
+
     asyncCall(
         Context.callee(), // target
         'runAutoRefresh', // functionName
         new Slot(validityStartPeriod, validityStartThread), // startSlot
         new Slot(validityEndPeriod, validityEndThread), // endSlot
-        MAX_ASYNC_CALL_GAS, // maxGas
-        MAX_ASYNC_CALL_FEE, // rawFee
+        maxGas, // maxGas
+        maxFee, // rawFee
     );
 
     Storage.set(ASC_END_PERIOD, u64ToBytes(validityEndPeriod));
 
-    generateEvent(`ASC validity period: ${validityStartPeriod} to ${validityEndPeriod}`);
+    generateEvent(`New ASC started, validity period: ${validityStartPeriod} to ${validityEndPeriod}`);
 }
 
 /**
@@ -74,7 +73,7 @@ export function _ensureAutoRefresh(): void {
         // Expired ASC: refresh and restart
         _autoRefreshCall();
     } else {
-        generateEvent(`ASC is still running, current period: ${currentPeriod}, last end: ${lastEnd}`);
+        generateEvent(`No need to add new ASC, current period is ${currentPeriod}, and ASC limit period is: ${lastEnd}`);
     }
 }
 

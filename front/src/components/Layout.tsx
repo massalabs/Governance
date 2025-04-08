@@ -6,6 +6,8 @@ import { ConnectButton } from "./connect-wallet-popup";
 import { NetworkIndicator } from "./NetworkIndicator";
 import bgDark from "../assets/bg-dark.png";
 import bgLight from "../assets/bg-light.png";
+import { useAccountStore } from "@massalabs/react-ui-kit";
+import { ADMIN_ADDRESSES } from "../config";
 
 const NavLink = ({
   to,
@@ -95,6 +97,9 @@ const Logo = ({ isHome }: { isHome: boolean }) => (
 export default function Layout() {
   const { theme } = useUIStore();
   const location = useLocation();
+  const { connectedAccount } = useAccountStore();
+
+  const isAdmin = connectedAccount?.address && ADMIN_ADDRESSES.includes(connectedAccount.address);
 
   const updateTheme = useCallback(() => {
     document.documentElement.classList.remove("light", "dark");
@@ -122,10 +127,16 @@ export default function Layout() {
                 label="Create Proposal"
                 isActive={location.pathname === "/create"}
               />
+              {isAdmin && (
+                <NavLink
+                  to="/admin"
+                  label="Admin"
+                  isActive={location.pathname === "/admin"}
+                />
+              )}
             </div>
           </div>
           <div className="flex items-center space-x-4">
-
             <div className="px-3 py-1.5 rounded-full bg-secondary/50 dark:bg-darkCard/50 border border-border/50 dark:border-darkBorder/50">
               <NetworkIndicator />
             </div>
