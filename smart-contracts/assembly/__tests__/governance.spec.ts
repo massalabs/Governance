@@ -49,8 +49,7 @@ import {
   mockMasogTotalSupply,
   mockCheckLastAutoRefresh,
 } from './utils';
-import { MIN_PROPOSAL_MASOG_AMOUNT, MIN_PROPOSAL_MAS_AMOUNT, MIN_VOTE_MASOG_AMOUNT, DISCUSSION_PERIOD, VOTING_PERIOD, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE } from '../contracts/governance-internals/config';
-import { ASC_END_PERIOD } from '../contracts/governance-internals/auto-refresh';
+import { MIN_PROPOSAL_MASOG_AMOUNT, MIN_PROPOSAL_MAS_AMOUNT, MIN_VOTE_MASOG_AMOUNT, DISCUSSION_PERIOD, VOTING_PERIOD, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE, ASC_END_PERIOD } from '../contracts/governance-internals/config';
 
 
 const governanceOwner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
