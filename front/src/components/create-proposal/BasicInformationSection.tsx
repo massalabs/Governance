@@ -8,11 +8,21 @@ interface BasicInformationSectionProps {
 const MAX_TITLE_LENGTH = 100;
 const MAX_FORUM_LINK_LENGTH = 200;
 const MAX_SUMMARY_LENGTH = 500;
+const FORUM_URL_PREFIX = "https://forum.massa.community/";
 
 export function BasicInformationSection({
   formData,
   setFormData,
 }: BasicInformationSectionProps) {
+  const handleForumLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (!value.startsWith(FORUM_URL_PREFIX) && value.length > 0) {
+      setFormData({ ...formData, forumPostLink: FORUM_URL_PREFIX });
+    } else {
+      setFormData({ ...formData, forumPostLink: value });
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="space-y-2">
@@ -65,9 +75,7 @@ export function BasicInformationSection({
               name="forumPostLink"
               id="forumPostLink"
               value={formData.forumPostLink}
-              onChange={(e) =>
-                setFormData({ ...formData, forumPostLink: e.target.value })
-              }
+              onChange={handleForumLinkChange}
               className="w-full px-4 pr-12 py-3 bg-secondary dark:bg-darkCard border border-primary/10 dark:border-darkAccent/10 rounded-lg text-f-primary dark:text-darkText placeholder-f-tertiary dark:placeholder-darkMuted focus:outline-none focus:ring-2 focus:ring-primary/20 dark:focus:ring-darkAccent/20 focus:border-primary/30 dark:focus:border-darkAccent/30 mas-body transition-all duration-200"
               required
               maxLength={MAX_FORUM_LINK_LENGTH}
