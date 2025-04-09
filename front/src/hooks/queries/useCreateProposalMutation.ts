@@ -9,7 +9,7 @@ import { Args, Mas } from "@massalabs/massa-web3";
 import { useContractStore } from "@/store/useContractStore";
 import { useNavigate } from "react-router-dom";
 import { useGovernanceData } from "./useGovernanceData";
-import { governanceKeys } from "../queryKeys/governance";
+import { governanceKeys } from "./governanceKeys";
 import { MIN_PROPOSAL_MAS_AMOUNT, MIN_PROPOSAL_MASOG_AMOUNT } from "@/config";
 
 export const REQUIRED_MASOG = MIN_PROPOSAL_MASOG_AMOUNT

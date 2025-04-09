@@ -5,8 +5,168 @@ import { useAdminData } from "../hooks/queries/useAdminData";
 import { useSendCoinsMutation } from "../hooks/queries/useSendCoinsMutation";
 import { useManageAutoRefreshMutation } from "../hooks/queries/useManageAutoRefreshMutation";
 
+interface ContractCardProps {
+    title: string;
+    balance: string | undefined;
+    isLoading: boolean;
+    amount: string;
+    onAmountChange: (value: string) => void;
+    onSend: () => void;
+    isSending: boolean;
+}
+
+const ContractCard = ({ title, balance, isLoading, amount, onAmountChange, onSend, isSending }: ContractCardProps) => (
+    <div className="bg-card dark:bg-darkCard p-5 rounded-xl shadow-lg border border-border/10 dark:border-darkBorder/10 hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold">{title}</h2>
+        </div>
+        <div className="mb-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Balance</p>
+            <p className="text-2xl font-bold text-primary">
+                {isLoading ? <span className="animate-pulse">Loading...</span> : `${balance || '0'} MAS`}
+            </p>
+        </div>
+        <div className="flex gap-2">
+            <input
+                type="number"
+                value={amount}
+                onChange={(e) => onAmountChange(e.target.value)}
+                placeholder="Amount"
+                className="flex-1 px-3 py-2 border border-border dark:border-darkBorder rounded-lg bg-background dark:bg-darkBg text-f-primary dark:text-f-primary focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-sm"
+            />
+            <button
+                onClick={onSend}
+                disabled={isSending}
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition /
+
+all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium whitespace-nowrap"
+            >
+                {isSending ? 'Sending...' : 'Send'}
+            </button>
+        </div>
+    </div>
+);
+
+interface AutoRefreshCardProps {
+    enabled: boolean;
+    maxGas: string;
+    maxFee: string;
+    onToggle: (value: boolean) => void;
+    onMaxGasChange: (value: string) => void;
+    onMaxFeeChange: (value: string) => void;
+    onUpdate: () => void;
+    isUpdating: boolean;
+}
+
+const AutoRefreshCard = ({ enabled, maxGas, maxFee, onToggle, onMaxGasChange, onMaxFeeChange, onUpdate, isUpdating }: AutoRefreshCardProps) => (
+    <div className="bg-card dark:bg-darkCard p-5 rounded-xl shadow-lg border border-border/10 dark:border-darkBorder/10 hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Auto-Refresh</h2>
+            <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {enabled ? 'Enabled' : 'Disabled'}
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={enabled}
+                        onChange={(e) => onToggle(e.target.checked)}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                </label>
+            </div>
+        </div>
+        <div className="space-y-3 mb-4">
+            <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Gas</label>
+                <input
+                    type="number"
+                    value={maxGas}
+                    onChange={(e) => onMaxGasChange(e.target.value)}
+                    className="w-full px-3 py-2 border border-border dark:border-darkBorder rounded-lg bg-background dark:bg-darkBg text-f-primary dark:text-f-primary focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-sm"
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Fee</label>
+                <input
+                    type="number"
+                    value={maxFee}
+                    onChange={(e) => onMaxFeeChange(e.target.value)}
+                    className="w-full px-3 py-2 border border-border dark:border-darkBorder rounded-lg bg-background dark:bg-darkBg text-f-primary dark:text-f-primary focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-sm"
+                />
+            </div>
+        </div>
+        <button
+            onClick={onUpdate}
+            disabled={isUpdating}
+            className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+        >
+            {isUpdating ? 'Updating...' : 'Update Settings'}
+        </button>
+    </div>
+);
+
+interface EventsTableProps {
+    events: any[] | undefined;
+    isLoading: boolean;
+    error: any;
+    highlightedEventId: string | null;
+}
+
+const EventsTable = ({ events, isLoading, error, highlightedEventId }: EventsTableProps) => (
+    <div className="bg-card dark:bg-darkCard p-5 rounded-xl shadow-lg border border-border/10 dark:border-darkBorder/10 hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Recent Events</h2>
+            <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                {events?.length || 0} events
+            </div>
+        </div>
+        <div className="overflow-x-auto">
+            {isLoading ? (
+                <div className="flex justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                </div>
+            ) : error ? (
+                <div className="text-red-500 text-center py-4">
+                    {error instanceof Error ? error.message : "Failed to load events"}
+                </div>
+            ) : (
+                <table className="w-full">
+                    <thead>
+                        <tr className="border-b border-border dark:border-darkBorder">
+                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Op ID</th>
+                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Slot</th>
+                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {events?.map((event, index) => {
+                            const eventId = event.context.origin_operation_id || `${event.context.slot.period}-${event.context.slot.thread}-${event.data}`;
+                            const isHighlighted = highlightedEventId === eventId;
+                            const slotInfo = `P:${event.context.slot.period} T:${event.context.slot.thread}`;
+
+                            return (
+                                <tr
+                                    key={index}
+                                    className={`border-b border-border dark:border-darkBorder last:border-0 transition-all duration-500 ${isHighlighted ? 'bg-primary/10 dark:bg-primary/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
+                                >
+                                    <td className="py-3 px-4 font-mono text-sm">{event.context.origin_operation_id || 'N/A'}</td>
+                                    <td className="py-3 px-4 font-mono text-sm">{slotInfo}</td>
+                                    <td className="py-3 px-4 font-mono text-sm">{event.data}</td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            )}
+        </div>
+    </div>
+);
+
 const AdminPage = () => {
-    const [amountToSend, setAmountToSend] = useState<string>("");
+    const [governanceAmount, setGovernanceAmount] = useState<string>("");
+    const [masOgAmount, setMasOgAmount] = useState<string>("");
     const [autoRefreshEnabled, setAutoRefreshEnabled] = useState<boolean>(true);
     const [maxGas, setMaxGas] = useState<string>("1000000");
     const [maxFee, setMaxFee] = useState<string>("1000000");
@@ -14,233 +174,109 @@ const AdminPage = () => {
     const prevEventsRef = useRef<any[]>([]);
 
     const { connectedAccount } = useAccountStore();
-
-    // Use React Query hooks
-    const { data: adminData, isLoading, error } = useAdminData(10000);
+    const { data: adminData, isLoading, error } = useAdminData(30000);
     const sendCoinsMutation = useSendCoinsMutation();
     const manageAutoRefreshMutation = useManageAutoRefreshMutation();
 
-    // Effect to highlight the latest event when it changes
     useEffect(() => {
         if (adminData?.events && adminData.events.length > 0) {
             const latestEvent = adminData.events[adminData.events.length - 1];
-            const latestEventId = latestEvent.context.origin_operation_id ||
-                `${latestEvent.context.slot.period}-${latestEvent.context.slot.thread}-${latestEvent.data}`;
-
-            // Check if this is a new event by comparing with previous events
+            const latestEventId = latestEvent.context.origin_operation_id || `${latestEvent.context.slot.period}-${latestEvent.context.slot.thread}-${latestEvent.data}`;
             const prevEvents = prevEventsRef.current;
-            const isNewEvent = prevEvents.length === 0 ||
-                prevEvents[prevEvents.length - 1].context.origin_operation_id !== latestEvent.context.origin_operation_id;
+            const isNewEvent = prevEvents.length === 0 || prevEvents[prevEvents.length - 1].context.origin_operation_id !== latestEvent.context.origin_operation_id;
 
             if (isNewEvent) {
-                // Set the highlighted event
                 setHighlightedEventId(latestEventId);
-
-                // Clear the highlight after animation
-                const timer = setTimeout(() => {
-                    setHighlightedEventId(null);
-                }, 3000); // Highlight for 3 seconds
-
+                const timer = setTimeout(() => setHighlightedEventId(null), 3000);
                 return () => clearTimeout(timer);
             }
         }
-
-        // Update the previous events reference
         prevEventsRef.current = adminData?.events || [];
     }, [adminData?.timestamp]);
 
-    const handleSendCoins = async (contractType: 'governance' | 'masOg') => {
-        sendCoinsMutation.mutate({ contractType, amount: amountToSend });
-        setAmountToSend("");
+    const handleSendCoins = (contractType: 'governance' | 'masOg') => {
+        const amount = contractType === 'governance' ? governanceAmount : masOgAmount;
+        sendCoinsMutation.mutate(
+            { contractType, amount },
+            {
+                onSuccess: () => {
+                    if (contractType === 'governance') {
+                        setGovernanceAmount("");
+                    } else {
+                        setMasOgAmount("");
+                    }
+                }
+            }
+        );
     };
 
-    const handleManageAutoRefresh = async () => {
-        manageAutoRefreshMutation.mutate({
-            enabled: autoRefreshEnabled,
-            maxGas,
-            maxFee
-        });
+    const handleManageAutoRefresh = () => {
+        manageAutoRefreshMutation.mutate({ enabled: autoRefreshEnabled, maxGas, maxFee });
     };
 
-    // Check if current user is admin
     const isAdmin = connectedAccount?.address && ADMIN_ADDRESSES.includes(connectedAccount.address);
 
     if (!isAdmin) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh]">
                 <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-                <p className="text-gray-600 dark:text-gray-400">
-                    You do not have permission to access this page.
-                </p>
-            </div>
-        );
-    }
-
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh]">
-                <h1 className="text-2xl font-bold mb-4 text-red-500">Error</h1>
-                <p className="text-gray-600 dark:text-gray-400">
-                    {error instanceof Error ? error.message : "An error occurred while loading admin data"}
-                </p>
+                <p className="text-gray-600 dark:text-gray-400">You do not have permission to access this page.</p>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-card dark:bg-darkCard p-6 rounded-lg shadow-sm">
-                    <h2 className="text-xl font-semibold mb-4">Governance Contract Balance</h2>
-                    <p className="text-2xl font-bold text-primary mb-4">{adminData?.governanceBalance} MAS</p>
-                    <div className="flex items-center space-x-2">
-                        <input
-                            type="number"
-                            value={amountToSend}
-                            onChange={(e) => setAmountToSend(e.target.value)}
-                            placeholder="Amount to send"
-                            className="px-3 py-2 border border-border dark:border-darkBorder rounded-md bg-background dark:bg-darkBg text-f-primary dark:text-f-primary w-full"
-                        />
-                        <button
-                            onClick={() => handleSendCoins('governance')}
-                            disabled={sendCoinsMutation.isPending}
-                            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-                        >
-                            {sendCoinsMutation.isPending ? 'Sending...' : 'Send to Governance'}
-                        </button>
-                    </div>
-                </div>
-
-                <div className="bg-card dark:bg-darkCard p-6 rounded-lg shadow-sm">
-                    <h2 className="text-xl font-semibold mb-4">MasOG Contract Balance</h2>
-                    <p className="text-2xl font-bold text-primary mb-4">{adminData?.masOgBalance} MAS</p>
-                    <div className="flex items-center space-x-2">
-                        <input
-                            type="number"
-                            value={amountToSend}
-                            onChange={(e) => setAmountToSend(e.target.value)}
-                            placeholder="Amount to send"
-                            className="px-3 py-2 border border-border dark:border-darkBorder rounded-md bg-background dark:bg-darkBg text-f-primary dark:text-f-primary w-full"
-                        />
-                        <button
-                            onClick={() => handleSendCoins('masOg')}
-                            disabled={sendCoinsMutation.isPending}
-                            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-                        >
-                            {sendCoinsMutation.isPending ? 'Sending...' : 'Send to MasOG'}
-                        </button>
-                    </div>
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <div className="flex items-center justify-between mb-8">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                    Admin Dashboard
+                </h1>
+                <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                    Auto-refreshing every 30s
                 </div>
             </div>
 
-            <div className="bg-card dark:bg-darkCard p-6 rounded-lg shadow-sm mb-8">
-                <h2 className="text-xl font-semibold mb-4">Auto-Refresh Management</h2>
-                <div className="space-y-4">
-                    <div className="flex items-center">
-                        <label className="flex items-center cursor-pointer">
-                            <div className="relative">
-                                <input
-                                    type="checkbox"
-                                    className="sr-only"
-                                    checked={autoRefreshEnabled}
-                                    onChange={(e) => setAutoRefreshEnabled(e.target.checked)}
-                                />
-                                <div className={`block w-14 h-8 rounded-full ${autoRefreshEnabled ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'}`}></div>
-                                <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${autoRefreshEnabled ? 'transform translate-x-6' : ''}`}></div>
-                            </div>
-                            <div className="ml-3 text-gray-700 dark:text-gray-300 font-medium">
-                                {autoRefreshEnabled ? 'Enabled' : 'Disabled'}
-                            </div>
-                        </label>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Max Gas
-                            </label>
-                            <input
-                                type="number"
-                                value={maxGas}
-                                onChange={(e) => setMaxGas(e.target.value)}
-                                className="px-3 py-2 border border-border dark:border-darkBorder rounded-md bg-background dark:bg-darkBg text-f-primary dark:text-f-primary w-full"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Max Fee
-                            </label>
-                            <input
-                                type="number"
-                                value={maxFee}
-                                onChange={(e) => setMaxFee(e.target.value)}
-                                className="px-3 py-2 border border-border dark:border-darkBorder rounded-md bg-background dark:bg-darkBg text-f-primary dark:text-f-primary w-full"
-                            />
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={handleManageAutoRefresh}
-                        disabled={manageAutoRefreshMutation.isPending}
-                        className="w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-                    >
-                        {manageAutoRefreshMutation.isPending ? 'Updating...' : 'Update Auto-Refresh Settings'}
-                    </button>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <ContractCard
+                        title="Governance Contract"
+                        balance={adminData?.governanceBalance}
+                        isLoading={isLoading}
+                        amount={governanceAmount}
+                        onAmountChange={setGovernanceAmount}
+                        onSend={() => handleSendCoins('governance')}
+                        isSending={sendCoinsMutation.isPending && sendCoinsMutation.variables?.contractType === 'governance'}
+                    />
+                    <ContractCard
+                        title="MasOG Contract"
+                        balance={adminData?.masOgBalance}
+                        isLoading={isLoading}
+                        amount={masOgAmount}
+                        onAmountChange={setMasOgAmount}
+                        onSend={() => handleSendCoins('masOg')}
+                        isSending={sendCoinsMutation.isPending && sendCoinsMutation.variables?.contractType === 'masOg'}
+                    />
                 </div>
+                <AutoRefreshCard
+                    enabled={autoRefreshEnabled}
+                    maxGas={maxGas}
+                    maxFee={maxFee}
+                    onToggle={setAutoRefreshEnabled}
+                    onMaxGasChange={setMaxGas}
+                    onMaxFeeChange={setMaxFee}
+                    onUpdate={handleManageAutoRefresh}
+                    isUpdating={manageAutoRefreshMutation.isPending}
+                />
             </div>
 
-            <div className="bg-card dark:bg-darkCard p-6 rounded-lg shadow-sm">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold">Recent Events</h2>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                        Auto-refreshing every 10 seconds
-                    </div>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-border dark:border-darkBorder">
-                                <th className="text-left py-3 px-4">Op ID</th>
-                                <th className="text-left py-3 px-4">Slot</th>
-                                <th className="text-left py-3 px-4">Data</th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {adminData?.events.map((event, index) => {
-                                const eventId = event.context.origin_operation_id ||
-                                    `${event.context.slot.period}-${event.context.slot.thread}-${event.data}`;
-                                const isHighlighted = highlightedEventId === eventId;
-                                const slotInfo = `P:${event.context.slot.period} T:${event.context.slot.thread}`;
-
-                                return (
-                                    <tr
-                                        key={index}
-                                        className={`border-b border-border dark:border-darkBorder last:border-0 transition-all duration-500 ${isHighlighted ? 'bg-primary/10 dark:bg-primary/20' : ''
-                                            }`}
-                                    >
-                                        <td className="py-3 px-4">{event.context.origin_operation_id || 'N/A'}</td>
-                                        <td className="py-3 px-4">{slotInfo}</td>
-                                        <td className="py-3 px-4">{event.data}</td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <EventsTable
+                events={adminData?.events}
+                isLoading={isLoading}
+                error={error}
+                highlightedEventId={highlightedEventId}
+            />
         </div>
     );
 };
 
-export default AdminPage; 
+export default AdminPage;

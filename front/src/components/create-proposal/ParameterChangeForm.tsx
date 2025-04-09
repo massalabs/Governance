@@ -4,6 +4,7 @@ import {
   PlusIcon,
   TrashIcon,
   ChevronDownIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import { AVAILABLE_GOVERNANCE_PARAMETERS } from "../../config";
 
@@ -33,7 +34,34 @@ export function ParameterChangeForm({
     { parameter: "", value: "", isObjectValue: false },
   ]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [sizeWarning, setSizeWarning] = useState<string | null>(null);
   const allParameters = getAllParameters();
+
+  // Maximum size in bytes for parameter change data
+  const MAX_PARAMETER_CHANGE_SIZE = 500;
+
+  // Get a list of parameters that are already selected
+  const getSelectedParameters = () => {
+    return changes
+      .map(change => change.parameter)
+      .filter(param => param !== "");
+  };
+
+  // Filter out already selected parameters from the dropdown options
+  const getAvailableParameters = (currentIndex: number) => {
+    const selectedParams = getSelectedParameters();
+    return Object.entries(AVAILABLE_GOVERNANCE_PARAMETERS).map(([category, params]) => {
+      // Filter out parameters that are already selected in other rows
+      const availableParams = params.filter(param =>
+        param.id === changes[currentIndex].parameter || !selectedParams.includes(param.id)
+      );
+
+      return {
+        category,
+        params: availableParams
+      };
+    });
+  };
 
   const handleParameterChange = (index: number, newParameter: string) => {
     const newChanges = [...changes];
@@ -106,6 +134,7 @@ export function ParameterChangeForm({
 
     if (validChanges.length === 0) {
       setParameterChangeInput("");
+      setSizeWarning(null);
       return;
     }
 
@@ -128,14 +157,40 @@ export function ParameterChangeForm({
         };
       });
 
-      setParameterChangeInput(JSON.stringify(parameterChanges, null, 2));
+      const jsonString = JSON.stringify(parameterChanges, null, 2);
+      setParameterChangeInput(jsonString);
+
+      // Calculate the size of the parameter change data
+      const dataSize = new TextEncoder().encode(jsonString).length;
+
+      // Set warning if approaching or exceeding the limit
+      if (dataSize >= MAX_PARAMETER_CHANGE_SIZE) {
+        setSizeWarning(`Parameter change data exceeds the maximum allowed size of ${MAX_PARAMETER_CHANGE_SIZE} bytes. Current size: ${dataSize} bytes. Please reduce the number of parameters or simplify the values.`);
+      } else if (dataSize >= MAX_PARAMETER_CHANGE_SIZE * 0.8) {
+        setSizeWarning(`Parameter change data is approaching the maximum allowed size of ${MAX_PARAMETER_CHANGE_SIZE} bytes. Current size: ${dataSize} bytes.`);
+      } else {
+        setSizeWarning(null);
+      }
     } catch (e) {
       // If JSON parsing fails, just set the raw values
       const parameterChanges = validChanges.map((change) => ({
         parameter: change.parameter,
         value: change.value,
       }));
-      setParameterChangeInput(JSON.stringify(parameterChanges, null, 2));
+      const jsonString = JSON.stringify(parameterChanges, null, 2);
+      setParameterChangeInput(jsonString);
+
+      // Calculate the size of the parameter change data
+      const dataSize = new TextEncoder().encode(jsonString).length;
+
+      // Set warning if approaching or exceeding the limit
+      if (dataSize >= MAX_PARAMETER_CHANGE_SIZE) {
+        setSizeWarning(`Parameter change data exceeds the maximum allowed size of ${MAX_PARAMETER_CHANGE_SIZE} bytes. Current size: ${dataSize} bytes. Please reduce the number of parameters or simplify the values.`);
+      } else if (dataSize >= MAX_PARAMETER_CHANGE_SIZE * 0.8) {
+        setSizeWarning(`Parameter change data is approaching the maximum allowed size of ${MAX_PARAMETER_CHANGE_SIZE} bytes. Current size: ${dataSize} bytes.`);
+      } else {
+        setSizeWarning(null);
+      }
     }
   };
 
@@ -160,11 +215,20 @@ export function ParameterChangeForm({
         </div>
       </div>
 
+      {/* Size Warning */}
+      {sizeWarning && (
+        <div className="flex items-start gap-2 p-3 bg-s-warning/10 border border-s-warning/30 rounded-lg">
+          <ExclamationTriangleIcon className="w-5 h-5 text-s-warning flex-shrink-0 mt-0.5" />
+          <p className="text-s-warning text-sm">{sizeWarning}</p>
+        </div>
+      )}
+
       <div className="space-y-6">
         {changes.map((change, index) => {
           const selectedParameter = allParameters.find(
             (p) => p.id === change.parameter
           );
+          const availableParameters = getAvailableParameters(index);
 
           return (
             <div
@@ -203,14 +267,16 @@ export function ParameterChangeForm({
                       className="w-full px-4 py-2.5 pr-12 bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg text-f-primary dark:text-darkText focus:outline-none focus:ring-2 focus:ring-brand/30 dark:focus:ring-darkAccent/30 text-sm transition-all hover:border-border/80 dark:hover:border-darkAccent/80 appearance-none"
                     >
                       <option value="">Select a parameter</option>
-                      {Object.entries(AVAILABLE_GOVERNANCE_PARAMETERS).map(([category, params]) => (
-                        <optgroup key={category} label={category}>
-                          {params.map((param) => (
-                            <option key={param.id} value={param.id}>
-                              {param.name}
-                            </option>
-                          ))}
-                        </optgroup>
+                      {availableParameters.map(({ category, params }) => (
+                        params.length > 0 && (
+                          <optgroup key={category} label={category}>
+                            {params.map((param) => (
+                              <option key={param.id} value={param.id}>
+                                {param.name}
+                              </option>
+                            ))}
+                          </optgroup>
+                        )
                       ))}
                     </select>
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">

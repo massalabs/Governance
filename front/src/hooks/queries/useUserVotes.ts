@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useContractStore } from "../../store/useContractStore";
 import { useAccountStore } from "@massalabs/react-ui-kit";
-import { governanceKeys } from "../queryKeys/governance";
+import { governanceKeys } from "./governanceKeys";
 import { Vote } from "../../serializable/Vote";
 import { FormattedProposal } from "../../types/governance";
 

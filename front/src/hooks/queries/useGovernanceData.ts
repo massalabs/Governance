@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContractStore } from "../../store/useContractStore";
-import { governanceKeys } from "../queryKeys/governance";
+import { governanceKeys } from "./governanceKeys";
 import { useUserVotes } from "./useUserVotes";
 import { useMasogTotalSupply } from "./useMasogData";
 import { calculateStats } from "../../utils/governance";

@@ -4,7 +4,7 @@ import {
   useAccountStore,
   useWriteSmartContract,
 } from "@massalabs/react-ui-kit";
-import { governanceKeys } from "../queryKeys/governance";
+import { governanceKeys } from "./governanceKeys";
 import { Vote } from "../../serializable/Vote";
 import { VoteMutationParams } from "../../types/governance";
 import { Args, Mas } from "@massalabs/massa-web3";

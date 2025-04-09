@@ -32,7 +32,7 @@ export function ParameterChanges({ parameterChange }: ParameterChangesProps) {
                   <div className="text-sm text-f-tertiary dark:text-darkMuted mb-1">
                     Parameter Name
                   </div>
-                  <div className="font-medium text-f-primary dark:text-darkText">
+                  <div className="font-medium text-f-primary dark:text-darkText break-words">
                     {change.parameter}
                   </div>
                 </div>
@@ -42,7 +42,7 @@ export function ParameterChanges({ parameterChange }: ParameterChangesProps) {
                   <div className="text-sm text-f-tertiary dark:text-darkMuted mb-1">
                     New Value
                   </div>
-                  <div className="font-medium text-f-primary dark:text-darkText">
+                  <div className="font-medium text-f-primary dark:text-darkText break-words">
                     {isObjectValue ? (
                       <pre className="text-sm whitespace-pre-wrap">
                         {JSON.stringify(JSON.parse(change.value), null, 2)}

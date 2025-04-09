@@ -1,7 +1,7 @@
 import { useContractStore } from "@/store/useContractStore";
 import { formatProposal } from "@/utils/governance";
 import { useQuery } from "@tanstack/react-query";
-import { governanceKeys } from "../queryKeys/governance";
+import { governanceKeys } from "./governanceKeys";
 
 export const useProposals = () => {
   const { governancePublic } = useContractStore();

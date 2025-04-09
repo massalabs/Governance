@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { useContractStore } from "@/store/useContractStore";
-import { governanceKeys } from "../queryKeys/governance";
+import { governanceKeys } from "./governanceKeys";
 
 interface UseUserBalanceOptions {
   refetchInterval?: number;
