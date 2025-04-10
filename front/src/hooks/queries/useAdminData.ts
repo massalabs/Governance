@@ -1,28 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useContractStore } from "../../store/useContractStore";
 import { Mas } from "@massalabs/massa-web3";
-
-// Define our own event types based on the structure we know
-interface EventContext {
-    slot: {
-        period: number;
-        thread: number;
-    };
-    block?: string;
-    origin_operation_id?: string;
-    [key: string]: any;
-}
-
-interface Event {
-    context: EventContext;
-    data: string;
-    isNew?: boolean;
-}
+import { OutputEvents } from "@massalabs/massa-web3/dist/esm/generated/client-types";
 
 interface AdminData {
     governanceBalance: string;
     masOgBalance: string;
-    events: Event[];
+    events: OutputEvents;
     timestamp: number;
 }
 

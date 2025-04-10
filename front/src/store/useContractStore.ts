@@ -5,15 +5,12 @@ import {
   PublicProvider,
 } from "@massalabs/massa-web3";
 import { Governance } from "../contract-wrapper/Governance";
-import { Oracle } from "../contract-wrapper/Oracle";
 import { MasOg } from "../contract-wrapper/MasOg";
 import { isMainnet } from "@/config";
 
 interface Contracts {
   governancePublic: Governance;
   governancePrivate: Governance;
-  oraclePublic: Oracle;
-  oraclePrivate: Oracle;
   masOgPublic: MasOg;
   masOgPrivate: MasOg;
 }
@@ -36,16 +33,14 @@ export const useContractStore = create<ContractStoreState>((set) => ({
   initializePublicContracts: async (provider?: Provider) => {
 
     try {
-      const [governancePublic, oraclePublic, masOgPublic] = await Promise.all([
+      const [governancePublic, masOgPublic] = await Promise.all([
         Governance.initPublic(provider ?? await getPublicProvider()),
-        Oracle.initPublic(provider ?? await getPublicProvider()),
         MasOg.initPublic(provider ?? await getPublicProvider()),
       ]);
 
       set((state) => ({
         ...state,
         governancePublic,
-        oraclePublic,
         masOgPublic,
       }));
     } catch (error) {
@@ -56,16 +51,14 @@ export const useContractStore = create<ContractStoreState>((set) => ({
 
   initializePrivateContracts: async (provider: Provider) => {
     try {
-      const [governancePrivate, oraclePrivate, masOgPrivate] = await Promise.all([
+      const [governancePrivate, masOgPrivate] = await Promise.all([
         Governance.init(provider),
-        Oracle.init(provider),
         MasOg.init(provider),
       ]);
 
       set((state) => ({
         ...state,
         governancePrivate,
-        oraclePrivate,
         masOgPrivate,
       }));
     } catch (error) {
@@ -94,8 +87,6 @@ export const useContractStore = create<ContractStoreState>((set) => ({
     set({
       governancePublic: undefined,
       governancePrivate: undefined,
-      oraclePublic: undefined,
-      oraclePrivate: undefined,
       masOgPublic: undefined,
       masOgPrivate: undefined,
       isInitialized: false,

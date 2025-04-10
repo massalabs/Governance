@@ -12,6 +12,7 @@ export const contracts = {
     masOg: "AS1RBDkKmg4DNxH4niuUZaec7rXe6qcbmZi8UeTFCBYp9zwxmBrF",
     oracle: "AS1yUyqvqoQhEw1BEm6k2P3gHz1hvr4mLy5BwCujnTdiBNjYLPAs",
     governance: "AS12k9LK17UVQGp96dPGhKiQ7xWmMihbN81DhagaCrcdgcRNHJQbE",
+    // governance: "AS17XBnMR1Cu4ihjrSUHNjFvVmR4F9xfeknXYqCqNPVC5noTViCj",// test
   },
 };
 
@@ -49,6 +50,17 @@ export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = 1;
 // export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
 // export const DISCUSSION_PERIOD = U64.fromNumber(5 * 60 * 1000); // 5 min
 // export const VOTING_PERIOD = U64.fromNumber(5 * 60 * 1000); // 5 min
+
+// Maximum size in bytes for parameter change data
+// Proposal size limit
+export const MAX_PARAMETER_CHANGE_SIZE = 500;
+
+export enum ProposalStatus {
+  DISCUSSION = "DISCUSSION",
+  VOTING = "VOTING",
+  ACCEPTED = "ACCEPTED",
+  REJECTED = "REJECTED",
+}
 
 // Available governance parameters that can be modified
 export const AVAILABLE_GOVERNANCE_PARAMETERS = {
@@ -298,56 +310,4 @@ export const AVAILABLE_GOVERNANCE_PARAMETERS = {
       step: 1
     }
   ],
-
-  // "Governance": [
-  //   {
-  //     id: "MIN_PROPOSAL_MAS_AMOUNT",
-  //     name: "Minimum Proposal MAS Amount",
-  //     description: "Minimum amount of MAS required to create a proposal",
-  //     type: "number",
-  //     min: 0,
-  //     step: 1
-  //   },
-  //   {
-  //     id: "MIN_PROPOSAL_MASOG_AMOUNT",
-  //     name: "Minimum Proposal MASOG Amount",
-  //     description: "Minimum amount of MASOG required to create a proposal",
-  //     type: "number",
-  //     min: 0,
-  //     step: 1
-  //   },
-  //   {
-  //     id: "MIN_VOTE_MASOG_AMOUNT",
-  //     name: "Minimum Vote MASOG Amount",
-  //     description: "Minimum amount of MASOG required to vote on a proposal",
-  //     type: "number",
-  //     min: 0,
-  //     step: 1
-  //   },
-  //   {
-  //     id: "DISCUSSION_PERIOD",
-  //     name: "Discussion Period",
-  //     description: "Duration of the discussion period in milliseconds",
-  //     type: "number",
-  //     min: 0,
-  //     step: 1000
-  //   },
-  //   {
-  //     id: "VOTING_PERIOD",
-  //     name: "Voting Period",
-  //     description: "Duration of the voting period in milliseconds",
-  //     type: "number",
-  //     min: 0,
-  //     step: 1000
-  //   },
-  //   {
-  //     id: "TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE",
-  //     name: "Total Supply Percentage for Acceptance",
-  //     description: "Percentage of total supply required for a proposal to be accepted",
-  //     type: "number",
-  //     min: 0,
-  //     max: 100,
-  //     step: 0.1
-  //   },
-  // ]
 };

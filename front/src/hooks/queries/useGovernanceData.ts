@@ -1,41 +1,17 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useContractStore } from "../../store/useContractStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { governanceKeys } from "./governanceKeys";
 import { useUserVotes } from "./useUserVotes";
-import { useMasogTotalSupply } from "./useMasogData";
-import { calculateStats } from "../../utils/governance";
 import { GovernanceData } from "../../types/governance";
 import { useCallback } from "react";
 import { useProposals } from "./useProposals";
 import { useUserBalance } from "./useUserBalance";
+import { useGovernanceStats } from "./useGovernanceStats";
 
 export function useGovernanceData(): GovernanceData {
-  const { governancePublic } = useContractStore();
   const queryClient = useQueryClient();
 
   // Fetch proposals
   const { data: proposals = [], isLoading: loadingProposals } = useProposals();
-
-  // Fetch total votes
-  const { data: totalVotes = 0n, isLoading: loadingTotalVotes } = useQuery({
-    queryKey: governanceKeys.all,
-    queryFn: async () => {
-      if (!governancePublic) {
-        throw new Error("Governance contract not initialized");
-      }
-
-      try {
-        return await governancePublic.getTotalNbVotes();
-      } catch (error) {
-        console.error("[Error] Error fetching total votes:", error);
-        throw error;
-      }
-    },
-    refetchInterval: 5000,
-    retry: 3,
-    retryDelay: 1000,
-    enabled: !!governancePublic,
-  });
 
   // Fetch user's MASOG balance
   const { data: userMasogBalance = null, isLoading: loadingBalance } =
@@ -45,14 +21,8 @@ export function useGovernanceData(): GovernanceData {
   const { data: userVotes = {}, isLoading: loadingUserVotes } =
     useUserVotes(proposals);
 
-  // Calculate stats
-  const { data: totalSupply } = useMasogTotalSupply();
-  const stats = calculateStats(
-    proposals,
-    totalSupply ?? null,
-    userMasogBalance,
-    totalVotes
-  );
+  // Calculate stats using the new hook
+  const stats = useGovernanceStats(proposals);
 
   // Refresh function
   const refresh = useCallback(() => {
@@ -67,7 +37,6 @@ export function useGovernanceData(): GovernanceData {
     proposalVotesMap: {}, // Empty object as this is now handled separately
     loading:
       loadingProposals ||
-      loadingTotalVotes ||
       loadingBalance ||
       loadingUserVotes,
     refresh,

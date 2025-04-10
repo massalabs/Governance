@@ -1,6 +1,5 @@
+import { ProposalStatus } from "@/config";
 import { Vote } from "../serializable/Vote";
-
-export type ProposalStatus = "DISCUSSION" | "VOTING" | "ACCEPTED" | "REJECTED";
 
 export interface CreateProposalParams {
   title: string;

@@ -1,8 +1,9 @@
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { useUIStore } from "../../store/useUIStore";
+import { ProposalStatus } from "@/config";
 
 interface ProposalActionsProps {
-  status: string;
+  status: ProposalStatus;
   proposalId: bigint;
   hasVoted: boolean;
   canVote: boolean;
@@ -17,7 +18,7 @@ export function ProposalActions({
   const { openVoteModal } = useUIStore();
   const normalizedStatus = status.toUpperCase();
 
-  if (normalizedStatus !== "VOTING") {
+  if (normalizedStatus !== ProposalStatus.VOTING) {
     return null;
   }
 

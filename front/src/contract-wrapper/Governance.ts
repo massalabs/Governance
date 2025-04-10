@@ -19,18 +19,11 @@ import { I32_t } from "@massalabs/massa-web3/dist/esm/basicElements/serializers/
 import { MasOg } from "./MasOg";
 import { VoteDetails } from "@/types/governance";
 
-export type Upgradable = SmartContract & {
-  upgradeSC: (
-    bytecode: Uint8Array,
-    options?: ReadSCOptions
-  ) => Promise<Operation>;
-};
 
 const UPDATE_PROPOSAL_TAG = strToBytes("UPDATE_PROPOSAL_TAG");
 const UPDATE_VOTE_TAG = strToBytes("UPDATE_VOTE_TAG");
-const UPDATE_COUNTER_TAG = strToBytes("UPDATE_PROPOSAL_COUNTER");
 
-export class Governance extends SmartContract implements Upgradable {
+export class Governance extends SmartContract {
   static async init(provider: Provider | PublicProvider): Promise<Governance> {
     return new Governance(provider, getContracts().governance);
   }
@@ -68,13 +61,6 @@ export class Governance extends SmartContract implements Upgradable {
   }
 
   /**
-   * Refreshes proposal statuses
-   */
-  async refresh(options?: ReadSCOptions): Promise<Operation> {
-    return this.call("refresh", new Args(), options);
-  }
-
-  /**
    * Deletes a proposal (admin only)
    * @param proposalId - ID of the proposal to delete
    */
@@ -83,20 +69,6 @@ export class Governance extends SmartContract implements Upgradable {
     options?: ReadSCOptions
   ): Promise<Operation> {
     return this.call("deleteProposal", new Args().addU64(proposalId), options);
-  }
-
-  /**
-   * Sets the MASOG contract address (admin only)
-   * @param masogAddress - Address of the MASOG contract
-   */
-  async setMasOgAddress(
-    masogAddress: string = getContracts().masOg,
-    options?: ReadSCOptions
-  ): Promise<Operation> {
-    return this.call("setMasOgContract", new Args().addString(masogAddress), {
-      ...options,
-      coins: Mas.fromString("1"),
-    });
   }
 
   /**
@@ -254,77 +226,6 @@ export class Governance extends SmartContract implements Upgradable {
     );
 
     return BigInt(keys.length);
-  }
-
-  /**
-   * Get the counter of the proposal
-   * @param proposalId - The ID of the proposal
-   */
-  async getCounter(final = false): Promise<bigint> {
-    const result = await this.provider.readStorage(
-      this.address,
-      [UPDATE_COUNTER_TAG],
-      final
-    );
-
-    if (!result[0]) {
-      throw new Error("Counter not found");
-    }
-
-    return U64.fromBytes(result[0]);
-  }
-
-  /**
-   * Upgrades the contract bytecode (admin only)
-   * @param bytecode - New contract bytecode
-   */
-  async upgradeSC(
-    bytecode: Uint8Array,
-    options?: ReadSCOptions
-  ): Promise<Operation> {
-    return await this.call("upgradeSC", bytecode, options);
-  }
-
-  /**
-   * Sets the status of a proposal to the next status
-   * @param proposalId - The ID of the proposal
-   */
-  async nextStatus(
-    proposalId: bigint,
-    options?: ReadSCOptions
-  ): Promise<Operation> {
-    return await this.call(
-      "nextStatus",
-      new Args().addU64(proposalId),
-      options
-    );
-  }
-
-  /**
-   * Gets a specific vote for a proposal from an address
-   * @param address - The address that cast the vote
-   * @param proposalId - The ID of the proposal
-   */
-  async getVote(
-    address: string,
-    proposalId: bigint,
-    final = false
-  ): Promise<Vote> {
-    const key = new Uint8Array([
-      ...UPDATE_VOTE_TAG,
-      ...U64.toBytes(proposalId),
-      ...strToBytes(address),
-    ]);
-
-    const result = await this.provider.readStorage(this.address, [key], final);
-
-    if (!result[0]) {
-      throw new Error("Vote not found");
-    }
-
-    const vote = new Vote();
-    vote.deserialize(result[0], 0);
-    return vote;
   }
 
   /**

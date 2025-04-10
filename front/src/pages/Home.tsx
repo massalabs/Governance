@@ -19,7 +19,6 @@ export default function Home() {
       <VotingPowerSection
         loading={loading}
         userMasogBalance={userMasogBalance}
-        userVotingPower={userMasogBalance}
         isConnected={!!connectedAccount}
       />
       <RecentProposalsSection loading={loading} proposals={proposals} />

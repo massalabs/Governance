@@ -2,9 +2,10 @@ import { useState, useCallback } from "react";
 
 import { ProposalCard } from "../components/proposals/ProposalCard";
 import { ProposalFilters } from "../components/proposals/ProposalFilters";
-import { FormattedProposal, ProposalStatus } from "../types/governance";
+import { FormattedProposal } from "../types/governance";
 import { useGovernanceData } from "../hooks/queries/useGovernanceData";
 import VoteModal from "@/components/VoteModal";
+import { ProposalStatus } from "@/config";
 
 const filterProposals = (
   proposals: FormattedProposal[],

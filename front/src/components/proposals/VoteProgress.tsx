@@ -2,7 +2,7 @@ import { FormattedProposal } from "../../types/governance";
 import { useMasogTotalSupply } from "../../hooks/queries/useMasogData";
 import { useSingleProposalVotes } from "../../hooks/queries/useProposalVotes";
 import { useMemo } from "react";
-import { TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE } from "../../config";
+import { ProposalStatus, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE } from "../../config";
 import Big from 'big.js';
 
 interface VoteProgressProps {
@@ -129,11 +129,11 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
 
     proposalVotes.forEach(vote => {
       // Convert vote.value to BigInt if it's not already
-      const voteValue = typeof vote.value === 'bigint' ? vote.value : BigInt(vote.value);
 
-      if (voteValue === 1n) {
+
+      if (vote.value === 1n) {
         positive += vote.balance;
-      } else if (voteValue === -1n) {
+      } else if (vote.value === -1n) {
         negative += vote.balance;
       } else {
         blank += vote.balance;
@@ -144,7 +144,7 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
   }, [proposalVotes]);
 
   // Use proposal's vote volumes when voting has ended, otherwise use calculated volumes
-  const isVotingEnded = proposal.status === "ACCEPTED" || proposal.status === "REJECTED";
+  const isVotingEnded = proposal.status === ProposalStatus.ACCEPTED || proposal.status === ProposalStatus.REJECTED;
   const positiveVoteVolume = isVotingEnded ? proposal.positiveVoteVolume : calculatedVoteVolumes.positive;
   const negativeVoteVolume = isVotingEnded ? proposal.negativeVoteVolume : calculatedVoteVolumes.negative;
   const blankVoteVolume = isVotingEnded ? proposal.blankVoteVolume : calculatedVoteVolumes.blank;
@@ -202,7 +202,7 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
       </div>
 
       {/* Estimation notice - only shown during voting status */}
-      {proposal.status === "VOTING" && (
+      {proposal.status === ProposalStatus.VOTING && (
         <div className="text-xs text-amber-400 dark:text-amber-400 bg-amber-400/10 dark:bg-amber-400/10 p-2 rounded-md">
           <p>Note: This is an estimated result only. The final outcome will be calculated at the voting session's end. As the MASOG supply may change until then, these figures are approximate and subject to change.</p>
         </div>
