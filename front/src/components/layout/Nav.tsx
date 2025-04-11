@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { ConnectButton } from "./connect-wallet-popup"
+import { ConnectButton } from "../wallet/connect-wallet-popup"
 import { NetworkIndicator } from "./NetworkIndicator"
 import ThemeToggle from "./ThemeToggle"
 import { ADMIN_ADDRESSES } from "@/config";

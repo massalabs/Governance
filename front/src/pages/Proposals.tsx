@@ -4,7 +4,7 @@ import { ProposalCard } from "../components/proposals/ProposalCard";
 import { ProposalFilters } from "../components/proposals/ProposalFilters";
 import { FormattedProposal } from "../types/governance";
 import { useGovernanceData } from "../hooks/queries/useGovernanceData";
-import VoteModal from "@/components/VoteModal";
+import VoteModal from "@/components/proposals/VoteModal";
 import { ProposalStatus } from "@/config";
 
 const filterProposals = (

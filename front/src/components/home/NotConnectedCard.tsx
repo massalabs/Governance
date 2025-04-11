@@ -1,4 +1,4 @@
-import { ConnectButton } from "../connect-wallet-popup";
+import { ConnectButton } from "../wallet/connect-wallet-popup";
 
 export const NotConnectedCard = () => (
     <div className="bg-secondary/20 dark:bg-darkCard/20 rounded-lg p-6 border border-border/50 dark:border-darkBorder/50">

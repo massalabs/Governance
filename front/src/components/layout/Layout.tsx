@@ -2,9 +2,10 @@ import { useEffect, useCallback } from "react";
 import { Nav } from "./Nav";
 import { Footer } from "./Footer";
 import { Outlet } from "react-router-dom";
-import { useUIStore } from "../store/useUIStore";
-import bgDark from "../assets/bg-dark.png";
-import bgLight from "../assets/bg-light.png";
+
+import bgDark from "../../assets/bg-dark.png";
+import bgLight from "../../assets/bg-light.png";
+import { useUIStore } from "@/store/useUIStore";
 
 
 

@@ -4,7 +4,7 @@ import { VoteProgress } from "../components/proposals/VoteProgress";
 import { useGovernanceData } from "../hooks/queries/useGovernanceData";
 import { useUIStore } from "../store/useUIStore";
 import { Loading } from "@/components/ui/Loading";
-import VoteModal from "../components/VoteModal";
+import VoteModal from "../components/proposals/VoteModal";
 import { ProposalHeader } from "../components/proposals/details/ProposalHeader";
 import { BasicInfoSection } from "../components/proposals/details/BasicInfoSection";
 import { TechnicalDetailsSection } from "../components/proposals/details/TechnicalDetailsSection";

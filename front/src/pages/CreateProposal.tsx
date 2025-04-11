@@ -13,9 +13,9 @@ import { useState } from "react";
 import { CreateProposalParams } from "../types/governance";
 import { useGovernanceData } from "../hooks/queries/useGovernanceData";
 import { useAccountStore } from "@massalabs/react-ui-kit";
-import { WalletNotConnected } from "@/components/wallet-not-connected";
 import { Divider } from "@/components/ui/Divider";
 import { HeaderSection } from "@/components/create-proposal/HeaderSection";
+import { WalletNotConnected } from "@/components/wallet/wallet-not-connected";
 
 export default function CreateProposal() {
   const { connectedAccount } = useAccountStore();

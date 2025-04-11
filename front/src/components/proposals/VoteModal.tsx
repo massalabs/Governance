@@ -1,7 +1,7 @@
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { useUIStore } from "../store/useUIStore";
-import { useGovernanceData } from "../hooks/queries/useGovernanceData";
+import { useUIStore } from "../../store/useUIStore";
+import { useGovernanceData } from "../../hooks/queries/useGovernanceData";
 import {
   HandThumbUpIcon,
   HandThumbDownIcon,
