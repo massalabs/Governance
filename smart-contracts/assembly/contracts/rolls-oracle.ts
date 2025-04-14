@@ -21,6 +21,7 @@ import {
   ORACLE_LAST_RECORDED_CYCLE,
   rollKeyPrefix,
 } from './oracle-internals/keys';
+import { KeyValue } from './serializable/key-value';
 
 export const MASOG_KEY = 'MASOG_KEY';
 
@@ -37,6 +38,23 @@ export function constructor(_: StaticArray<u8>): void {
   Storage.set(ORACLE_LAST_RECORDED_CYCLE, u64ToBytes(0));
 
   transferRemaining(Context.transferredCoins());
+}
+
+export function migrate(bin: StaticArray<u8>): void {
+  _onlyOwner();
+
+  const initialBalance = balance();
+
+  const keyValues = new Args(bin)
+    .nextSerializableObjectArray<KeyValue>()
+    .expect('Key values should be provided');
+
+  for (let i = 0; i < keyValues.length; i++) {
+    const keyValue = keyValues[i];
+    Storage.set(keyValue.key, keyValue.value);
+  }
+
+  transferRemaining(initialBalance);
 }
 
 export function setMasOgAddress(bin: StaticArray<u8>): void {
@@ -84,6 +102,7 @@ export function feedCycle(binaryArgs: StaticArray<u8>): void {
       nbStakers * MAX_MINT_COST + 1_000_000_000,
     );
   }
+
   transferRemaining(initialBalance);
 }
 

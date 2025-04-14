@@ -8,6 +8,7 @@ import {
 } from '@massalabs/massa-as-sdk';
 import { Args, boolToByte, u64ToBytes } from '@massalabs/as-types';
 import {
+  _isOwner,
   _onlyOwner,
   _setOwner,
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
@@ -23,14 +24,27 @@ import {
   _vote,
   _deleteProposal,
 } from './governance-internals';
-import { _ensureAutoRefresh, _autoRefreshCall, MAX_ASYNC_CALL_GAS_KEY, MAX_ASYNC_CALL_FEE_KEY } from './governance-internals/auto-refresh';
-import { AUTO_REFRESH_STATUS_KEY, ASC_START_PERIOD, ASC_END_PERIOD } from './governance-internals/config';
+import {
+  _ensureAutoRefresh,
+  _autoRefreshCall,
+  MAX_ASYNC_CALL_GAS_KEY,
+  MAX_ASYNC_CALL_FEE_KEY,
+  AUTO_REFRESH_STATUS_KEY,
+  ASC_START_PERIOD,
+  ASC_END_PERIOD
+} from './governance-internals/auto-refresh';
+import { ALLOWED_ADDRESSES } from './governance-internals/config';
+
 
 /**
  * Initializes the smart contract and sets the deployer as the owner.
  */
-export function constructor(_: StaticArray<u8>): void {
+export function constructor(bin: StaticArray<u8>): void {
   if (!Context.isDeployingContract()) return;
+
+  const masOgAddr = new Args(bin)
+    .nextString()
+    .expect('Oracle contract should be provided');
 
   _setOwner(Context.caller().toString());
 
@@ -38,6 +52,9 @@ export function constructor(_: StaticArray<u8>): void {
   Storage.set(AUTO_REFRESH_STATUS_KEY, boolToByte(true));
   Storage.set(ASC_START_PERIOD, u64ToBytes(0));
   Storage.set(ASC_END_PERIOD, u64ToBytes(0));
+
+  assertIsSmartContract(masOgAddr);
+  Storage.set(MASOG_KEY, masOgAddr);
 
   transferRemaining(Context.transferredCoins());
 }
@@ -48,12 +65,12 @@ export function constructor(_: StaticArray<u8>): void {
  */
 export function setMasOgContract(bin: StaticArray<u8>): void {
   _onlyOwner();
-  const oracleAddr = new Args(bin)
+  const masogAddr = new Args(bin)
     .nextString()
     .expect('Masog contract should be provided');
 
-  assertIsSmartContract(oracleAddr);
-  Storage.set(MASOG_KEY, oracleAddr);
+  assertIsSmartContract(masogAddr);
+  Storage.set(MASOG_KEY, masogAddr);
 }
 
 /**
@@ -106,7 +123,7 @@ export function refresh(_: StaticArray<u8>): void {
 }
 
 /**
- * Run the auto refresh manually
+ * Function called by the ASC to run the auto refresh
  */
 export function runAutoRefresh(): void {
   assert(Context.caller() === Context.callee(), 'Caller must be the callee');
@@ -128,31 +145,15 @@ export function upgradeSC(bytecode: StaticArray<u8>): void {
   transferRemaining(initialBalance);
 }
 
-/**
- * Deletes a proposal and all its associated data (admin-only).
- * This is a temporary function to help clean up illegal or spam content.
- * @param binaryArgs - Serialized proposal ID (u64).
- */
-export function deleteProposal(binaryArgs: StaticArray<u8>): void {
-  onlyAllowedAddresses()
-
-  const initialBalance = balance();
-
-  const args = new Args(binaryArgs);
-  const proposalId = args.nextU64().expect('Proposal ID is required');
-
-  _deleteProposal(proposalId);
-
-  transferRemaining(initialBalance);
-}
 
 /**
  * Allow the owner ot allow or stop the auto refresh
  * @param binaryArgs - Serialized arguments: stop (bool).
  * @remarks This function is used to allow or stop or allow the auto refresh
+ * and set the max gas and fee for the auto refresh
  */
 export function manageAutoRefresh(binaryArgs: StaticArray<u8>): void {
-  _onlyOwner();
+  onlyAllowedAddresses();
   const args = new Args(binaryArgs);
   const stop = args.nextBool().expect('Boolean is required');
   const maxGas = args.nextU64().expect('maxGas is required');
@@ -167,15 +168,28 @@ export function manageAutoRefresh(binaryArgs: StaticArray<u8>): void {
 /*                         TEMP FUNCTIONS TO REMOVE                           */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Deletes a proposal and all its associated data (admin-only).
+ * This is a temporary function to help clean up illegal or spam content.
+ * @param binaryArgs - Serialized proposal ID (u64).
+ */
+export function deleteProposal(binaryArgs: StaticArray<u8>): void {
+  onlyAllowedAddresses()
+
+  const initialBalance = balance();
+
+  const args = new Args(binaryArgs);
+  const proposalId = args.nextU64().expect('Proposal ID is required');
+
+  // Only proposals that has been regected
+  _deleteProposal(proposalId);
+
+  transferRemaining(initialBalance);
+}
+
 
 function onlyAllowedAddresses(): void {
-  const allowedAddresses = [
-    'AU12FUbb8snr7qTEzSdTVH8tbmEouHydQTUAKDXY9LDwkdYMNBVGF',
-    'AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5',
-    'AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX',
-    'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq'
-  ];
-  assert(allowedAddresses.includes(Context.caller().toString()), 'Address is not allowed');
+  assert(ALLOWED_ADDRESSES.includes(Context.caller().toString()) || _isOwner(Context.caller().toString()), 'Address is not allowed');
 }
 
 /* -------------------------------------------------------------------------- */

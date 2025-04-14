@@ -30,6 +30,7 @@ import {
   _increaseTotalSupply,
 } from '@massalabs/sc-standards/assembly/contracts/MRC20/mintable/mint-internal';
 import { _balance, _setBalance } from '@massalabs/sc-standards/assembly/contracts/MRC20/MRC20-internals';
+import { KeyValue } from './serializable/key-value';
 
 const LAST_UPDATED_CYCLE = stringToBytes('LAST_UPDATE');
 export const ORACLE_KEY = 'ORACLE_KEY';
@@ -44,6 +45,23 @@ export function constructor(bin: StaticArray<u8>): void {
   assertIsSmartContract(oracleAddr);
   Storage.set(ORACLE_KEY, oracleAddr);
   transferRemaining(Context.transferredCoins());
+}
+
+export function migrate(bin: StaticArray<u8>): void {
+  _onlyOwner();
+
+  const initialBalance = balance();
+
+  const keyValues = new Args(bin)
+    .nextSerializableObjectArray<KeyValue>()
+    .expect('Key values should be provided');
+
+  for (let i = 0; i < keyValues.length; i++) {
+    const keyValue = keyValues[i];
+    Storage.set(keyValue.key, keyValue.value);
+  }
+
+  transferRemaining(initialBalance);
 }
 
 export function upgradeSC(bytecode: StaticArray<u8>): void {

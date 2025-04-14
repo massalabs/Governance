@@ -2,91 +2,113 @@
 import { Oracle } from './wrappers/Oracle';
 import {
   getStakers,
-  generateRolls,
+  generateRollsEntries,
   feedRolls,
   deleteRolls,
   getCycleInfo,
   getCyclesToDelete,
-} from './helper';
+} from './helpers';
 import { getProvider } from '../utils';
-import { Mas } from '@massalabs/massa-web3';
+import { JsonRpcProvider, Mas } from '@massalabs/massa-web3';
+import logger from '../utils/logger';
 
 // Constants
 const BATCH_SIZE_FEED = 5000;
 const BATCH_SIZE_DELETE = 4000;
 
-// Initialize providers and oracle
-const provider = await getProvider();
-const providerMainnet = await getProvider(undefined, true);
-const oracle = await Oracle.init(provider);
+async function initialize() {
+  const provider = await getProvider();
+  const providerMainnet = await getProvider(undefined, true);
+  const oracle = await Oracle.init(provider);
 
-// Log initial account info
-console.log(
-  `Account: ${provider.address} balance: ${Mas.toString(
-    await provider.balance(),
-  )}`,
-);
+  logger.info('Initializing feeder', {
+    address: provider.address,
+    balance: Mas.toString(await provider.balance()),
+  });
+
+  return { provider, providerMainnet, oracle };
+}
 
 /**
  * Main feeder logic
  */
 async function runFeeder(): Promise<void> {
-  console.log('Starting feeder...');
+  logger.info('Starting feeder...');
+
+  let provider: JsonRpcProvider, providerMainnet: JsonRpcProvider, oracle: Oracle;
 
   try {
-    // Fetch initial data
+    ({ provider, providerMainnet, oracle } = await initialize());
+
     const lastCycle = await oracle.getLastCycle();
-    let recordedCycles = await oracle.getRecordedCycles();
+    const recordedCycles = await oracle.getRecordedCycles();
     const { currentCycle, remainingPeriods } = await getCycleInfo(
       provider.client,
     );
 
-    console.log('- Last cycle:', lastCycle);
-    console.log('- Current cycle:', currentCycle);
-    console.log('- Recorded cycles:', recordedCycles);
+    logger.info('Cycle information', {
+      lastCycle,
+      currentCycle,
+      recordedCycles,
+      remainingPeriods,
+    });
 
-    // Check if we need to process a new cycle
+    // Early exit if no new cycle
     if (lastCycle >= currentCycle) {
-      console.log('Remaining periods to next cycle:', remainingPeriods);
-      console.log('');
+      logger.info('No new cycle to process', { remainingPeriods });
       return;
     }
 
     // Process rolls
     const stakers = await getStakers(providerMainnet);
-    const rolls = generateRolls(stakers);
-    console.log(`Stakers found: ${stakers.length}`);
+    logger.info('Stakers found', { count: stakers.length });
 
-    await feedRolls(oracle, rolls, currentCycle, BATCH_SIZE_FEED);
+    const rollEntries = generateRollsEntries(stakers);
+    await feedRolls(oracle, rollEntries, currentCycle, BATCH_SIZE_FEED);
+
     const nbRecord = await oracle.getNbRecordByCycle(currentCycle, true);
-    console.log('Recorded rolls:', nbRecord);
+    logger.info('Rolls recorded', { count: nbRecord });
 
-    if (nbRecord !== rolls.length) {
-      throw new Error('Recorded rolls do not match generated rolls');
-      // TODO: Add retry logic here if needed
+    if (nbRecord !== rollEntries.length) {
+      const errorMessage = `Recorded rolls (${nbRecord}) do not match generated rolls (${rollEntries.length})`;
+      logger.error('Roll count mismatch', {
+        expected: rollEntries.length,
+        actual: nbRecord,
+      });
+      throw new Error(errorMessage);
     }
 
     // Manage cycle history
-    recordedCycles = await oracle.getRecordedCycles();
     const cyclesToDelete = getCyclesToDelete(recordedCycles);
     if (cyclesToDelete.length === 0) {
-      console.log('No cycles to delete');
+      logger.info('No cycles to delete');
     } else {
       for (const cycle of cyclesToDelete) {
         const nbRecord = await oracle.getNbRecordByCycle(cycle, true);
-        console.log(`Deleting rolls from cycle ${cycle} (${nbRecord} records)`);
-        await deleteRolls(oracle, nbRecord, BATCH_SIZE_DELETE, cycle);
-        console.log(`Deleted rolls from cycle ${cycle}`);
+        logger.info('Deleting rolls from cycle', { cycle, recordCount: nbRecord });
+
+        try {
+          await deleteRolls(oracle, nbRecord, BATCH_SIZE_DELETE, cycle);
+          logger.info('Successfully deleted rolls', { cycle });
+        } catch (error: any) {
+          logger.error('Failed to delete rolls', {
+            cycle,
+            error: error.message,
+            stack: error.stack,
+          });
+          throw error;
+        }
       }
     }
 
-    console.log('Feeder finished\n');
-  } catch (error) {
-    console.error('Feeder error:', error);
-    throw error; // Re-throw to allow caller to handle or log
+    logger.info('Feeder finished successfully');
+  } catch (error: any) {
+    logger.error('Feeder error', {
+      message: error.message,
+      stack: error.stack,
+    });
+    throw error;
   }
 }
 
 runFeeder();
-// const POLLING_INTERVAL_MS = 60 * 1000; // 1 minute
-// setInterval(() => runFeeder(), POLLING_INTERVAL_MS); // Uncomment for polling

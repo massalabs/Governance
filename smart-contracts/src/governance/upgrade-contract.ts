@@ -1,10 +1,10 @@
 import { Mas, OperationStatus } from '@massalabs/massa-web3';
 import { getProvider, getScByteCode } from '../utils';
 import { Governance } from './wrapper/Governance';
+import { getContracts } from '../config';
 
 const provider = await getProvider();
-
-const governanceSystem = Governance.buildnet(provider);
+const governanceSystem = new Governance(provider, getContracts().governance);
 
 const bytecode = getScByteCode('build', 'governance.wasm');
 

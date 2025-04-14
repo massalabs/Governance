@@ -2,6 +2,7 @@ import {
   bytesToU64,
   u64ToBytes,
   stringToBytes,
+  bytesToString,
 } from '@massalabs/as-types';
 import {
   Storage,
@@ -14,6 +15,7 @@ import {
   votingStatus,
   statusKeyPrefix,
   UPDATE_PROPOSAL_COUNTER_TAG,
+  rejectedStatus,
 } from './keys';
 import { Vote } from '../serializable/vote';
 import {
@@ -101,6 +103,7 @@ export function _vote(vote: Vote): void {
  */
 export function _deleteProposal(proposalId: u64): void {
   const proposal = Proposal.getById(proposalId);
+  assert(proposal.status.toString() === rejectedStatus.toString(), 'Proposal is not rejected');
   proposal.delete();
 }
 

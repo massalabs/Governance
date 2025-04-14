@@ -10,10 +10,12 @@ import {
   U64,
   Operation,
   Mas,
+  OperationStatus,
 } from '@massalabs/massa-web3';
 import { U64_t } from '@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64';
 import { RollEntry } from '../serializable/RollEntry';
 import { contracts, getContracts } from '../../config';
+import { KeyValue } from '../../masog/serializable/KeyValue';
 
 export const ROLLS_TAG = strToBytes('ROLLS');
 const RECORDED_CYCLES_TAG = strToBytes('RECORDED_CYCLES');
@@ -34,18 +36,6 @@ export function rollKey(cycle: U64_t, address: string): Uint8Array {
 export class Oracle extends SmartContract {
   static async init(provider: Provider | PublicProvider): Promise<Oracle> {
     return new Oracle(provider, getContracts().oracle);
-  }
-
-  static mainnet(provider: Provider | PublicProvider): Oracle {
-    return new Oracle(provider, contracts.mainnet.oracle);
-  }
-
-  static buildnet(provider: Provider | PublicProvider): Oracle {
-    return new Oracle(provider, contracts.buildnet.oracle);
-  }
-
-  static local(provider: Provider | PublicProvider): Oracle {
-    return new Oracle(provider, contracts.buildnet.oracle);
   }
 
   async feedCycle(
@@ -159,10 +149,16 @@ export class Oracle extends SmartContract {
 
   async setMasOgAddress(
     masOgContract = getContracts().masOg,
-  ): Promise<Operation> {
-    return this.call('setMasOgAddress', new Args().addString(masOgContract), {
+  ): Promise<void> {
+    const op = await this.call('setMasOgAddress', new Args().addString(masOgContract), {
       coins: Mas.fromString('1'),
     });
+
+    const status = await op.waitFinalExecution();
+
+    if (status !== OperationStatus.Success) {
+      throw new Error('Failed to set MasOg address to oracle');
+    }
   }
 
   async getMasOgAddress(): Promise<string> {
@@ -173,5 +169,17 @@ export class Oracle extends SmartContract {
     }
 
     return bytesToStr(result[0]);
+  }
+
+  /**
+   * Migrates the storage of the oracle contract.
+   * @param keyValues - The key-value pairs to migrate.
+   * @param coins - The amount of coins to use for the migration in smallest unit.
+   * @returns The operation result.
+   */
+  async migrate(keyValues: KeyValue[], coins: bigint): Promise<Operation> {
+    return this.call('migrate', new Args().addSerializableObjectArray(keyValues), {
+      coins,
+    });
   }
 }

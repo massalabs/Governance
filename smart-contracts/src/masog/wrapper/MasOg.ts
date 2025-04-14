@@ -9,22 +9,11 @@ import {
   ArrayTypes,
 } from '@massalabs/massa-web3';
 import { contracts, getContracts } from '../../config';
+import { KeyValue } from '../serializable/KeyValue';
 
 export class MasOg extends MRC20 {
   static async init(provider: Provider | PublicProvider): Promise<MasOg> {
     return new MasOg(provider, getContracts().masOg);
-  }
-
-  static mainnet(provider: Provider | PublicProvider): MasOg {
-    return new MasOg(provider, contracts.mainnet.masOg);
-  }
-
-  static buildnet(provider: Provider | PublicProvider): MasOg {
-    return new MasOg(provider, contracts.buildnet.masOg);
-  }
-
-  static local(provider: Provider | PublicProvider, address?: string): MasOg {
-    return new MasOg(provider, address ? address : contracts.buildnet.masOg);
   }
 
   async refresh(coins: bigint, maxCycles = 0n): Promise<Operation> {
@@ -37,19 +26,15 @@ export class MasOg extends MRC20 {
     });
   }
 
-  async mintForTest(addresses: string[], amount: bigint): Promise<Operation> {
-    return this.call(
-      'mintForTest',
-      new Args().addArray(addresses, ArrayTypes.STRING).addU64(amount),
-      {
-        coins: Mas.fromString('1'),
-      },
-    );
-  }
-
-  async removeTestMint(addresses: string[]): Promise<Operation> {
-    return this.call('removeTestMint', new Args().addArray(addresses, ArrayTypes.STRING), {
-      coins: Mas.fromString('1'),
+  /**
+   * Migrates the storage of the masOg contract.
+   * @param keyValues - The key-value pairs to migrate.
+   * @param coins - The amount of coins to use for the migration in smallest unit.
+   * @returns The operation result.
+   */
+  async migrate(keyValues: KeyValue[], coins: bigint): Promise<Operation> {
+    return this.call('migrate', new Args().addSerializableObjectArray(keyValues), {
+      coins,
     });
   }
 }

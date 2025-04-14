@@ -42,9 +42,9 @@ export async function feedRolls(
 
     const opFeed = await oracle.feedCycle(batch, cycle, isLastBatch, {
       coins: Mas.fromNanoMas(
-        Mas.fromString('100') +
-          (AVERAGE_ROLL_STORAGE_COST + MAX_MINT_STORAGE_COST) *
-            BigInt(batchSize),
+        Mas.fromString('100') + // Will be refounded if 100 MAS are too much
+        (AVERAGE_ROLL_STORAGE_COST + MAX_MINT_STORAGE_COST) *
+        BigInt(batchSize),
       ),
       fee: Mas.fromString('0.1'),
     });
@@ -100,7 +100,7 @@ export async function deleteRolls(
  * @param stakers - Array of staker information
  * @returns Array of RollEntry objects
  */
-export function generateRolls(stakers: Staker[]): RollEntry[] {
+export function generateRollsEntries(stakers: Staker[]): RollEntry[] {
   return stakers.map((staker) =>
     RollEntry.create(staker[0], BigInt(staker[1])),
   );

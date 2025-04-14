@@ -49,7 +49,8 @@ import {
   mockMasogTotalSupply,
   mockCheckLastAutoRefresh,
 } from './utils';
-import { MIN_PROPOSAL_MASOG_AMOUNT, MIN_PROPOSAL_MAS_AMOUNT, MIN_VOTE_MASOG_AMOUNT, DISCUSSION_PERIOD, VOTING_PERIOD, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE, ASC_END_PERIOD } from '../contracts/governance-internals/config';
+import { MIN_PROPOSAL_MASOG_AMOUNT, MIN_PROPOSAL_MAS_AMOUNT, MIN_VOTE_MASOG_AMOUNT, DISCUSSION_PERIOD, VOTING_PERIOD, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE } from '../contracts/governance-internals/config';
+import { ASC_END_PERIOD } from '../contracts/governance-internals/auto-refresh';
 
 
 const governanceOwner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
@@ -538,6 +539,29 @@ describe('DeleteProposal', () => {
   });
 
   test('Successfully deletes a proposal and all associated data', () => {
+    const baseTime = u64(1000000);
+    const totalSupply = u64(1000_000_000_000);
+    // Setup proposal with votes exactly at threshold to ensure it gets rejected
+    setupProposal(1, votingStatus, baseTime, totalSupply * TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE / 100);
+    mockMasogTotalSupply(totalSupply);
+    mockTimestamp(baseTime + DISCUSSION_PERIOD + VOTING_PERIOD + 1); // 15:00.001
+    refresh([]); // This will transition the proposal to rejected status
+
+    // Verify proposal is in rejected status before deletion
+    const proposalBeforeDelete = Proposal.getById(1);
+    expect(proposalBeforeDelete.status).toStrictEqual(rejectedStatus);
+
+    // Delete the proposal
+    const deleteArgs = new Args().add<u64>(1).serialize();
+    deleteProposal(deleteArgs);
+
+    // Verify proposal is deleted
+    expect(Storage.has(proposalKey(1))).toBe(false);
+    expect(Storage.has(statusKey(rejectedStatus, 1))).toBe(false);
+    expect(Storage.has(voteKey(1, governanceOwner))).toBe(false);
+  });
+
+  throws('Fails when trying to delete a proposal not Rejected', () => {
     mockTimestamp(1234567890 + DISCUSSION_PERIOD + 1);
     mockScCall([]);
     // Add a vote to the proposal
@@ -585,7 +609,7 @@ function setupContracts(): void {
   // Init governance system contract
   governanceContractAddress = createSC([]).toString();
   setCallStack(governanceOwner, governanceContractAddress);
-  governanceConstructor([]);
+  governanceConstructor(new Args().add(oracleAddress).serialize());
   mockBalance(governanceContractAddress, MIN_PROPOSAL_MAS_AMOUNT);
   Storage.set(ASC_END_PERIOD, u64ToBytes(1234567890));
 

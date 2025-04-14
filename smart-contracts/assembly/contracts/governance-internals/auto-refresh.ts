@@ -2,9 +2,12 @@ import { u64ToBytes, bytesToU64, boolToByte, stringToBytes, byteToBool } from "@
 import { Storage, Context, currentPeriod, getKeys, asyncCall, Slot, generateEvent } from "@massalabs/massa-as-sdk";
 import { _refresh } from ".";
 import { statusKeyPrefix, votingStatus, discussionStatus } from "./keys";
-import { AUTO_REFRESH_STATUS_KEY, START_REFETCH_PERIOD, LIMIT_REFETCH_PERIOD, ASC_START_PERIOD, ASC_END_PERIOD, MAX_ASYNC_CALL_GAS, MAX_ASYNC_CALL_FEE } from "./config";
+import { START_REFETCH_PERIOD, LIMIT_REFETCH_PERIOD, MAX_ASYNC_CALL_GAS, MAX_ASYNC_CALL_FEE } from "./config";
 // Auto refresh constants
 
+export const AUTO_REFRESH_STATUS_KEY = stringToBytes('AUTO_REFRESH_STATUS');
+export const ASC_START_PERIOD = stringToBytes('ASC_START_PERIOD');
+export const ASC_END_PERIOD = stringToBytes('ASC_END_PERIOD');
 export const MAX_ASYNC_CALL_GAS_KEY = stringToBytes('MAX_ASYNC_CALL_GAS');
 export const MAX_ASYNC_CALL_FEE_KEY = stringToBytes('MAX_ASYNC_CALL_FEE');
 

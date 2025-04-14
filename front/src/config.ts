@@ -4,15 +4,14 @@ export const isMainnet = false;
 export const networkName = isMainnet ? NetworkName.Mainnet : NetworkName.Buildnet;
 export const contracts = {
   [NetworkName.Mainnet]: {
-    oracle: "AS1OracleAddress",
-    masOg: "XXX",
-    governance: "AS1GovernanceAddress",
+    oracle: 'AS12L7sqpiJXWFBZDLMPH3DtGSBX3nPvsb4EctGvWaEygLtyPKFEA',
+    masOg: 'AS14QtrEuDfg9iwZFPnGF2FFFfprgA6NyxquD3stimKvK2LZkacV',
+    governance: 'AS1psrFyREXZ58E7FsKx9GasrXKzUk9V3QLwifgkW1NX7hxGbYae',
   },
   [NetworkName.Buildnet]: {
     masOg: "AS1RBDkKmg4DNxH4niuUZaec7rXe6qcbmZi8UeTFCBYp9zwxmBrF",
     oracle: "AS1yUyqvqoQhEw1BEm6k2P3gHz1hvr4mLy5BwCujnTdiBNjYLPAs",
     governance: "AS12k9LK17UVQGp96dPGhKiQ7xWmMihbN81DhagaCrcdgcRNHJQbE",
-    // governance: "AS17XBnMR1Cu4ihjrSUHNjFvVmR4F9xfeknXYqCqNPVC5noTViCj",// test
   },
 };
 
@@ -24,32 +23,18 @@ export function getContracts() {
 
 // Admin addresses that have access to the admin page
 export const ADMIN_ADDRESSES = [
-  "AU12FUbb8snr7qTEzSdTVH8tbmEouHydQTUAKDXY9LDwkdYMNBVGF",
-  'AU1qTGByMtnFjzU47fQG6SjAj45o5icS3aonzhj1JD1PnKa1hQ5',
-  'AU1wfDH3BNBiFF9Nwko6g8q5gMzHW8KUHUL2YysxkZKNZHq37AfX',
-  'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq'
+  'AU12hdvxeNgEUmfpktdzRa9VNfNZizGnhkjRkjRXA2ue2DnRpJuPZ',
+  'AU12uBCaT1baa7cFmdfG8yAzFpHpyhUyvxPxWzAEfaC94e9CLCmPK',
+  'AU1dvPZNjcTQfNQQuysWyxLLhEzw4kB9cGW2RMMVAQGrkzZHqWGD'
 ];
 
 // Mainnet config
-// export const MIN_PROPOSAL_MAS_AMOUNT = U64.fromNumber(1000_000_000_000);
-// export const MIN_PROPOSAL_MASOG_AMOUNT = U64.fromNumber(1000);
-// export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
-// export const DISCUSSION_PERIOD = u64(3 * 7 * 24 * 60 * 60 * 1000); // 3 weeks in milliseconds
-// export const VOTING_PERIOD = u64(4 * 7 * 24 * 60 * 60 * 1000); // 4 weeks in milliseconds
-// export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = 50
-// Beta config
-export const MIN_PROPOSAL_MAS_AMOUNT = Mas.fromMas(100n);
+export const MIN_PROPOSAL_MAS_AMOUNT = Mas.fromMas(1000n);
 export const MIN_PROPOSAL_MASOG_AMOUNT = U64.fromNumber(1000);
 export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
-export const DISCUSSION_PERIOD = U64.fromNumber(3 * 60 * 60 * 1000); // 3 hours
-export const VOTING_PERIOD = U64.fromNumber(3 * 60 * 60 * 1000); // 3 hours
-export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = 1;
-// Test config
-// export const MIN_PROPOSAL_MAS_AMOUNT = Mas.fromMas(100n);
-// export const MIN_PROPOSAL_MASOG_AMOUNT = U64.fromNumber(1000);
-// export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
-// export const DISCUSSION_PERIOD = U64.fromNumber(5 * 60 * 1000); // 5 min
-// export const VOTING_PERIOD = U64.fromNumber(5 * 60 * 1000); // 5 min
+export const DISCUSSION_PERIOD = U64.fromNumber(2 * 7 * 24 * 60 * 60 * 1000); // 2 weeks in milliseconds
+export const VOTING_PERIOD = U64.fromNumber(1 * 7 * 24 * 60 * 60 * 1000); // 1 weeks in milliseconds
+export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = 50
 
 // Maximum size in bytes for parameter change data
 // Proposal size limit

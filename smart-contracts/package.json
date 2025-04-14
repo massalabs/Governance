@@ -19,20 +19,11 @@
         "fmt:check": "npm run prettier && npm run lint",
         "fmt": "npm run prettier:fix && npm run lint:fix",
         "oracle:feed": "tsx src/oracle/feeder.ts",
-        "oracle:delete": "tsx src/oracle/delete.ts",
-        "oracle:get": "tsx src/oracle/get.ts",
-        "oracle:setMasog": "tsx src/oracle/setMasOg.ts",
-        "masog:refresh": "tsx src/masog/refresh.ts",
         "masog:upgrade-contract": "npm run build && tsx src/masog/upgrade-contract.ts",
-        "masog:mint-test": "tsx src/masog/mintTest.ts",
-        "governance:submit-proposal": "tsx src/governance/submit-proposal.ts",
-        "governance:upgrade-contract": "npm run build && tsx src/governance/upgrade-contract.ts",
         "governance:e2e": "tsx src/governance/e2e-test.ts",
-        "governance:next-status": "tsx src/governance/next-status.ts",
-        "governance:delete-all": "tsx src/governance/delete.ts",
-        "governance:refresh": "tsx src/governance/refresh.ts",
-        "governance:listen-asc": "tsx src/governance/listen-asc.ts",
-        "governance:manage-auto-refresh": "tsx src/governance/manage-auto-refresh.ts"
+        "governance:upgrade-contract": "npm run build && tsx src/governance/upgrade-contract.ts",
+        "deploy:all": "npm run build && tsx src/deploy/deploy-all.ts",
+        "migrate": "tsx src/deploy/migrate.ts"
     },
     "keywords": [],
     "author": "",
@@ -66,5 +57,8 @@
     "prettier": "@massalabs/prettier-config-as",
     "engines": {
         "node": ">=16"
+    },
+    "dependencies": {
+        "winston": "^3.17.0"
     }
 }

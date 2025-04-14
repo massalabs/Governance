@@ -1,9 +1,8 @@
 import { Args, Mas, SmartContract } from '@massalabs/massa-web3';
-import { getContracts } from '../../config';
 import { getProvider, getScByteCode } from '../../utils';
 
 export async function deployMasOg(
-  oracleAddress = getContracts().oracle,
+  oracleAddress: string,
 ): Promise<string> {
   console.log('Deploying masOg contract...');
 
