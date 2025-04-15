@@ -14,7 +14,7 @@ export const useRefreshMutation = () => {
             }
 
             const op = await governancePrivate.refresh({
-                coins: Mas.fromString("0.1"),
+                coins: Mas.fromString("0.01"),
             });
             const status = await op.waitFinalExecution();
 

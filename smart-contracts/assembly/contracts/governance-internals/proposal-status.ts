@@ -98,6 +98,8 @@ export function updateProposalStatus(proposal: Proposal, currentTimestamp: u64):
 
     const status = proposal.positiveVoteVolume > majority ? acceptedStatus : rejectedStatus;
 
+    proposal.endMasogTotalSupply = totalSupply;
+
     generateEvent(`Checking proposal status of: ${proposal.id} - ${bytesToString(status)}`);
 
     proposal.setStatus(status).save();
