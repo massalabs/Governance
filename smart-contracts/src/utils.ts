@@ -19,7 +19,7 @@ export function getRandomInt(min: number, max: number): number {
 }
 
 export async function getProvider(
-  envKey = 'PRIVATE_KEY',
+  envKey = 'PRIVATE_KEY_BUILDNET',
   forceMainnet = false,
 ): Promise<Web3Provider> {
   const account = await Account.fromEnv(envKey);

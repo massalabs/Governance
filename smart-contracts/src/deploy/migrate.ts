@@ -9,8 +9,7 @@ const accountBuildnet = await Account.fromEnv('PRIVATE_KEY_BUILDNET');
 const accountMainnet = await Account.fromEnv('PRIVATE_KEY_MAINNET');
 
 const providerBuildnet = Web3Provider.buildnet(accountBuildnet);
-// const providerMainnet = Web3Provider.mainnet(accountMainnet);
-const providerMainnet = Web3Provider.buildnet(accountBuildnet); // For testing on buildnet
+const providerMainnet = Web3Provider.mainnet(accountMainnet);
 
 await migrateMasOg(
     providerBuildnet,

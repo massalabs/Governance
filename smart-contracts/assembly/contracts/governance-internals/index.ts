@@ -24,7 +24,7 @@ import {
 } from './helpers';
 import { isInVotingPeriod, updateProposalStatus } from './proposal-status';
 import { MIN_PROPOSAL_MASOG_AMOUNT, MIN_PROPOSAL_MAS_AMOUNT, MIN_VOTE_MASOG_AMOUNT } from './config';
-
+import { u256 } from 'as-bignum/assembly';
 /**
 /**
  * Submits a new proposal.
@@ -42,14 +42,13 @@ export function _submitProposal(proposal: Proposal): void {
   const counter = bytesToU64(Storage.get(UPDATE_PROPOSAL_COUNTER_TAG));
   Storage.set(UPDATE_PROPOSAL_COUNTER_TAG, u64ToBytes(counter + 1));
 
-  assert(proposal.positiveVoteVolume === 0, 'Positive vote volume must be 0');
-  assert(proposal.negativeVoteVolume === 0, 'Negative vote volume must be 0');
-  assert(proposal.blankVoteVolume === 0, 'Blank vote volume must be 0');
-  assert(proposal.endMasogTotalSupply === 0, 'End masog total supply must be 0');
-
   proposal.id = counter;
   proposal.owner = stringToBytes(Context.caller().toString());
   proposal.creationTimestamp = Context.timestamp();
+  proposal.positiveVoteVolume = u256.fromU64(0);
+  proposal.negativeVoteVolume = u256.fromU64(0);
+  proposal.blankVoteVolume = u256.fromU64(0);
+  proposal.endMasogTotalSupply = u256.fromU64(0);
 
   proposal.setStatus(discussionStatus).save();
 }

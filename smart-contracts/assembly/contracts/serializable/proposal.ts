@@ -2,7 +2,7 @@ import { Serializable, Result } from '@massalabs/as-types';
 import { Args } from '@massalabs/as-types/assembly/argument';
 import { getKeys, Storage } from '@massalabs/massa-as-sdk';
 import { proposalKey, statusKey, voteKey } from '../governance-internals/keys';
-
+import { u256 } from 'as-bignum/assembly';
 export class Proposal implements Serializable {
   constructor(
     public title: StaticArray<u8> = [],
@@ -13,10 +13,10 @@ export class Proposal implements Serializable {
     public status: StaticArray<u8> = [],
     public owner: StaticArray<u8> = [],
     public creationTimestamp: u64 = 0,
-    public positiveVoteVolume: u64 = 0,
-    public negativeVoteVolume: u64 = 0,
-    public blankVoteVolume: u64 = 0,
-    public endMasogTotalSupply: u64 = 0,
+    public positiveVoteVolume: u256 = u256.Zero,
+    public negativeVoteVolume: u256 = u256.Zero,
+    public blankVoteVolume: u256 = u256.Zero,
+    public endMasogTotalSupply: u256 = u256.Zero,
   ) { }
 
   /**
@@ -84,22 +84,22 @@ export class Proposal implements Serializable {
       return new Result(0, 'Error deserializing creationTimestamp');
     this.creationTimestamp = creationTimestamp.unwrap();
 
-    const positiveVoteVolume = args.next<u64>();
+    const positiveVoteVolume = args.next<u256>();
     if (positiveVoteVolume.isErr())
       return new Result(0, 'Error deserializing positiveVoteVolume');
     this.positiveVoteVolume = positiveVoteVolume.unwrap();
 
-    const negativeVoteVolume = args.next<u64>();
+    const negativeVoteVolume = args.next<u256>();
     if (negativeVoteVolume.isErr())
       return new Result(0, 'Error deserializing negativeVoteVolume');
     this.negativeVoteVolume = negativeVoteVolume.unwrap();
 
-    const blankVoteVolume = args.next<u64>();
+    const blankVoteVolume = args.next<u256>();
     if (blankVoteVolume.isErr())
       return new Result(0, 'Error deserializing blankVoteVolume');
     this.blankVoteVolume = blankVoteVolume.unwrap();
 
-    const endMasogTotalSupply = args.next<u64>();
+    const endMasogTotalSupply = args.next<u256>();
     if (endMasogTotalSupply.isErr())
       return new Result(0, 'Error deserializing endMasogTotalSupply');
     this.endMasogTotalSupply = endMasogTotalSupply.unwrap();
@@ -111,6 +111,7 @@ export class Proposal implements Serializable {
    * Asserts that the proposal data is valid.
    */
   assertIsValid(): void {
+
     assert(
       this.title.length > 0 &&
       this.title.length <= 100 &&

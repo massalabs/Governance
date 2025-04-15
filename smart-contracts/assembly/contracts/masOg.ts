@@ -44,6 +44,8 @@ export function constructor(bin: StaticArray<u8>): void {
 
   assertIsSmartContract(oracleAddr);
   Storage.set(ORACLE_KEY, oracleAddr);
+  Storage.set(LAST_UPDATED_CYCLE, u64ToBytes(0));
+
 }
 
 export function migrate(bin: StaticArray<u8>): void {
@@ -119,7 +121,7 @@ export function refresh(bin: StaticArray<u8>): void {
     }
 
     if (!Storage.hasOf(oracleAddr, recordedCycleKey(cycle))) {
-      generateEvent(`Warning: cycle ${cycle.toString()} is not registered`);
+      // generateEvent(`Warning: cycle ${cycle.toString()} is not registered`);
       continue;
     }
 

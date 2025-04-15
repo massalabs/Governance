@@ -1,7 +1,7 @@
 import { Proposal } from '../contracts/serializable/proposal';
 import { resetStorage } from '@massalabs/massa-as-sdk';
 import { stringToBytes } from '@massalabs/as-types';
-
+import { u256 } from 'as-bignum/assembly';
 describe('Proposal', () => {
   beforeEach(() => {
     resetStorage();
@@ -18,9 +18,9 @@ describe('Proposal', () => {
       expect(proposal.status.length).toBe(0);
       expect(proposal.owner.length).toBe(0);
       expect(proposal.creationTimestamp).toBe(0);
-      expect(proposal.positiveVoteVolume).toBe(0);
-      expect(proposal.negativeVoteVolume).toBe(0);
-      expect(proposal.blankVoteVolume).toBe(0);
+      expect(proposal.positiveVoteVolume).toBe(u256.Zero);
+      expect(proposal.negativeVoteVolume).toBe(u256.Zero);
+      expect(proposal.blankVoteVolume).toBe(u256.Zero);
     });
     it('should create a proposal with provided values', () => {
       const title = stringToBytes('Test Proposal');
@@ -38,9 +38,9 @@ describe('Proposal', () => {
         status,
         owner,
         1000,
-        10,
-        5,
-        2,
+        u256.fromU64(10),
+        u256.fromU64(5),
+        u256.fromU64(2),
       );
       expect(proposal.title).toStrictEqual(title);
       expect(proposal.forumPostLink).toStrictEqual(forumPostLink);
@@ -50,9 +50,9 @@ describe('Proposal', () => {
       expect(proposal.status).toStrictEqual(status);
       expect(proposal.owner).toStrictEqual(owner);
       expect(proposal.creationTimestamp).toBe(1000);
-      expect(proposal.positiveVoteVolume).toBe(10);
-      expect(proposal.negativeVoteVolume).toBe(5);
-      expect(proposal.blankVoteVolume).toBe(2);
+      expect(proposal.positiveVoteVolume).toBe(u256.fromU64(10));
+      expect(proposal.negativeVoteVolume).toBe(u256.fromU64(5));
+      expect(proposal.blankVoteVolume).toBe(u256.fromU64(2));
     });
   });
 
@@ -74,9 +74,9 @@ describe('Proposal', () => {
         status,
         owner,
         1000,
-        10,
-        5,
-        2,
+        u256.fromU64(10),
+        u256.fromU64(5),
+        u256.fromU64(2),
       );
 
       const serialized = originalProposal.serialize();

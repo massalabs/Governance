@@ -10,9 +10,9 @@ export const contracts = {
     governance: 'AS1imUmvMtzyJEuirpxtHwLXHYiJs6BQj7jZPNKD7peHYMhZWu4m',
   },
   [NetworkName.Buildnet]: {
-    masOg: "AS1RBDkKmg4DNxH4niuUZaec7rXe6qcbmZi8UeTFCBYp9zwxmBrF",
-    oracle: "AS1yUyqvqoQhEw1BEm6k2P3gHz1hvr4mLy5BwCujnTdiBNjYLPAs",
-    governance: "AS12okpsKCzC3EEU3YyNxXbbFGV7hS4KAja4bU6fEkS12RfwiJUK5",
+    oracle: 'AS1SxFbBMQ76HX5R5m2C2DdeN27nwnhBvKaBp9aW9HEYmD3YBvpj',
+    masOg: 'AS1XFQaiw9wrHxizvrLKywKXxtyM9eHmmD2mKzvHXUqB2FCTNQpL',
+    governance: 'AS12ijbcmb45T7YtxpgzZKFsW62DXX1rTvTDK6aTLa58g6Qu1u5Tm',
   },
 };
 
@@ -30,20 +30,20 @@ export const ADMIN_ADDRESSES = [
 ];
 
 // Mainnet config
-// export const MIN_PROPOSAL_MAS_AMOUNT = Mas.fromMas(1000n);
-// export const MIN_PROPOSAL_MASOG_AMOUNT = U64.fromNumber(1000);
-// export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
-// export const DISCUSSION_PERIOD = U64.fromNumber(2 * 7 * 24 * 60 * 60 * 1000); // 2 weeks in milliseconds
-// export const VOTING_PERIOD = U64.fromNumber(1 * 7 * 24 * 60 * 60 * 1000); // 1 weeks in milliseconds
-// export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = 50
+export const MIN_PROPOSAL_MAS_AMOUNT = Mas.fromMas(1000n);
+export const MIN_PROPOSAL_MASOG_AMOUNT = U64.fromNumber(1000);
+export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
+export const DISCUSSION_PERIOD = U64.fromNumber(2 * 7 * 24 * 60 * 60 * 1000); // 2 weeks in milliseconds
+export const VOTING_PERIOD = U64.fromNumber(1 * 7 * 24 * 60 * 60 * 1000); // 1 weeks in milliseconds
+export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = 50
 
 // Testing config
-export const DISCUSSION_PERIOD = U64.fromNumber(5 * 60 * 1000);
-export const VOTING_PERIOD = U64.fromNumber(5 * 60 * 1000);
-export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = 1;
-export const MIN_PROPOSAL_MAS_AMOUNT = U64.fromNumber(1);
-export const MIN_PROPOSAL_MASOG_AMOUNT = U64.fromNumber(1);
-export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
+// export const DISCUSSION_PERIOD = U64.fromNumber(5 * 60 * 1000);
+// export const VOTING_PERIOD = U64.fromNumber(5 * 60 * 1000);
+// export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = 1;
+// export const MIN_PROPOSAL_MAS_AMOUNT = U64.fromNumber(1);
+// export const MIN_PROPOSAL_MASOG_AMOUNT = U64.fromNumber(1);
+// export const MIN_VOTE_MASOG_AMOUNT = U64.fromNumber(1);
 // Maximum size in bytes for parameter change data
 // Proposal size limit
 export const MAX_PARAMETER_CHANGE_SIZE = 500;

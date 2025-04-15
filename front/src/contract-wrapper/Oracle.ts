@@ -139,7 +139,7 @@ export class Oracle extends SmartContract {
     ]);
 
     if (!cycle[0] || cycle[0].length === 0) {
-      throw new Error("No cycle found");
+      return 0n;
     }
 
     return U64.fromBytes(cycle[0]);

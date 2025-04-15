@@ -5,6 +5,7 @@ import { Proposal } from "../serializable/proposal";
 import { getMasogTotalSupply, getMasogBalance } from "./helpers";
 import { discussionStatus, votingStatus, voteKey, acceptedStatus, rejectedStatus } from "./keys";
 import { DISCUSSION_PERIOD, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE, VOTING_PERIOD } from "./config";
+import { u256 } from "as-bignum/assembly";
 
 /**
  * Calculates the timestamp when voting period begins for a proposal.
@@ -84,19 +85,17 @@ export function updateProposalStatus(proposal: Proposal, currentTimestamp: u64):
       const balance = getMasogBalance(bytesToString(userAddr));
 
       if (voteValue === 1) {
-        proposal.positiveVoteVolume += balance;
+        proposal.positiveVoteVolume = u256.add(proposal.positiveVoteVolume, balance);
       } else if (voteValue === 0) {
-        proposal.blankVoteVolume += balance;
+        proposal.blankVoteVolume = u256.add(proposal.blankVoteVolume, balance);
       } else if (voteValue === -1) {
-        proposal.negativeVoteVolume += balance;
+        proposal.negativeVoteVolume = u256.add(proposal.negativeVoteVolume, balance);
       }
     }
 
     const totalSupply = getMasogTotalSupply();
 
-    const majority = totalSupply * TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE / 100;
-
-    const status = proposal.positiveVoteVolume > majority ? acceptedStatus : rejectedStatus;
+    const status = u256.mul(proposal.positiveVoteVolume, u256.fromU64(100)) > u256.mul(totalSupply, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE) ? acceptedStatus : rejectedStatus;
 
     proposal.endMasogTotalSupply = totalSupply;
 

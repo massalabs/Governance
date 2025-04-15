@@ -19,6 +19,7 @@
         "fmt:check": "npm run prettier && npm run lint",
         "fmt": "npm run prettier:fix && npm run lint:fix",
         "oracle:feed": "tsx src/oracle/feeder.ts",
+        "oracle:feed-local": "tsx src/oracle/feeder-local.ts",
         "masog:upgrade-contract": "npm run build && tsx src/masog/upgrade-contract.ts",
         "governance:e2e": "tsx src/governance/e2e-test.ts",
         "governance:upgrade-contract": "npm run build && tsx src/governance/upgrade-contract.ts",

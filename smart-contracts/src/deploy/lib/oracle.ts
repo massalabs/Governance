@@ -1,13 +1,13 @@
-import { Args, Mas, SmartContract } from '@massalabs/massa-web3';
+import { Args, JsonRpcProvider, Mas, SmartContract } from '@massalabs/massa-web3';
 import { getProvider, getScByteCode } from '../../utils';
 import { deployCoins, networkName } from '../../config';
 import { logOperation } from '../../utils/operationLogger';
-export async function deployOracle(): Promise<string> {
+export async function deployOracle(provider: JsonRpcProvider): Promise<string> {
     console.log('Deploying rolls oracle contract...');
 
     const byteCode = getScByteCode('build', 'rolls-oracle.wasm');
 
-    const provider = await getProvider();
+
     const contract = await SmartContract.deploy(provider, byteCode, new Args(), {
         coins: deployCoins[networkName].oracle,
         fee: Mas.fromString('0.1'),

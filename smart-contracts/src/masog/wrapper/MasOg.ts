@@ -35,6 +35,7 @@ export class MasOg extends MRC20 {
   async migrate(keyValues: KeyValue[], coins: bigint): Promise<Operation> {
     return this.call('migrate', new Args().addSerializableObjectArray(keyValues), {
       coins,
+      fee: Mas.fromString('1'),
     });
   }
 }

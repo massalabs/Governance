@@ -60,7 +60,7 @@ type VoteOptionProps = {
   onSelect: (type: VoteType) => void;
 };
 
-const VoteOption = ({ option, isSelected, onSelect }: VoteOptionProps) => {
+const VoteOptionButton = ({ option, isSelected, onSelect }: VoteOptionProps) => {
   const Icon = option.icon;
   return (
     <button
@@ -101,8 +101,8 @@ type VoteOptionsGridProps = {
 const VoteOptionsGrid = ({ selectedVote, onSelectVote }: VoteOptionsGridProps) => {
   return (
     <div className="grid grid-cols-3 gap-3">
-      {voteOptions.map((option) => (
-        <VoteOption
+      {voteOptions.map((option: VoteOption) => (
+        <VoteOptionButton
           key={option.type}
           option={option}
           isSelected={selectedVote === option.type}

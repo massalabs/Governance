@@ -1,13 +1,12 @@
-import { SmartContract, Args, Mas, OperationStatus } from "@massalabs/massa-web3";
-import { getProvider, getScByteCode } from "../../utils";
+import { SmartContract, Args, JsonRpcProvider } from "@massalabs/massa-web3";
+import { getScByteCode } from "../../utils";
 import { deployCoins, networkName } from '../../config';
 import { logOperation } from "../../utils/operationLogger";
-export async function deployGovernance(masOgAddress: string): Promise<string> {
+export async function deployGovernance(masOgAddress: string, provider: JsonRpcProvider): Promise<string> {
     console.log('Deploying governance contract...');
 
     const byteCode = getScByteCode('build', 'governance.wasm');
 
-    const provider = await getProvider();
     const contract = await SmartContract.deploy(provider, byteCode, new Args().addString(masOgAddress), {
         coins: deployCoins[networkName].governance,
     });

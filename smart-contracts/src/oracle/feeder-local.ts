@@ -143,7 +143,6 @@ async function runFeeder(): Promise<void> {
     });
 
     // Early exit if no new cycle
-
     if (lastCycle >= currentCycle) {
       console.log('No new cycle to process', { remainingPeriods });
       return;
@@ -162,7 +161,7 @@ async function runFeeder(): Promise<void> {
       processNetwork(mainnet, rollEntries, currentCycle, cyclesToDelete)
     ]);
 
-    // Check results and throw combined error if any failed
+    // Check results and log errors if any failed
     const errors: string[] = [];
     if (!buildnetResult.success) {
       errors.push(`Buildnet failed: ${buildnetResult.error?.message}`);
@@ -172,19 +171,19 @@ async function runFeeder(): Promise<void> {
     }
 
     if (errors.length > 0) {
-      throw new Error(`Feeder completed with errors:\n${errors.join('\n')}`);
+      console.error('Feeder completed with errors:', errors.join('\n'));
+    } else {
+      console.log('Feeder finished successfully');
     }
-
-    console.log('Feeder finished successfully');
   } catch (error: any) {
     console.error('Feeder error', {
       message: error.message,
       stack: error.stack,
     });
-    throw error;
   }
 }
 
-runFeeder();
+// runFeeder();
 // run every 10 seconds
-// setInterval(runFeeder, 10000);
+
+setInterval(runFeeder, 10000);

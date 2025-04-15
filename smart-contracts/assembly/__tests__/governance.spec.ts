@@ -49,9 +49,9 @@ import {
   mockMasogTotalSupply,
   mockCheckLastAutoRefresh,
 } from './utils';
-import { MIN_PROPOSAL_MASOG_AMOUNT, MIN_PROPOSAL_MAS_AMOUNT, MIN_VOTE_MASOG_AMOUNT, DISCUSSION_PERIOD, VOTING_PERIOD, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE } from '../contracts/governance-internals/config';
+import { MIN_PROPOSAL_MASOG_AMOUNT, MIN_PROPOSAL_MAS_AMOUNT, MIN_VOTE_MASOG_AMOUNT, DISCUSSION_PERIOD, VOTING_PERIOD } from '../contracts/governance-internals/config';
 import { ASC_END_PERIOD } from '../contracts/governance-internals/auto-refresh';
-
+import { u256 } from 'as-bignum/assembly';
 
 const governanceOwner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
 const masOgOwner = 'AU12UBnqTHDQALpocVBnkPNy7y5CndUJQTLutaVDDFgMJcq5kQiKq';
@@ -146,7 +146,7 @@ describe('SubmitUpdateProposal', () => {
     );
     const args = new Args().add<Proposal>(proposal).serialize();
 
-    mockProposalBalances(0);
+    mockProposalBalances(u256.Zero);
     submitUpdateProposal(args);
   });
 
@@ -297,26 +297,28 @@ describe('Vote', () => {
   });
 
   test('Vote successfully records a positive vote', () => {
-    const voterMASOGBalance = MIN_VOTE_MASOG_AMOUNT * 2; // 2 MASOG
+    const voterMASOGBalance = u256.mul(MIN_VOTE_MASOG_AMOUNT, u256.fromU64(2)); // 2 MASOG
     mockMasogBalance(voterMASOGBalance);
     mockTimestamp(baseTimestamp + DISCUSSION_PERIOD + 1); // 5:00.001 after creation
     const voteObj = generateVote(1, 1);
     const args = new Args().add<Vote>(voteObj).serialize();
     vote(args);
-
+    mockTimestamp(baseTimestamp + DISCUSSION_PERIOD + VOTING_PERIOD + 1);
     const voteKeyBytes = voteKey(1, governanceOwner);
     expect(Storage.get(voteKeyBytes)).toStrictEqual(i32ToBytes(1));
+
+    mockMasogTotalSupply(u256.fromU64(1000_000_000_000));
 
     const proposalBytes = Storage.get(proposalKey(1));
     const proposal = new Proposal();
     proposal.deserialize(proposalBytes, 0);
-    expect(proposal.positiveVoteVolume).toBe(0); // Updated in refresh, not vote
-    expect(proposal.negativeVoteVolume).toBe(0);
-    expect(proposal.blankVoteVolume).toBe(0);
+    expect(proposal.positiveVoteVolume).toBe(u256.fromU64(0)); // result is calculated at the end of the voting period
+    expect(proposal.negativeVoteVolume).toBe(u256.fromU64(0));
+    expect(proposal.blankVoteVolume).toBe(u256.fromU64(0));
   });
 
   test('Vote successfully records a blank vote', () => {
-    const voterMASOGBalance = MIN_VOTE_MASOG_AMOUNT * 3; // 3 MASOG
+    const voterMASOGBalance = u256.mul(MIN_VOTE_MASOG_AMOUNT, u256.fromU64(3)); // 3 MASOG
     mockMasogBalance(voterMASOGBalance);
     mockTimestamp(baseTimestamp + DISCUSSION_PERIOD + 1); // 5:00.001 after creation
     const voteObj = generateVote(1, 0);
@@ -329,13 +331,13 @@ describe('Vote', () => {
     const proposalBytes = Storage.get(proposalKey(1));
     const proposal = new Proposal();
     proposal.deserialize(proposalBytes, 0);
-    expect(proposal.blankVoteVolume).toBe(0); // Updated in refresh
-    expect(proposal.positiveVoteVolume).toBe(0);
-    expect(proposal.negativeVoteVolume).toBe(0);
+    expect(proposal.blankVoteVolume).toBe(u256.fromU64(0)); // result is calculated at the end of the voting period
+    expect(proposal.positiveVoteVolume).toBe(u256.fromU64(0));
+    expect(proposal.negativeVoteVolume).toBe(u256.fromU64(0));
   });
 
   test('Vote successfully records a negative vote', () => {
-    const voterMASOGBalance = MIN_VOTE_MASOG_AMOUNT * 4; // 4 MASOG
+    const voterMASOGBalance = u256.mul(MIN_VOTE_MASOG_AMOUNT, u256.fromU64(4)); // 4 MASOG
     mockMasogBalance(voterMASOGBalance);
     mockTimestamp(baseTimestamp + DISCUSSION_PERIOD + 1); // 5:00.001 after creation
     const voteObj = generateVote(1, -1);
@@ -348,13 +350,13 @@ describe('Vote', () => {
     const proposalBytes = Storage.get(proposalKey(1));
     const proposal = new Proposal();
     proposal.deserialize(proposalBytes, 0);
-    expect(proposal.negativeVoteVolume).toBe(0); // Updated in refresh
-    expect(proposal.positiveVoteVolume).toBe(0);
-    expect(proposal.blankVoteVolume).toBe(0);
+    expect(proposal.negativeVoteVolume).toBe(u256.Zero); // Updated in refresh
+    expect(proposal.positiveVoteVolume).toBe(u256.Zero);
+    expect(proposal.blankVoteVolume).toBe(u256.Zero);
   });
 
   test('Vote succeeds at exact start of voting period', () => {
-    const voterMASOGBalance = MIN_VOTE_MASOG_AMOUNT * 2;
+    const voterMASOGBalance = u256.mul(MIN_VOTE_MASOG_AMOUNT, u256.fromU64(2));
     mockMasogBalance(voterMASOGBalance);
     mockTimestamp(baseTimestamp + DISCUSSION_PERIOD); // Exactly 5:00.000
     const voteObj = generateVote(1, 1);
@@ -366,7 +368,7 @@ describe('Vote', () => {
   });
 
   test('Vote succeeds at exact end of voting period', () => {
-    const voterMASOGBalance = MIN_VOTE_MASOG_AMOUNT * 2;
+    const voterMASOGBalance = u256.mul(MIN_VOTE_MASOG_AMOUNT, u256.fromU64(2));
     mockMasogBalance(voterMASOGBalance);
     mockTimestamp(baseTimestamp + DISCUSSION_PERIOD + VOTING_PERIOD); // Exactly 15:00.000
     const voteObj = generateVote(1, 1);
@@ -418,7 +420,7 @@ describe('Vote', () => {
   });
 
   throws('Vote fails if MASOG balance is less than minimum', () => {
-    mockMasogBalance(MIN_VOTE_MASOG_AMOUNT - 1);
+    mockMasogBalance(u256.sub(MIN_VOTE_MASOG_AMOUNT, u256.fromU64(1)));
     mockTimestamp(baseTimestamp + DISCUSSION_PERIOD + 1);
     const voteObj = generateVote(1, 1);
     const args = new Args().add<Vote>(voteObj).serialize();
@@ -458,7 +460,7 @@ describe('Refresh', () => {
     const baseTime = u64(1000000);
     setupProposal(1, discussionStatus, baseTime);
     mockTimestamp(baseTime + DISCUSSION_PERIOD + 1); // 5:00.001
-    mockMasogTotalSupply(u64(1000_000_000_000));
+    mockMasogTotalSupply(u256.fromU64(1000_000_000_000));
     refresh([]);
 
     const proposal = Proposal.getById(1);
@@ -470,7 +472,7 @@ describe('Refresh', () => {
     const baseTime = u64(1000000);
     setupProposal(1, votingStatus, baseTime);
     mockTimestamp(baseTime + DISCUSSION_PERIOD + VOTING_PERIOD); // Exactly 15:00.000
-    mockMasogTotalSupply(u64(1000_000_000_000));
+    mockMasogTotalSupply(u256.fromU64(1000_000_000_000));
     refresh([]);
 
     const proposal = Proposal.getById(1);
@@ -479,8 +481,8 @@ describe('Refresh', () => {
 
   test('Refresh transitions VOTING to ACCEPTED after voting period with majority', () => {
     const baseTime = u64(1000000);
-    const totalSupply = u64(1000_000_000_000);
-    setupProposal(1, votingStatus, baseTime, totalSupply / 2 + 1); // >50%
+    const totalSupply = u256.fromU64(1000_000_000_000);
+    setupProposal(1, votingStatus, baseTime, u256.fromU64(5_00_000_000_001)); // >50%
     mockMasogTotalSupply(totalSupply);
     mockTimestamp(baseTime + DISCUSSION_PERIOD + VOTING_PERIOD + 1); // 15:00.001
     refresh([]);
@@ -492,8 +494,8 @@ describe('Refresh', () => {
 
   test('Refresh transitions VOTING to REJECTED after voting period without majority', () => {
     const baseTime = u64(1000000);
-    const totalSupply = u64(1000_000_000_000);
-    setupProposal(1, votingStatus, baseTime, totalSupply * TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE / 100); // Exactly at threshold
+    const totalSupply = u256.fromU64(1000_000_000_000);
+    setupProposal(1, votingStatus, baseTime, u256.fromU64(5_00_000_000_000)); // Exactly at threshold
     mockMasogTotalSupply(totalSupply);
     mockTimestamp(baseTime + DISCUSSION_PERIOD + VOTING_PERIOD + 1); // 15:00.001
     refresh([]);
@@ -504,9 +506,9 @@ describe('Refresh', () => {
 
   test('Refresh processes multiple proposals in batch', () => {
     const baseTime = u64(1000000);
-    const totalSupply = u64(1000_000_000_000);
+    const totalSupply = u256.fromU64(1000_000_000_000);
     setupProposal(1, discussionStatus, baseTime);
-    setupProposal(2, votingStatus, baseTime - DISCUSSION_PERIOD - VOTING_PERIOD, totalSupply / 2 + 1); // Already past voting
+    setupProposal(2, votingStatus, baseTime - DISCUSSION_PERIOD - VOTING_PERIOD, u256.fromU64(5_00_000_000_001)); // Already past voting
     mockMasogTotalSupply(totalSupply);
     mockTimestamp(baseTime + DISCUSSION_PERIOD + 1); // 5:00.001
     refresh([]);
@@ -522,7 +524,7 @@ describe('Refresh', () => {
     const baseTime = u64(1000000);
     setupProposal(1, discussionStatus, baseTime);
     mockTimestamp(baseTime + DISCUSSION_PERIOD - 1); // 4:59.999
-    mockMasogTotalSupply(u64(1000_000_000_000));
+    mockMasogTotalSupply(u256.fromU64(1000_000_000_000));
     refresh([]);
 
     const proposal = Proposal.getById(1);
@@ -540,9 +542,9 @@ describe('DeleteProposal', () => {
 
   test('Successfully deletes a proposal and all associated data', () => {
     const baseTime = u64(1000000);
-    const totalSupply = u64(1000_000_000_000);
+    const totalSupply = u256.fromU64(1000_000_000_000);
     // Setup proposal with votes exactly at threshold to ensure it gets rejected
-    setupProposal(1, votingStatus, baseTime, totalSupply * TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE / 100);
+    setupProposal(1, votingStatus, baseTime, u256.fromU64(5_00_000_000_000));
     mockMasogTotalSupply(totalSupply);
     mockTimestamp(baseTime + DISCUSSION_PERIOD + VOTING_PERIOD + 1); // 15:00.001
     refresh([]); // This will transition the proposal to rejected status
@@ -565,7 +567,7 @@ describe('DeleteProposal', () => {
     mockTimestamp(1234567890 + DISCUSSION_PERIOD + 1);
     mockScCall([]);
     // Add a vote to the proposal
-    const voterMASOGBalance = MIN_VOTE_MASOG_AMOUNT * 2;
+    const voterMASOGBalance = u256.mul(MIN_VOTE_MASOG_AMOUNT, u256.fromU64(2));
     mockMasogBalance(voterMASOGBalance);
     const voteObj = generateVote(1, 1);
     const voteArgs = new Args().add<Vote>(voteObj).serialize();
@@ -622,15 +624,15 @@ function setupProposal(
   id: u64,
   status: StaticArray<u8>,
   timestamp: u64,
-  positiveVotes: u64 = 0,
-  negativeVotes: u64 = 0,
-  blankVotes: u64 = 0,
+  positiveVotes: u256 = u256.fromU64(0),
+  negativeVotes: u256 = u256.fromU64(0),
+  blankVotes: u256 = u256.fromU64(0),
 ): void {
   const proposal = generateProposal(
     `Proposal ${id}`,
     `http://forum.example.com/${id}`,
     `Summary ${id}`,
-    `Change ${id}`,
+    `{}`,
   );
   proposal.id = id;
   proposal.owner = stringToBytes(governanceOwner);
@@ -643,7 +645,7 @@ function setupProposal(
 }
 
 function mockProposalBalances(
-  masogBalance: u64 = MIN_PROPOSAL_MASOG_AMOUNT,
+  masogBalance: u256 = MIN_PROPOSAL_MASOG_AMOUNT,
   masBalance: u64 = MIN_PROPOSAL_MAS_AMOUNT,
   transferredCoins: u64 = MIN_PROPOSAL_MAS_AMOUNT,
 ): void {
