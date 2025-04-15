@@ -1,0 +1,13 @@
+{
+    "address": "",
+    "node_url": "https://mainnet.massa.net/api/v2",
+    "metadatas": {
+        "TITLE": "Massa Improvement Proposals",
+        "DESCRIPTION": "The governance voting system of Massa.",
+        "KEYWORD1": "MIP",
+        "KEYWORD2": "governance",
+        "KEYWORD3": "vote",
+        "KEYWORD4": "votes",
+        "KEYWORD5": "voting"
+    }
+}
