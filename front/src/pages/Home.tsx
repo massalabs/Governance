@@ -6,9 +6,10 @@ import { RecentProposalsSection } from "../components/home/RecentProposalsSectio
 import { ActionLinks } from "../components/home/ActionLinks";
 import { BetaBanner } from "../components/home/BetaBanner";
 import { useAccountStore } from "@massalabs/react-ui-kit";
+import { networkName } from "@/config";
 
 export default function Home() {
-  const { connectedAccount } = useAccountStore();
+  const { connectedAccount, network } = useAccountStore();
   const { stats, loading, proposals, userMasogBalance } = useGovernanceData();
 
   return (
@@ -16,12 +17,13 @@ export default function Home() {
       <BetaBanner />
       <WelcomeSection />
       <StatsSection isLoading={loading} stats={stats} />
-      <VotingPowerSection
-        loading={loading}
-        userMasogBalance={userMasogBalance}
-        userVotingPower={userMasogBalance}
-        isConnected={!!connectedAccount}
-      />
+      {network && networkName === network.name && (
+        <VotingPowerSection
+          loading={loading}
+          userMasogBalance={userMasogBalance}
+          isConnected={!!connectedAccount}
+        />
+      )}
       <RecentProposalsSection loading={loading} proposals={proposals} />
       <ActionLinks />
     </div>

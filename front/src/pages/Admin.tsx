@@ -4,6 +4,7 @@ import { ADMIN_ADDRESSES } from "../config";
 import { useAdminData } from "../hooks/queries/useAdminData";
 import { useSendCoinsMutation } from "../hooks/queries/useSendCoinsMutation";
 import { useManageAutoRefreshMutation } from "../hooks/queries/useManageAutoRefreshMutation";
+import { useRefreshMutation } from "../hooks/queries/useRefreshMutation";
 
 interface ContractCardProps {
     title: string;
@@ -16,33 +17,33 @@ interface ContractCardProps {
 }
 
 const ContractCard = ({ title, balance, isLoading, amount, onAmountChange, onSend, isSending }: ContractCardProps) => (
-    <div className="bg-card dark:bg-darkCard p-5 rounded-xl shadow-lg border border-border/10 dark:border-darkBorder/10 hover:shadow-xl transition-all duration-300">
-        <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold">{title}</h2>
+    <div className="bg-card dark:bg-darkCard p-6 rounded-xl shadow-lg border border-border/10 dark:border-darkBorder/10 hover:shadow-xl transition-all duration-300 h-[240px] flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">{title}</h2>
         </div>
         <div className="mb-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Balance</p>
-            <p className="text-2xl font-bold text-primary">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Balance</p>
+            <p className="text-3xl font-bold text-primary">
                 {isLoading ? <span className="animate-pulse">Loading...</span> : `${balance || '0'} MAS`}
             </p>
         </div>
-        <div className="flex gap-2">
-            <input
-                type="number"
-                value={amount}
-                onChange={(e) => onAmountChange(e.target.value)}
-                placeholder="Amount"
-                className="flex-1 px-3 py-2 border border-border dark:border-darkBorder rounded-lg bg-background dark:bg-darkBg text-f-primary dark:text-f-primary focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-sm"
-            />
-            <button
-                onClick={onSend}
-                disabled={isSending}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition /
-
-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium whitespace-nowrap"
-            >
-                {isSending ? 'Sending...' : 'Send'}
-            </button>
+        <div className="mt-auto">
+            <div className="flex gap-3">
+                <input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => onAmountChange(e.target.value)}
+                    placeholder="Amount"
+                    className="flex-1 px-4 py-2.5 border border-border dark:border-darkBorder rounded-lg bg-background dark:bg-darkBg text-f-primary dark:text-f-primary focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-base"
+                />
+                <button
+                    onClick={onSend}
+                    disabled={isSending}
+                    className="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base font-medium whitespace-nowrap"
+                >
+                    {isSending ? 'Sending...' : 'Send'}
+                </button>
+            </div>
         </div>
     </div>
 );
@@ -59,9 +60,9 @@ interface AutoRefreshCardProps {
 }
 
 const AutoRefreshCard = ({ enabled, maxGas, maxFee, onToggle, onMaxGasChange, onMaxFeeChange, onUpdate, isUpdating }: AutoRefreshCardProps) => (
-    <div className="bg-card dark:bg-darkCard p-5 rounded-xl shadow-lg border border-border/10 dark:border-darkBorder/10 hover:shadow-xl transition-all duration-300">
+    <div className="bg-card dark:bg-darkCard p-6 rounded-xl shadow-lg border border-border/10 dark:border-darkBorder/10 hover:shadow-xl transition-all duration-300 min-h-[200px] flex flex-col">
         <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Auto-Refresh</h2>
+            <h2 className="text-xl font-semibold">Auto-Refresh Management</h2>
             <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                     {enabled ? 'Enabled' : 'Disabled'}
@@ -77,30 +78,30 @@ const AutoRefreshCard = ({ enabled, maxGas, maxFee, onToggle, onMaxGasChange, on
                 </label>
             </div>
         </div>
-        <div className="space-y-3 mb-4">
+        <div className="space-y-4 mb-6 flex-grow">
             <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Gas</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Max Gas</label>
                 <input
                     type="number"
                     value={maxGas}
                     onChange={(e) => onMaxGasChange(e.target.value)}
-                    className="w-full px-3 py-2 border border-border dark:border-darkBorder rounded-lg bg-background dark:bg-darkBg text-f-primary dark:text-f-primary focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-sm"
+                    className="w-full px-4 py-2.5 border border-border dark:border-darkBorder rounded-lg bg-background dark:bg-darkBg text-f-primary dark:text-f-primary focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-base"
                 />
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Fee</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Max Fee</label>
                 <input
                     type="number"
                     value={maxFee}
                     onChange={(e) => onMaxFeeChange(e.target.value)}
-                    className="w-full px-3 py-2 border border-border dark:border-darkBorder rounded-lg bg-background dark:bg-darkBg text-f-primary dark:text-f-primary focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-sm"
+                    className="w-full px-4 py-2.5 border border-border dark:border-darkBorder rounded-lg bg-background dark:bg-darkBg text-f-primary dark:text-f-primary focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-base"
                 />
             </div>
         </div>
         <button
             onClick={onUpdate}
             disabled={isUpdating}
-            className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+            className="w-full px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base font-medium"
         >
             {isUpdating ? 'Updating...' : 'Update Settings'}
         </button>
@@ -167,6 +168,7 @@ const EventsTable = ({ events, isLoading, error, highlightedEventId }: EventsTab
 const AdminPage = () => {
     const [governanceAmount, setGovernanceAmount] = useState<string>("");
     const [masOgAmount, setMasOgAmount] = useState<string>("");
+    const [oracleAmount, setOracleAmount] = useState<string>("");
     const [autoRefreshEnabled, setAutoRefreshEnabled] = useState<boolean>(true);
     const [maxGas, setMaxGas] = useState<string>("1000000");
     const [maxFee, setMaxFee] = useState<string>("1000000");
@@ -177,6 +179,7 @@ const AdminPage = () => {
     const { data: adminData, isLoading, error } = useAdminData(30000);
     const sendCoinsMutation = useSendCoinsMutation();
     const manageAutoRefreshMutation = useManageAutoRefreshMutation();
+    const refreshMutation = useRefreshMutation();
 
     useEffect(() => {
         if (adminData?.events && adminData.events.length > 0) {
@@ -194,16 +197,20 @@ const AdminPage = () => {
         prevEventsRef.current = adminData?.events || [];
     }, [adminData?.timestamp]);
 
-    const handleSendCoins = (contractType: 'governance' | 'masOg') => {
-        const amount = contractType === 'governance' ? governanceAmount : masOgAmount;
+    const handleSendCoins = (contractType: 'governance' | 'masOg' | 'oracle') => {
+        const amount = contractType === 'governance' ? governanceAmount :
+            contractType === 'masOg' ? masOgAmount :
+                oracleAmount;
         sendCoinsMutation.mutate(
             { contractType, amount },
             {
                 onSuccess: () => {
                     if (contractType === 'governance') {
                         setGovernanceAmount("");
-                    } else {
+                    } else if (contractType === 'masOg') {
                         setMasOgAmount("");
+                    } else {
+                        setOracleAmount("");
                     }
                 }
             }
@@ -231,32 +238,48 @@ const AdminPage = () => {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                     Admin Dashboard
                 </h1>
-                <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
-                    Auto-refreshing every 30s
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => refreshMutation.mutate()}
+                        disabled={refreshMutation.isPending}
+                        className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                    >
+                        {refreshMutation.isPending ? 'Refreshing...' : 'Refresh Proposals Manually'}
+                    </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <ContractCard
-                        title="Governance Contract"
-                        balance={adminData?.governanceBalance}
-                        isLoading={isLoading}
-                        amount={governanceAmount}
-                        onAmountChange={setGovernanceAmount}
-                        onSend={() => handleSendCoins('governance')}
-                        isSending={sendCoinsMutation.isPending && sendCoinsMutation.variables?.contractType === 'governance'}
-                    />
-                    <ContractCard
-                        title="MasOG Contract"
-                        balance={adminData?.masOgBalance}
-                        isLoading={isLoading}
-                        amount={masOgAmount}
-                        onAmountChange={setMasOgAmount}
-                        onSend={() => handleSendCoins('masOg')}
-                        isSending={sendCoinsMutation.isPending && sendCoinsMutation.variables?.contractType === 'masOg'}
-                    />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <ContractCard
+                    title="Governance Contract"
+                    balance={adminData?.governanceBalance}
+                    isLoading={isLoading}
+                    amount={governanceAmount}
+                    onAmountChange={setGovernanceAmount}
+                    onSend={() => handleSendCoins('governance')}
+                    isSending={sendCoinsMutation.isPending && sendCoinsMutation.variables?.contractType === 'governance'}
+                />
+                <ContractCard
+                    title="MasOG Contract"
+                    balance={adminData?.masOgBalance}
+                    isLoading={isLoading}
+                    amount={masOgAmount}
+                    onAmountChange={setMasOgAmount}
+                    onSend={() => handleSendCoins('masOg')}
+                    isSending={sendCoinsMutation.isPending && sendCoinsMutation.variables?.contractType === 'masOg'}
+                />
+                <ContractCard
+                    title="Oracle Contract"
+                    balance={adminData?.oracleBalance}
+                    isLoading={isLoading}
+                    amount={oracleAmount}
+                    onAmountChange={setOracleAmount}
+                    onSend={() => handleSendCoins('oracle')}
+                    isSending={sendCoinsMutation.isPending && sendCoinsMutation.variables?.contractType === 'oracle'}
+                />
+            </div>
+
+            <div className="mb-8">
                 <AutoRefreshCard
                     enabled={autoRefreshEnabled}
                     maxGas={maxGas}

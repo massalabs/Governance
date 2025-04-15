@@ -10,8 +10,10 @@ export function useInitApp() {
     const { refresh } = useGovernanceData();
     const { connectedAccount, network } = useAccountStore();
     const { initializeAllContracts, initializePublicContracts } = useContractStore();
+
     useBalanceRefresh();
     useAccountSync();
+
     useEffect(() => {
         if (connectedAccount) {
             initializeAllContracts(connectedAccount)

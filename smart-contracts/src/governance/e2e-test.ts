@@ -1,7 +1,3 @@
-import {
-  bytesToStr,
-  // , Mas, strToBytes
-} from '@massalabs/massa-web3';
 import { Governance } from './wrapper/Governance';
 // import { Proposal } from './serializable/Proposal';
 // import { Vote } from './serializable/Vote';
@@ -62,19 +58,19 @@ async function main() {
 
     // // // 5. Get specific proposal
     // console.log('\n5. Getting specific proposal...');
-    const proposal = await governance.getProposal(proposalId);
-    console.log('Proposal details:', {
-      id: proposal.id,
-      title: bytesToStr(proposal.title),
-      summary: bytesToStr(proposal.summary),
-      forumPostLink: bytesToStr(proposal.forumPostLink),
-      parameterChange: bytesToStr(proposal.parameterChange),
-      owner: bytesToStr(proposal.owner),
-      status: bytesToStr(proposal.status),
-      positiveVoteVolume: proposal.positiveVoteVolume,
-      negativeVoteVolume: proposal.negativeVoteVolume,
-      blankVoteVolume: proposal.blankVoteVolume,
-    });
+    // const proposal = await governance.getProposal(proposalId);
+    // console.log('Proposal details:', {
+    //   id: proposal.id,
+    //   title: bytesToStr(proposal.title),
+    //   summary: bytesToStr(proposal.summary),
+    //   forumPostLink: bytesToStr(proposal.forumPostLink),
+    //   parameterChange: bytesToStr(proposal.parameterChange),
+    //   owner: bytesToStr(proposal.owner),
+    //   status: bytesToStr(proposal.status),
+    //   positiveVoteVolume: proposal.positiveVoteVolume,
+    //   negativeVoteVolume: proposal.negativeVoteVolume,
+    //   blankVoteVolume: proposal.blankVoteVolume,
+    // });
 
     // TODO: Uncomment this to test the vote function
     // // 6. Cast a vote
@@ -110,22 +106,22 @@ async function main() {
     //   comment: specificVote.comment,
     // });
 
-    const providerOwner = await getProvider();
-    const governanceOwner = await Governance.init(providerOwner);
+    // const providerOwner = await getProvider();
+    // const governanceOwner = await Governance.init(providerOwner);
 
-    // 11. Delete proposal
-    console.log('\n11. Deleting proposal...');
-    const deleteOp = await governanceOwner.deleteProposal(proposalId);
-    console.log('Delete initiated, waiting for confirmation...');
-    await deleteOp.waitSpeculativeExecution();
+    // // 11. Delete proposal
+    // console.log('\n11. Deleting proposal...');
+    // const deleteOp = await governanceOwner.deleteProposal(proposalId);
+    // console.log('Delete initiated, waiting for confirmation...');
+    // await deleteOp.waitSpeculativeExecution();
 
-    // Verify deletion
-    try {
-      await governanceOwner.getProposal(proposalId);
-      console.log('Warning: Proposal still exists after deletion');
-    } catch (error) {
-      console.log('Proposal successfully deleted');
-    }
+    // // Verify deletion
+    // try {
+    //   await governanceOwner.getProposal(proposalId);
+    //   console.log('Warning: Proposal still exists after deletion');
+    // } catch (error) {
+    //   console.log('Proposal successfully deleted');
+    // }
 
     // console.log('\nGovernance E2E test completed successfully!');
   } catch (error) {

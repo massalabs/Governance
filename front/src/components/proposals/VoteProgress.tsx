@@ -2,7 +2,7 @@ import { FormattedProposal } from "../../types/governance";
 import { useMasogTotalSupply } from "../../hooks/queries/useMasogData";
 import { useSingleProposalVotes } from "../../hooks/queries/useProposalVotes";
 import { useMemo } from "react";
-import { TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE } from "../../config";
+import { ProposalStatus, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE } from "../../config";
 import Big from 'big.js';
 
 interface VoteProgressProps {
@@ -128,12 +128,9 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
     let blank = 0n;
 
     proposalVotes.forEach(vote => {
-      // Convert vote.value to BigInt if it's not already
-      const voteValue = typeof vote.value === 'bigint' ? vote.value : BigInt(vote.value);
-
-      if (voteValue === 1n) {
+      if (vote.value === 1n) {
         positive += vote.balance;
-      } else if (voteValue === -1n) {
+      } else if (vote.value === -1n) {
         negative += vote.balance;
       } else {
         blank += vote.balance;
@@ -144,7 +141,7 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
   }, [proposalVotes]);
 
   // Use proposal's vote volumes when voting has ended, otherwise use calculated volumes
-  const isVotingEnded = proposal.status === "ACCEPTED" || proposal.status === "REJECTED";
+  const isVotingEnded = proposal.status === ProposalStatus.ACCEPTED || proposal.status === ProposalStatus.REJECTED;
   const positiveVoteVolume = isVotingEnded ? proposal.positiveVoteVolume : calculatedVoteVolumes.positive;
   const negativeVoteVolume = isVotingEnded ? proposal.negativeVoteVolume : calculatedVoteVolumes.negative;
   const blankVoteVolume = isVotingEnded ? proposal.blankVoteVolume : calculatedVoteVolumes.blank;
@@ -155,16 +152,19 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
     negativeVoteVolume +
     blankVoteVolume;
 
+  // Use endMasogTotalSupply for ended proposals, otherwise use current total supply
+  const effectiveTotalSupply = isVotingEnded ? proposal.endMasogTotalSupply : totalSupply;
+
   // Calculate abstain votes (total supply - total votes)
-  const abstainVotes = totalSupply ? totalSupply - totalVotes : 0n;
+  const abstainVotes = effectiveTotalSupply ? effectiveTotalSupply - totalVotes : 0n;
 
   // Calculate percentages relative to total supply with proper decimal handling
   const calculateSupplyPercentage = (votes: bigint) => {
-    if (!totalSupply) return 0;
+    if (!effectiveTotalSupply) return 0;
 
     // Convert BigInt to string to avoid precision loss
     const votesStr = votes.toString();
-    const totalSupplyStr = totalSupply.toString();
+    const totalSupplyStr = effectiveTotalSupply.toString();
 
     // Use big.js for precise decimal arithmetic
     const votesBig = new Big(votesStr);
@@ -184,8 +184,8 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
 
   // Calculate current progress towards threshold
   const currentProgress =
-    Number(totalSupply) > 0
-      ? (Number(positiveVoteVolume) / Number(totalSupply)) * 100
+    Number(effectiveTotalSupply) > 0
+      ? (Number(positiveVoteVolume) / Number(effectiveTotalSupply)) * 100
       : 0;
 
   return (
@@ -198,11 +198,11 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
       </div>
 
       <div className="text-sm text-f-tertiary dark:text-darkMuted">
-        Total supply: {Number(totalSupply).toLocaleString()} MASOG
+        Total supply: {Number(effectiveTotalSupply).toLocaleString()} MASOG
       </div>
 
       {/* Estimation notice - only shown during voting status */}
-      {proposal.status === "VOTING" && (
+      {proposal.status === ProposalStatus.VOTING && (
         <div className="text-xs text-amber-400 dark:text-amber-400 bg-amber-400/10 dark:bg-amber-400/10 p-2 rounded-md">
           <p>Note: This is an estimated result only. The final outcome will be calculated at the voting session's end. As the MASOG supply may change until then, these figures are approximate and subject to change.</p>
         </div>

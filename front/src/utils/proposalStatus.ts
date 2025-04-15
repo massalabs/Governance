@@ -1,5 +1,5 @@
-import { DISCUSSION_PERIOD, VOTING_PERIOD } from "@/config";
-import { ProposalStatus } from "../types/governance";
+import { DISCUSSION_PERIOD, ProposalStatus, VOTING_PERIOD } from "@/config";
+import { ClockIcon, CheckBadgeIcon } from "@heroicons/react/24/outline";
 
 export interface StatusConfig {
     label: string;
@@ -9,6 +9,7 @@ export interface StatusConfig {
     darkBgColor: string;
     nextStatus?: string;
     countdownLabel?: string;
+    icon?: typeof ClockIcon;
 }
 
 export const getStatusConfig = (status: ProposalStatus): StatusConfig => {
@@ -18,6 +19,7 @@ export const getStatusConfig = (status: ProposalStatus): StatusConfig => {
         bgColor: "bg-f-tertiary/10",
         darkColor: "dark:text-darkMuted",
         darkBgColor: "dark:bg-darkMuted/10",
+        icon: ClockIcon,
     };
 };
 
@@ -31,7 +33,7 @@ export const getDisplayStatus = (
     const isDiscussionEnded = currentTime > discussionEndTime;
     const isVotingEnded = currentTime > votingEndTime;
 
-    if (proposal.status === "VOTING" && isVotingEnded) {
+    if (proposal.status === ProposalStatus.VOTING && isVotingEnded) {
         return "Calculating Results";
     } else if (proposal.status === "DISCUSSION" && isDiscussionEnded) {
         return "Starting Voting";
@@ -40,7 +42,7 @@ export const getDisplayStatus = (
     }
 };
 
-const statusConfigs: Record<ProposalStatus, StatusConfig> = {
+export const statusConfigs: Record<ProposalStatus, StatusConfig> = {
     DISCUSSION: {
         label: "Discussion",
         color: "text-indigo-500",
@@ -49,6 +51,7 @@ const statusConfigs: Record<ProposalStatus, StatusConfig> = {
         darkBgColor: "dark:bg-indigo-400/10",
         nextStatus: "Voting",
         countdownLabel: "Voting starts on",
+        icon: ClockIcon,
     },
     VOTING: {
         label: "Voting",
@@ -58,6 +61,7 @@ const statusConfigs: Record<ProposalStatus, StatusConfig> = {
         darkBgColor: "dark:bg-amber-400/10",
         nextStatus: "Final Status",
         countdownLabel: "Results on",
+        icon: ClockIcon,
     },
     ACCEPTED: {
         label: "Accepted",
@@ -67,6 +71,7 @@ const statusConfigs: Record<ProposalStatus, StatusConfig> = {
         darkBgColor: "dark:bg-emerald-400/10",
         nextStatus: "Completed",
         countdownLabel: "",
+        icon: CheckBadgeIcon,
     },
     REJECTED: {
         label: "Rejected",
@@ -76,5 +81,6 @@ const statusConfigs: Record<ProposalStatus, StatusConfig> = {
         darkBgColor: "dark:bg-rose-400/10",
         nextStatus: "Completed",
         countdownLabel: "",
+        icon: CheckBadgeIcon,
     },
 }; 

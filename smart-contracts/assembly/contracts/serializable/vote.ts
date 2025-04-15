@@ -4,17 +4,17 @@ import { Context, Storage } from '@massalabs/massa-as-sdk';
 import { voteKey } from '../governance-internals/keys';
 
 export class Vote implements Serializable {
-  constructor(public proposalId: u64 = 0, public value: i32 = 0) {}
+  constructor(public proposalId: u64 = 0, public value: i32 = 0) { }
 
   /**
-   * Serializes the Proposal object into a byte array.
+   * Serializes the Vote object into a byte array.
    */
   serialize(): StaticArray<u8> {
     return new Args().add(this.proposalId).add(this.value).serialize();
   }
 
   /**
-   * Deserializes a byte array into a Proposal object.
+   * Deserializes a byte array into a Vote object.
    */
   deserialize(data: StaticArray<u8>, offset: u32): Result<u32> {
     const args = new Args(data, offset);
@@ -41,5 +41,5 @@ export class Vote implements Serializable {
     );
 
     Storage.set(voteKeyBytes, i32ToBytes(this.value));
-  } 
+  }
 }

@@ -1,9 +1,9 @@
-import { Args, stringToBytes, u64ToBytes } from '@massalabs/as-types';
+import { Args, stringToBytes, u256ToBytes, u64ToBytes } from '@massalabs/as-types';
 import { RollEntry } from '../contracts/serializable/roll-entry';
 import { mockScCall } from '@massalabs/massa-as-sdk';
 import { Proposal } from '../contracts/serializable/proposal';
 import { Vote } from '../contracts/serializable/vote';
-
+import { u256 } from 'as-bignum/assembly';
 export function getRollsArgs(
   rollData: RollEntry[],
   cycle: u64,
@@ -17,15 +17,15 @@ export function getRollsArgs(
 }
 
 export function mockCheckLastAutoRefresh(): void {
-  mockMasogTotalSupply(u64(1000_000_000_000));
+  mockMasogTotalSupply(u256.fromU64(1000_000_000_000));
 }
 
-export function mockMasogBalance(balance: u64): void {
-  mockScCall(u64ToBytes(balance));
+export function mockMasogBalance(balance: u256): void {
+  mockScCall(u256ToBytes(balance));
 }
 
-export function mockMasogTotalSupply(supply: u64): void {
-  mockScCall(u64ToBytes(supply));
+export function mockMasogTotalSupply(supply: u256): void {
+  mockScCall(u256ToBytes(supply));
 }
 
 export function generateProposal(

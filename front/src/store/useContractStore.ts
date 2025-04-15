@@ -5,17 +5,17 @@ import {
   PublicProvider,
 } from "@massalabs/massa-web3";
 import { Governance } from "../contract-wrapper/Governance";
-import { Oracle } from "../contract-wrapper/Oracle";
 import { MasOg } from "../contract-wrapper/MasOg";
+import { Oracle } from "../contract-wrapper/Oracle";
 import { isMainnet } from "@/config";
 
 interface Contracts {
   governancePublic: Governance;
   governancePrivate: Governance;
-  oraclePublic: Oracle;
-  oraclePrivate: Oracle;
   masOgPublic: MasOg;
   masOgPrivate: MasOg;
+  oraclePublic: Oracle;
+  oraclePrivate: Oracle;
 }
 
 interface ContractStoreState extends Partial<Contracts> {
@@ -34,19 +34,18 @@ export const useContractStore = create<ContractStoreState>((set) => ({
   isInitialized: false,
 
   initializePublicContracts: async (provider?: Provider) => {
-
     try {
-      const [governancePublic, oraclePublic, masOgPublic] = await Promise.all([
+      const [governancePublic, masOgPublic, oraclePublic] = await Promise.all([
         Governance.initPublic(provider ?? await getPublicProvider()),
-        Oracle.initPublic(provider ?? await getPublicProvider()),
         MasOg.initPublic(provider ?? await getPublicProvider()),
+        Oracle.initPublic(provider ?? await getPublicProvider()),
       ]);
 
       set((state) => ({
         ...state,
         governancePublic,
-        oraclePublic,
         masOgPublic,
+        oraclePublic,
       }));
     } catch (error) {
       console.error("Failed to initialize public contracts:", error);
@@ -56,17 +55,17 @@ export const useContractStore = create<ContractStoreState>((set) => ({
 
   initializePrivateContracts: async (provider: Provider) => {
     try {
-      const [governancePrivate, oraclePrivate, masOgPrivate] = await Promise.all([
+      const [governancePrivate, masOgPrivate, oraclePrivate] = await Promise.all([
         Governance.init(provider),
-        Oracle.init(provider),
         MasOg.init(provider),
+        Oracle.init(provider),
       ]);
 
       set((state) => ({
         ...state,
         governancePrivate,
-        oraclePrivate,
         masOgPrivate,
+        oraclePrivate,
       }));
     } catch (error) {
       console.error("Failed to initialize private contracts:", error);
@@ -76,8 +75,6 @@ export const useContractStore = create<ContractStoreState>((set) => ({
 
   initializeAllContracts: async (provider: Provider) => {
     try {
-
-
       await Promise.all([
         useContractStore.getState().initializePublicContracts(provider),
         useContractStore.getState().initializePrivateContracts(provider),
@@ -94,10 +91,10 @@ export const useContractStore = create<ContractStoreState>((set) => ({
     set({
       governancePublic: undefined,
       governancePrivate: undefined,
-      oraclePublic: undefined,
-      oraclePrivate: undefined,
       masOgPublic: undefined,
       masOgPrivate: undefined,
+      oraclePublic: undefined,
+      oraclePrivate: undefined,
       isInitialized: false,
     });
   },

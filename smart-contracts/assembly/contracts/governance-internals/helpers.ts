@@ -1,4 +1,4 @@
-import { Args, bytesToU64 } from '@massalabs/as-types';
+import { Args, bytesToU256, bytesToU64 } from '@massalabs/as-types';
 import {
   Address,
   call,
@@ -8,7 +8,7 @@ import {
   transferCoins,
 } from '@massalabs/massa-as-sdk';
 import { MASOG_KEY } from '../rolls-oracle';
-
+import { u256 } from 'as-bignum/assembly';
 const MAS_DECIMAL = u64(9);
 
 /**
@@ -16,8 +16,8 @@ const MAS_DECIMAL = u64(9);
  * @param address - The address of the caller.
  * @returns The MASOG balance of the caller.
  */
-export function getMasogBalance(address: string): u64 {
-  return bytesToU64(
+export function getMasogBalance(address: string): u256 {
+  return bytesToU256(
     call(
       new Address(Storage.get(MASOG_KEY)),
       'balanceOf',
@@ -32,9 +32,9 @@ export function getMasogBalance(address: string): u64 {
  * @param  balance - The current balance of the caller.
  * @param  amount - The required amount of MASOG.
  */
-export function assertSufficientMasogBalance(balance: u64, amount: u64): void {
+export function assertSufficientMasogBalance(balance: u256, amount: u256): void {
   assert(
-    balance >= amount,
+    u256.ge(balance, amount),
     `Insufficient MASOG balance to make a proposal (need ${amount})`,
   );
 }
@@ -43,8 +43,8 @@ export function assertSufficientMasogBalance(balance: u64, amount: u64): void {
  * Retrieves the total supply of MASOG.
  * @returns The total supply of MASOG.
  */
-export function getMasogTotalSupply(): u64 {
-  return bytesToU64(
+export function getMasogTotalSupply(): u256 {
+  return bytesToU256(
     call(new Address(Storage.get(MASOG_KEY)), 'totalSupply', new Args(), 0),
   );
 }

@@ -5,12 +5,18 @@
         "preserveConstEnums": true,
         "moduleResolution": "Node",
         "strict": true,
-        "sourceMap": true,
+        "sourceMap": false,
         "target": "es2022",
-        "types": ["node"]
+        "types": [
+            "node"
+        ]
     },
-    "include": ["./src/**/*.ts"],
-    "exclude": ["node_modules"],
+    "include": [
+        "./src/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ],
     "experimentalDecorators": true,
     "ts-node": {
         "esm": true,

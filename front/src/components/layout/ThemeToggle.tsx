@@ -1,4 +1,4 @@
-import { useUIStore } from "../store/useUIStore";
+import { useUIStore } from "../../store/useUIStore";
 
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useUIStore();

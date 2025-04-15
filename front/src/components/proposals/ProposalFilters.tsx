@@ -1,9 +1,10 @@
 import { Input } from "@massalabs/react-ui-kit";
-import { ProposalStatus } from "../../types/governance";
 import {
   MagnifyingGlassIcon,
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
+import { ProposalStatus } from "@/config";
+import { statusConfigs } from "@/utils/proposalStatus";
 
 interface ProposalFiltersProps {
   searchQuery: string;
@@ -11,32 +12,6 @@ interface ProposalFiltersProps {
   selectedStatus: ProposalStatus | "all";
   onStatusChange: (status: ProposalStatus | "all") => void;
 }
-
-const statusConfigs: Record<
-  string,
-  { label: string; color: string; darkColor: string }
-> = {
-  DISCUSSION: {
-    label: "Discussion",
-    color: "text-blue-500",
-    darkColor: "dark:text-blue-400",
-  },
-  VOTING: {
-    label: "Voting",
-    color: "text-brand",
-    darkColor: "dark:text-darkAccent",
-  },
-  ACCEPTED: {
-    label: "Accepted",
-    color: "text-s-success",
-    darkColor: "dark:text-emerald-400",
-  },
-  REJECTED: {
-    label: "Rejected",
-    color: "text-s-error",
-    darkColor: "dark:text-rose-400",
-  },
-};
 
 export function ProposalFilters({
   searchQuery,

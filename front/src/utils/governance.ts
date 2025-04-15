@@ -14,6 +14,7 @@ export const formatProposal = (p: Proposal): FormattedProposal => ({
   positiveVoteVolume: p.positiveVoteVolume,
   negativeVoteVolume: p.negativeVoteVolume,
   blankVoteVolume: p.blankVoteVolume,
+  endMasogTotalSupply: p.endMasogTotalSupply,
 });
 
 export const calculateStats = (
@@ -25,8 +26,8 @@ export const calculateStats = (
   totalProposals: proposals ? BigInt(proposals.length) : null,
   votingProposals: proposals
     ? BigInt(
-        proposals.filter((p) => p.status.toUpperCase() === "VOTING").length
-      )
+      proposals.filter((p) => p.status.toUpperCase() === "VOTING").length
+    )
     : null,
   totalVotes: totalVotes,
   totalMasogSupply: totalMasogSupply,

@@ -1,10 +1,10 @@
 import { OperationStatus } from '@massalabs/massa-web3';
 import { getProvider, getScByteCode } from '../utils';
 import { MasOg } from './wrapper/MasOg';
+import { getContracts } from '../config';
 
 const provider = await getProvider();
-
-const masOg = MasOg.buildnet(provider);
+const masOg = new MasOg(provider, getContracts().masOg);
 
 const bytecode = getScByteCode('build', 'masOg.wasm');
 const op = await masOg.upgradeSC(bytecode);

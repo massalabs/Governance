@@ -30,6 +30,7 @@ import {
   _increaseTotalSupply,
 } from '@massalabs/sc-standards/assembly/contracts/MRC20/mintable/mint-internal';
 import { _balance, _setBalance } from '@massalabs/sc-standards/assembly/contracts/MRC20/MRC20-internals';
+import { KeyValue } from './serializable/key-value';
 
 const LAST_UPDATED_CYCLE = stringToBytes('LAST_UPDATE');
 export const ORACLE_KEY = 'ORACLE_KEY';
@@ -43,7 +44,25 @@ export function constructor(bin: StaticArray<u8>): void {
 
   assertIsSmartContract(oracleAddr);
   Storage.set(ORACLE_KEY, oracleAddr);
-  transferRemaining(Context.transferredCoins());
+  Storage.set(LAST_UPDATED_CYCLE, u64ToBytes(0));
+
+}
+
+export function migrate(bin: StaticArray<u8>): void {
+  _onlyOwner();
+
+  const initialBalance = balance();
+
+  const keyValues = new Args(bin)
+    .nextSerializableObjectArray<KeyValue>()
+    .expect('Key values should be provided');
+
+  for (let i = 0; i < keyValues.length; i++) {
+    const keyValue = keyValues[i];
+    Storage.set(keyValue.key, keyValue.value);
+  }
+
+  transferRemaining(initialBalance);
 }
 
 export function upgradeSC(bytecode: StaticArray<u8>): void {
@@ -74,7 +93,7 @@ export function refresh(bin: StaticArray<u8>): void {
     'Oracle contract should have ORACLE_LAST_RECORDED_CYCLE key',
   );
 
-  const initialBalance = balance();
+  // const initialBalance = balance();
 
   let lastCycle = bytesToU64(
     Storage.getOf(oracleAddr, ORACLE_LAST_RECORDED_CYCLE),
@@ -102,7 +121,7 @@ export function refresh(bin: StaticArray<u8>): void {
     }
 
     if (!Storage.hasOf(oracleAddr, recordedCycleKey(cycle))) {
-      generateEvent(`Warning: cycle ${cycle.toString()} is not registered`);
+      // generateEvent(`Warning: cycle ${cycle.toString()} is not registered`);
       continue;
     }
 
@@ -129,7 +148,14 @@ export function refresh(bin: StaticArray<u8>): void {
 
   Storage.set(LAST_UPDATED_CYCLE, u64ToBytes(lastCycle));
 
-  transferRemaining(initialBalance);
+  // transferRemaining(initialBalance); // Not working on mainnet between 2 sc
+}
+
+/**
+ * Receives coins and generates an event
+ */
+export function receiveCoins(): void {
+  generateEvent('CoinsReceived: ' + Context.transferredCoins().toString());
 }
 
 export {

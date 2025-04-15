@@ -27,6 +27,5 @@ export const useProposals = () => {
     retry: 3,
     retryDelay: 1000,
     enabled: !!governancePublic,
-    staleTime: 30000,
   });
 };

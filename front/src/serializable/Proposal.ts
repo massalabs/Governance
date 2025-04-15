@@ -19,8 +19,9 @@ export class Proposal implements Serializable<Proposal> {
     public creationTimestamp: U64_t = 0n,
     public positiveVoteVolume: U64_t = 0n,
     public negativeVoteVolume: U64_t = 0n,
-    public blankVoteVolume: U64_t = 0n
-  ) {}
+    public blankVoteVolume: U64_t = 0n,
+    public endMasogTotalSupply: U64_t = 0n
+  ) { }
 
   static create(
     title: string,
@@ -49,6 +50,7 @@ export class Proposal implements Serializable<Proposal> {
       .addU64(this.positiveVoteVolume)
       .addU64(this.negativeVoteVolume)
       .addU64(this.blankVoteVolume)
+      .addU64(this.endMasogTotalSupply)
       .serialize();
   }
 
@@ -66,7 +68,7 @@ export class Proposal implements Serializable<Proposal> {
     this.positiveVoteVolume = args.nextU64();
     this.negativeVoteVolume = args.nextU64();
     this.blankVoteVolume = args.nextU64();
-
+    this.endMasogTotalSupply = args.nextU64();
     return { instance: this, offset: args.getOffset() };
   }
 }

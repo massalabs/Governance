@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContractStore } from "../../store/useContractStore";
 import { OperationStatus } from "@massalabs/massa-web3";
 import { toast } from "@massalabs/react-ui-kit";
-
+import { ManageAutoRefresh } from "../../serializable/ManageAutoRefresh";
 interface AutoRefreshParams {
     enabled: boolean;
     maxGas: string;
@@ -25,9 +25,7 @@ export const useManageAutoRefreshMutation = () => {
 
             // Call the manageAutoRefresh method
             const op = await governancePrivate.manageAutoRefresh(
-                enabled,
-                maxGasValue,
-                maxFeeValue
+                new ManageAutoRefresh(enabled, maxGasValue, maxFeeValue)
             );
 
             // Wait for the operation to be confirmed

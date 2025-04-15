@@ -2,30 +2,121 @@
 import { Oracle } from './wrappers/Oracle';
 import {
   getStakers,
-  generateRolls,
+  generateRollsEntries,
   feedRolls,
   deleteRolls,
   getCycleInfo,
   getCyclesToDelete,
-} from './helper';
+} from './helpers';
 import { getProvider } from '../utils';
-import { Mas } from '@massalabs/massa-web3';
+import { JsonRpcProvider, Mas, NetworkName } from '@massalabs/massa-web3';
+import { U64_t } from '@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64';
+import { contracts } from '../config';
 
 // Constants
 const BATCH_SIZE_FEED = 5000;
 const BATCH_SIZE_DELETE = 4000;
 
-// Initialize providers and oracle
-const provider = await getProvider();
-const providerMainnet = await getProvider(undefined, true);
-const oracle = await Oracle.init(provider);
+interface NetworkConfig {
+  provider: JsonRpcProvider;
+  oracle: Oracle;
+  networkName: string;
+}
 
-// Log initial account info
-console.log(
-  `Account: ${provider.address} balance: ${Mas.toString(
-    await provider.balance(),
-  )}`,
-);
+interface NetworkResult {
+  success: boolean;
+  error?: Error;
+}
+
+async function initialize(): Promise<{ buildnet: NetworkConfig; mainnet: NetworkConfig }> {
+  const providerBuildnet = await getProvider('PRIVATE_KEY_BUILDNET');
+  const providerMainnet = await getProvider('PRIVATE_KEY_MAINNET', true);
+
+  const buildnet: NetworkConfig = {
+    provider: providerBuildnet,
+    oracle: new Oracle(providerBuildnet, contracts[NetworkName.Buildnet].oracle),
+    networkName: NetworkName.Buildnet
+  };
+
+  const mainnet: NetworkConfig = {
+    provider: providerMainnet,
+    oracle: new Oracle(providerMainnet, contracts[NetworkName.Mainnet].oracle),
+    networkName: NetworkName.Mainnet
+  };
+
+  console.log('Initializing feeder', {
+    address: providerBuildnet.address,
+    balance: Mas.toString(await providerBuildnet.balance()),
+  });
+
+  return { buildnet, mainnet };
+}
+
+async function processNetwork(
+  network: NetworkConfig,
+  rollEntries: any[],
+  currentCycle: U64_t,
+  cyclesToDelete: U64_t[],
+  lastCycle: U64_t
+): Promise<NetworkResult> {
+  const { oracle, networkName } = network;
+
+  try {
+
+    // Validate that the last recorded cycle is not in the future
+    if (lastCycle > currentCycle) {
+      const errorMessage = `Oracle on ${networkName} has recorded cycles in the future (lastCycle: ${lastCycle}, currentCycle: ${currentCycle}). This indicates a synchronization issue.`;
+      console.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    // Feed rolls
+    await feedRolls(oracle, rollEntries, currentCycle, BATCH_SIZE_FEED);
+
+    // Verify records
+    const nbRecord = await oracle.getNbRecordByCycle(currentCycle, true);
+    console.log(`Rolls recorded on ${networkName}`, { count: nbRecord });
+
+    if (nbRecord !== rollEntries.length) {
+      const errorMessage = `Recorded rolls on ${networkName} (${nbRecord}) do not match generated rolls (${rollEntries.length})`;
+      console.error(`Roll count mismatch on ${networkName}`, {
+        expected: rollEntries.length,
+        actual: nbRecord,
+      });
+      throw new Error(errorMessage);
+    }
+
+    // Delete old cycles
+    if (cyclesToDelete.length === 0) {
+      console.log(`No cycles to delete on ${networkName}`);
+    } else {
+      for (const cycle of cyclesToDelete) {
+        const nbRecord = await oracle.getNbRecordByCycle(cycle, true);
+        console.log(`Deleting rolls from ${networkName} cycle`, { cycle, recordCount: nbRecord });
+
+        try {
+          await deleteRolls(oracle, nbRecord, BATCH_SIZE_DELETE, cycle);
+          console.log(`Successfully deleted rolls from ${networkName}`, { cycle });
+        } catch (error: any) {
+          console.error(`Failed to delete rolls from ${networkName}`, {
+            cycle,
+            error: error.message,
+            stack: error.stack,
+          });
+          throw error;
+        }
+      }
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error(`Error processing ${networkName}`, {
+      error: error.message,
+      stack: error.stack,
+    });
+    return { success: false, error };
+  }
+}
 
 /**
  * Main feeder logic
@@ -34,59 +125,75 @@ async function runFeeder(): Promise<void> {
   console.log('Starting feeder...');
 
   try {
-    // Fetch initial data
-    const lastCycle = await oracle.getLastCycle();
-    let recordedCycles = await oracle.getRecordedCycles();
+    const { buildnet, mainnet } = await initialize();
+
+    // Get cycle information from buildnet
+    const lastCycleBuildnet = await buildnet.oracle.getLastCycle();
+    const recordedCyclesBuildnet = await buildnet.oracle.getRecordedCycles();
+
+    const lastCycleMainnet = await mainnet.oracle.getLastCycle();
+    const recordedCyclesMainnet = await mainnet.oracle.getRecordedCycles();
+
+
     const { currentCycle, remainingPeriods } = await getCycleInfo(
-      provider.client,
+      mainnet.provider.client,
     );
 
-    console.log('- Last cycle:', lastCycle);
-    console.log('- Current cycle:', currentCycle);
-    console.log('- Recorded cycles:', recordedCycles);
+    console.log('Cycle information Buildnet', {
+      lastCycle: lastCycleBuildnet,
+      recordedCycles: recordedCyclesBuildnet,
+    });
 
-    // Check if we need to process a new cycle
-    if (lastCycle >= currentCycle) {
-      console.log('Remaining periods to next cycle:', remainingPeriods);
-      console.log('');
+    console.log('Cycle information Mainnet', {
+      lastCycle: lastCycleMainnet,
+      recordedCycles: recordedCyclesMainnet,
+    });
+
+    // Early exit if no new cycle
+    if (lastCycleMainnet >= currentCycle) {
+      console.log('No new cycle to process', { remainingPeriods });
+      console.log(`Time left: ${remainingPeriods * 16n / 60n} minutes`)
       return;
     }
 
-    // Process rolls
-    const stakers = await getStakers(providerMainnet);
-    const rolls = generateRolls(stakers);
-    console.log(`Stakers found: ${stakers.length}`);
+    // Get stakers from mainnet
+    const stakers = await getStakers(mainnet.provider);
+    console.log('Stakers found', { count: stakers.length });
 
-    await feedRolls(oracle, rolls, currentCycle, BATCH_SIZE_FEED);
-    const nbRecord = await oracle.getNbRecordByCycle(currentCycle, true);
-    console.log('Recorded rolls:', nbRecord);
+    const rollEntries = generateRollsEntries(stakers);
+    const cyclesToDeleteMainnet = getCyclesToDelete(recordedCyclesMainnet);
+    const cyclesToDeleteBuildnet = getCyclesToDelete(recordedCyclesBuildnet);
 
-    if (nbRecord !== rolls.length) {
-      throw new Error('Recorded rolls do not match generated rolls');
-      // TODO: Add retry logic here if needed
-    }
+    // Process both networks in parallel
+    const [buildnetResult, mainnetResult] = await Promise.all([
+      processNetwork(buildnet, rollEntries, currentCycle, cyclesToDeleteBuildnet, lastCycleBuildnet),
+      processNetwork(mainnet, rollEntries, currentCycle, cyclesToDeleteMainnet, lastCycleMainnet)
+    ]);
 
-    // Manage cycle history
-    recordedCycles = await oracle.getRecordedCycles();
-    const cyclesToDelete = getCyclesToDelete(recordedCycles);
-    if (cyclesToDelete.length === 0) {
-      console.log('No cycles to delete');
+    // Check results and log errors if any failed
+    const errors: string[] = [];
+    if (!buildnetResult.success) {
+      errors.push(`Buildnet failed: ${buildnetResult.error?.message}`);
     } else {
-      for (const cycle of cyclesToDelete) {
-        const nbRecord = await oracle.getNbRecordByCycle(cycle, true);
-        console.log(`Deleting rolls from cycle ${cycle} (${nbRecord} records)`);
-        await deleteRolls(oracle, nbRecord, BATCH_SIZE_DELETE, cycle);
-        console.log(`Deleted rolls from cycle ${cycle}`);
-      }
+      console.log('*#* Buildnet success *#*');
+    }
+    if (!mainnetResult.success) {
+      errors.push(`Mainnet failed: ${mainnetResult.error?.message}`);
+    } else {
+      console.log('*#* Mainnet success *#*');
     }
 
-    console.log('Feeder finished\n');
-  } catch (error) {
-    console.error('Feeder error:', error);
-    throw error; // Re-throw to allow caller to handle or log
+
+
+    if (errors.length > 0) {
+      console.error('Feeder completed with errors:', errors.join('\n'));
+      throw new Error('Feeder completed with errors', { cause: errors.join('\n') });
+    } else {
+      console.log('Feeder finished successfully');
+    }
+  } catch (error: any) {
+    throw error;
   }
 }
 
 runFeeder();
-// const POLLING_INTERVAL_MS = 60 * 1000; // 1 minute
-// setInterval(() => runFeeder(), POLLING_INTERVAL_MS); // Uncomment for polling

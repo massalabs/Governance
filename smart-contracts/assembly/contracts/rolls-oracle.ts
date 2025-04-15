@@ -21,6 +21,7 @@ import {
   ORACLE_LAST_RECORDED_CYCLE,
   rollKeyPrefix,
 } from './oracle-internals/keys';
+import { KeyValue } from './serializable/key-value';
 
 export const MASOG_KEY = 'MASOG_KEY';
 
@@ -84,6 +85,7 @@ export function feedCycle(binaryArgs: StaticArray<u8>): void {
       nbStakers * MAX_MINT_COST + 1_000_000_000,
     );
   }
+
   transferRemaining(initialBalance);
 }
 
@@ -104,6 +106,13 @@ export function deleteCycle(binaryArgs: StaticArray<u8>): void {
 
   transferRemaining(initialBalance);
   generateEvent(`Cycle ${cycle} deleted successfully`);
+}
+
+/**
+ * Receives coins and generates an event
+ */
+export function receiveCoins(): void {
+  generateEvent('CoinsReceived: ' + Context.transferredCoins().toString());
 }
 
 /**

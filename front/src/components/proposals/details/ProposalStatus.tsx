@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import { formatDate, calculateTimeLeft } from "@/utils/date";
 import { getStatusConfig, getDisplayStatus } from "@/utils/proposalStatus";
 import { DISCUSSION_PERIOD, VOTING_PERIOD } from "@/config";
+import { ProposalStatus as ProposalStatusEnum } from "@/config";
 
 interface ProposalStatusProps {
   proposal: FormattedProposal;
@@ -20,9 +21,9 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
       Number(proposal.creationTimestamp) + Number(DISCUSSION_PERIOD) + Number(VOTING_PERIOD);
 
     let nextTransition: number;
-    if (proposal.status === "DISCUSSION") {
+    if (proposal.status === ProposalStatusEnum.DISCUSSION) {
       nextTransition = Number(proposal.creationTimestamp) + Number(DISCUSSION_PERIOD);
-    } else if (proposal.status === "VOTING") {
+    } else if (proposal.status === ProposalStatusEnum.VOTING) {
       nextTransition = votingEndTime;
     } else {
       nextTransition = 0;
@@ -40,7 +41,7 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
 
   useEffect(() => {
     const updateTimeLeft = () => {
-      if (proposal.status === "ACCEPTED" || proposal.status === "REJECTED") {
+      if (proposal.status === ProposalStatusEnum.ACCEPTED || proposal.status === ProposalStatusEnum.REJECTED) {
         setTimeLeft("Completed");
         return;
       }
@@ -54,9 +55,9 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
   }, [proposal.status, nextTransitionTime]);
 
   const getNextStatusDate = () => {
-    if (proposal.status === "DISCUSSION") {
+    if (proposal.status === ProposalStatusEnum.DISCUSSION) {
       return new Date(Number(proposal.creationTimestamp) + Number(DISCUSSION_PERIOD));
-    } else if (proposal.status === "VOTING") {
+    } else if (proposal.status === ProposalStatusEnum.VOTING) {
       return endDate;
     }
     return null;
@@ -79,7 +80,7 @@ export function ProposalStatus({ proposal }: ProposalStatusProps) {
           <div className="text-sm text-f-tertiary dark:text-darkMuted">
             Voting ended on {formatDate(endDate)}
           </div>
-          {proposal.status === "VOTING" && (
+          {proposal.status === ProposalStatusEnum.VOTING && (
             <div className="mt-2 text-sm text-amber-500 dark:text-amber-400">
               Please wait for the final results
             </div>

@@ -1,6 +1,5 @@
+import { ProposalStatus } from "@/config";
 import { Vote } from "../serializable/Vote";
-
-export type ProposalStatus = "DISCUSSION" | "VOTING" | "ACCEPTED" | "REJECTED";
 
 export interface CreateProposalParams {
   title: string;
@@ -24,6 +23,7 @@ export interface FormattedProposal {
   positiveVoteVolume: bigint;
   negativeVoteVolume: bigint;
   blankVoteVolume: bigint;
+  endMasogTotalSupply: bigint;
 }
 
 export interface GovernanceStats {
