@@ -5,11 +5,12 @@ export const networkName = isMainnet ? NetworkName.Mainnet : NetworkName.Buildne
 
 export const contracts = {
   [NetworkName.Mainnet]: {
-    oracle: 'AS12B2i8yRyVtKZGfpShQV6mU5bYdxWjMh3bgffcWAnCyCKb7znAJ',
-    masOg: 'AS12sDRiSYgi7JkC8giyVZruSq4Jb18wsmVPXiuTuasmz7pmU6yRR',
-    governance: 'AS12Ypj65bt4RBdzwGm1pcQLswPo4DysV18dzkdn73LNVRupiKGB8',
+    oracle: 'AS12LtCB1k3dnRZnUCR8KGXaY2Qpc9sN1aaBiwSrU9w2jfu1MZsr4',
+    masOg: 'AS12dwsZrv5dGUcVvKrLuFfrTy39izPf56cZSoBhkYFwd3BUM9tYu',
+    governance: 'AS12gXJzJra1kHUXftuBLyPrcfEBTJHz6L2nV5aNMnLmLnyBeJxDC',
   },
   [NetworkName.Buildnet]: {
+    // BETA
     // masOg: 'AS1RBDkKmg4DNxH4niuUZaec7rXe6qcbmZi8UeTFCBYp9zwxmBrF',
     // oracle: 'AS1JyoLPg4Dr3RYGjjjS8JRnjpVjS4dHoboBA8vFCAZEFct1ELz5',
     // governance: 'AS12k9LK17UVQGp96dPGhKiQ7xWmMihbN81DhagaCrcdgcRNHJQbE',

@@ -56,13 +56,12 @@ async function processNetwork(
   network: NetworkConfig,
   rollEntries: any[],
   currentCycle: U64_t,
-  cyclesToDelete: U64_t[]
+  cyclesToDelete: U64_t[],
+  lastCycle: U64_t
 ): Promise<NetworkResult> {
   const { oracle, networkName } = network;
 
   try {
-    // Get the last recorded cycle from the oracle
-    const lastCycle = await oracle.getLastCycle();
 
     // Validate that the last recorded cycle is not in the future
     if (lastCycle > currentCycle) {
@@ -129,23 +128,31 @@ async function runFeeder(): Promise<void> {
     const { buildnet, mainnet } = await initialize();
 
     // Get cycle information from buildnet
-    const lastCycle = await buildnet.oracle.getLastCycle();
-    const recordedCycles = await buildnet.oracle.getRecordedCycles();
+    const lastCycleBuildnet = await buildnet.oracle.getLastCycle();
+    const recordedCyclesBuildnet = await buildnet.oracle.getRecordedCycles();
+
+    const lastCycleMainnet = await mainnet.oracle.getLastCycle();
+    const recordedCyclesMainnet = await mainnet.oracle.getRecordedCycles();
+
+
     const { currentCycle, remainingPeriods } = await getCycleInfo(
       mainnet.provider.client,
     );
 
-    console.log('Cycle information', {
-      lastCycle,
-      currentCycle,
-      recordedCycles,
-      remainingPeriods,
+    console.log('Cycle information Buildnet', {
+      lastCycle: lastCycleBuildnet,
+      recordedCycles: recordedCyclesBuildnet,
+    });
+
+    console.log('Cycle information Mainnet', {
+      lastCycle: lastCycleMainnet,
+      recordedCycles: recordedCyclesMainnet,
     });
 
     // Early exit if no new cycle
-
-    if (lastCycle >= currentCycle) {
+    if (lastCycleMainnet >= currentCycle) {
       console.log('No new cycle to process', { remainingPeriods });
+      console.log(`Time left: ${remainingPeriods * 16n / 60n} minutes`)
       return;
     }
 
@@ -154,37 +161,39 @@ async function runFeeder(): Promise<void> {
     console.log('Stakers found', { count: stakers.length });
 
     const rollEntries = generateRollsEntries(stakers);
-    const cyclesToDelete = getCyclesToDelete(recordedCycles);
+    const cyclesToDeleteMainnet = getCyclesToDelete(recordedCyclesMainnet);
+    const cyclesToDeleteBuildnet = getCyclesToDelete(recordedCyclesBuildnet);
 
     // Process both networks in parallel
     const [buildnetResult, mainnetResult] = await Promise.all([
-      processNetwork(buildnet, rollEntries, currentCycle, cyclesToDelete),
-      processNetwork(mainnet, rollEntries, currentCycle, cyclesToDelete)
+      processNetwork(buildnet, rollEntries, currentCycle, cyclesToDeleteBuildnet, lastCycleBuildnet),
+      processNetwork(mainnet, rollEntries, currentCycle, cyclesToDeleteMainnet, lastCycleMainnet)
     ]);
 
-    // Check results and throw combined error if any failed
+    // Check results and log errors if any failed
     const errors: string[] = [];
     if (!buildnetResult.success) {
       errors.push(`Buildnet failed: ${buildnetResult.error?.message}`);
+    } else {
+      console.log('*#* Buildnet success *#*');
     }
     if (!mainnetResult.success) {
       errors.push(`Mainnet failed: ${mainnetResult.error?.message}`);
+    } else {
+      console.log('*#* Mainnet success *#*');
     }
+
+
 
     if (errors.length > 0) {
-      throw new Error(`Feeder completed with errors:\n${errors.join('\n')}`);
+      console.error('Feeder completed with errors:', errors.join('\n'));
+      throw new Error('Feeder completed with errors', { cause: errors.join('\n') });
+    } else {
+      console.log('Feeder finished successfully');
     }
-
-    console.log('Feeder finished successfully');
   } catch (error: any) {
-    console.error('Feeder error', {
-      message: error.message,
-      stack: error.stack,
-    });
     throw error;
   }
 }
 
 runFeeder();
-// run every 10 seconds
-// setInterval(runFeeder, 10000);

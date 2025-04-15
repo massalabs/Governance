@@ -93,7 +93,7 @@ export function refresh(bin: StaticArray<u8>): void {
     'Oracle contract should have ORACLE_LAST_RECORDED_CYCLE key',
   );
 
-  const initialBalance = balance();
+  // const initialBalance = balance();
 
   let lastCycle = bytesToU64(
     Storage.getOf(oracleAddr, ORACLE_LAST_RECORDED_CYCLE),
@@ -148,7 +148,7 @@ export function refresh(bin: StaticArray<u8>): void {
 
   Storage.set(LAST_UPDATED_CYCLE, u64ToBytes(lastCycle));
 
-  transferRemaining(initialBalance);
+  // transferRemaining(initialBalance); // Not working on mainnet between 2 sc
 }
 
 /**
