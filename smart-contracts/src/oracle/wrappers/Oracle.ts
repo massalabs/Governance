@@ -182,4 +182,13 @@ export class Oracle extends SmartContract {
       coins,
     });
   }
+
+  async ownerAddress(): Promise<string> {
+    const result = await this.provider.readStorage(this.address, ['OWNER_KEY']);
+
+    if (!result[0]) {
+      throw new Error('No owner address found');
+    }
+    return bytesToStr(result[0]);
+  }
 }
