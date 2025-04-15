@@ -3,8 +3,7 @@ import { WelcomeSection } from "../components/home/WelcomeSection";
 import { StatsSection } from "../components/home/StatsSection";
 import { VotingPowerSection } from "../components/home/VotingPowerSection";
 import { RecentProposalsSection } from "../components/home/RecentProposalsSection";
-import { ActionLinks } from "../components/home/ActionLinks";
-import { BetaBanner } from "../components/home/BetaBanner";
+import { ActionLinks } from "../components/home/ActionLinks"
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { networkName } from "@/config";
 
@@ -14,7 +13,6 @@ export default function Home() {
 
   return (
     <div className="space-y-8">
-      <BetaBanner />
       <WelcomeSection />
       <StatsSection isLoading={loading} stats={stats} />
       {network && networkName === network.name && (
