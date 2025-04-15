@@ -128,9 +128,6 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
     let blank = 0n;
 
     proposalVotes.forEach(vote => {
-      // Convert vote.value to BigInt if it's not already
-
-
       if (vote.value === 1n) {
         positive += vote.balance;
       } else if (vote.value === -1n) {
@@ -155,16 +152,19 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
     negativeVoteVolume +
     blankVoteVolume;
 
+  // Use endMasogTotalSupply for ended proposals, otherwise use current total supply
+  const effectiveTotalSupply = isVotingEnded ? proposal.endMasogTotalSupply : totalSupply;
+
   // Calculate abstain votes (total supply - total votes)
-  const abstainVotes = totalSupply ? totalSupply - totalVotes : 0n;
+  const abstainVotes = effectiveTotalSupply ? effectiveTotalSupply - totalVotes : 0n;
 
   // Calculate percentages relative to total supply with proper decimal handling
   const calculateSupplyPercentage = (votes: bigint) => {
-    if (!totalSupply) return 0;
+    if (!effectiveTotalSupply) return 0;
 
     // Convert BigInt to string to avoid precision loss
     const votesStr = votes.toString();
-    const totalSupplyStr = totalSupply.toString();
+    const totalSupplyStr = effectiveTotalSupply.toString();
 
     // Use big.js for precise decimal arithmetic
     const votesBig = new Big(votesStr);
@@ -184,8 +184,8 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
 
   // Calculate current progress towards threshold
   const currentProgress =
-    Number(totalSupply) > 0
-      ? (Number(positiveVoteVolume) / Number(totalSupply)) * 100
+    Number(effectiveTotalSupply) > 0
+      ? (Number(positiveVoteVolume) / Number(effectiveTotalSupply)) * 100
       : 0;
 
   return (
@@ -198,7 +198,7 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
       </div>
 
       <div className="text-sm text-f-tertiary dark:text-darkMuted">
-        Total supply: {Number(totalSupply).toLocaleString()} MASOG
+        Total supply: {Number(effectiveTotalSupply).toLocaleString()} MASOG
       </div>
 
       {/* Estimation notice - only shown during voting status */}

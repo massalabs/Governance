@@ -1,7 +1,6 @@
 import { migrateMasOg } from "../masog/migrate";
 import { contracts } from "../config";
 import { Account, NetworkName, Web3Provider } from "@massalabs/massa-web3";
-import { migrateOracle } from "../oracle/migrate";
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -18,11 +17,4 @@ await migrateMasOg(
     providerMainnet,
     contracts[NetworkName.Buildnet].masOg,
     contracts[NetworkName.Mainnet].masOg
-);
-
-await migrateOracle(
-    providerBuildnet,
-    providerMainnet,
-    contracts[NetworkName.Buildnet].oracle,
-    contracts[NetworkName.Mainnet].oracle
 );

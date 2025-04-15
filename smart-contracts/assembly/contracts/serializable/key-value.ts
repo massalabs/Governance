@@ -8,8 +8,8 @@ export class KeyValue implements Serializable {
     ) { }
 
     /**
-     * Serializes the Proposal object into a byte array.
-     * @returns A byte array representing the serialized Proposal object.
+     * Serializes the KeyValue object into a byte array.
+     * @returns A byte array representing the serialized KeyValue object.
      */
     serialize(): StaticArray<u8> {
         return new Args()
@@ -19,7 +19,7 @@ export class KeyValue implements Serializable {
     }
 
     /**
-     * Deserializes a byte array into a Proposal object.
+     * Deserializes a byte array into a KeyValue object.
      * @param data - The byte array to deserialize.
      * @param offset - The offset to start deserialization from.
      * @returns A Result object containing the new offset or an error message.

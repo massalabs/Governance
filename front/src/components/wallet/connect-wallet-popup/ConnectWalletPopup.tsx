@@ -46,9 +46,7 @@ export function ConnectWalletPopup(props: ConnectWalletPopupProps) {
   );
 }
 
-export function WalletCard({ ...props }) {
-  const { children } = props;
-
+export function WalletCard({ children }: { children: React.ReactNode }) {
   return (
     <div className="bg-gradient-to-br from-secondary/40 to-secondary/30 dark:from-darkCard/40 dark:to-darkCard/30 p-8 rounded-2xl flex flex-col justify-center items-center backdrop-blur-sm border border-primary/5 dark:border-darkAccent/5 hover:border-primary/10 dark:hover:border-darkAccent/10 transition-all duration-300">
       <div className="flex flex-col w-full mas-body space-y-4">{children}</div>

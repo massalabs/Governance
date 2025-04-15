@@ -16,9 +16,10 @@ import { useAccountStore } from "@massalabs/react-ui-kit";
 import { Divider } from "@/components/ui/Divider";
 import { HeaderSection } from "@/components/create-proposal/HeaderSection";
 import { WalletNotConnected } from "@/components/wallet/wallet-not-connected";
+import { networkName } from "@/config";
 
 export default function CreateProposal() {
-  const { connectedAccount } = useAccountStore();
+  const { connectedAccount, network } = useAccountStore();
   const [formData, setFormData] = useState<CreateProposalParams>({
     title: "",
     forumPostLink: "",
@@ -52,8 +53,19 @@ export default function CreateProposal() {
     );
   };
 
-  if (!connectedAccount) {
+  if (!connectedAccount || !network) {
     return <WalletNotConnected />;
+  }
+
+  if (network.name !== networkName) {
+    return (
+      <div className="max-w-4xl mx-auto p-8">
+        <div className="bg-secondary/40 dark:bg-darkCard/40 backdrop-blur-sm border border-primary/10 dark:border-darkAccent/10 rounded-2xl shadow-lg p-6 text-center">
+          <h2 className="text-xl font-semibold mb-4">Network Switch Required</h2>
+          <p className="text-muted-foreground">Please switch to {networkName} to create a proposal</p>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -2,7 +2,6 @@ import { bytesToI32, bytesToString } from "@massalabs/as-types";
 import { generateEvent, Storage } from "@massalabs/massa-as-sdk";
 
 import { Proposal } from "../serializable/proposal";
-import { Vote } from "../serializable/vote";
 import { getMasogTotalSupply, getMasogBalance } from "./helpers";
 import { discussionStatus, votingStatus, voteKey, acceptedStatus, rejectedStatus } from "./keys";
 import { DISCUSSION_PERIOD, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE, VOTING_PERIOD } from "./config";

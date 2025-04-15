@@ -1,6 +1,7 @@
 import { Args, Mas, SmartContract } from '@massalabs/massa-web3';
 import { getProvider, getScByteCode } from '../../utils';
-
+import { deployCoins, networkName } from '../../config';
+import { logOperation } from '../../utils/operationLogger';
 export async function deployOracle(): Promise<string> {
     console.log('Deploying rolls oracle contract...');
 
@@ -8,7 +9,7 @@ export async function deployOracle(): Promise<string> {
 
     const provider = await getProvider();
     const contract = await SmartContract.deploy(provider, byteCode, new Args(), {
-        coins: Mas.fromString('30'),
+        coins: deployCoins[networkName].oracle,
         fee: Mas.fromString('0.1'),
     });
 
@@ -20,6 +21,10 @@ export async function deployOracle(): Promise<string> {
 
     for (const event of events) {
         console.log('Event message:', event.data);
+        console.log('Event origin operation id:', event.context.origin_operation_id);
+        if (event.context.origin_operation_id) {
+            logOperation('Oracle Deployment', event.context.origin_operation_id);
+        }
     }
 
     return contract.address;

@@ -166,4 +166,14 @@ export class Oracle extends SmartContract {
 
     return bytesToStr(result[0]);
   }
+
+  /**
+ * Receives coins
+ */
+  async receiveCoins(coins: bigint, options?: ReadSCOptions): Promise<Operation> {
+    return await this.call('receiveCoins', new Args(), {
+      ...options,
+      coins
+    });
+  }
 }

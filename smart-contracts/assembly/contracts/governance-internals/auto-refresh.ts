@@ -5,8 +5,7 @@ import { statusKeyPrefix, votingStatus, discussionStatus } from "./keys";
 import { START_REFETCH_PERIOD, LIMIT_REFETCH_PERIOD, MAX_ASYNC_CALL_GAS, MAX_ASYNC_CALL_FEE } from "./config";
 // Auto refresh constants
 
-export const AUTO_REFRESH_STATUS_KEY = stringToBytes('AUTO_REFRESH_STATUS');
-export const ASC_START_PERIOD = stringToBytes('ASC_START_PERIOD');
+export const AUTO_REFRESH_STATUS_KEY = stringToBytes('auto_refresh');
 export const ASC_END_PERIOD = stringToBytes('ASC_END_PERIOD');
 export const MAX_ASYNC_CALL_GAS_KEY = stringToBytes('MAX_ASYNC_CALL_GAS');
 export const MAX_ASYNC_CALL_FEE_KEY = stringToBytes('MAX_ASYNC_CALL_FEE');
@@ -41,7 +40,7 @@ export function _autoRefreshCall(): void {
         discussionStatusProposalsKeys.length === 0
     ) {
         generateEvent('No proposals to refresh, stopping ASC');
-        Storage.set(ASC_START_PERIOD, u64ToBytes(0));
+
         Storage.set(ASC_END_PERIOD, u64ToBytes(0));
         return;
     }
@@ -69,7 +68,7 @@ export function _autoRefreshCall(): void {
  */
 export function _ensureAutoRefresh(): void {
     const currentPeriod = Context.currentPeriod();
-    // const lastStart = bytesToU64(Storage.get(ASC_START_PERIOD));
+
     const lastEnd = bytesToU64(Storage.get(ASC_END_PERIOD));
 
     if (currentPeriod > lastEnd) {

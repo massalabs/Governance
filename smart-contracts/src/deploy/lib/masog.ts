@@ -1,6 +1,7 @@
 import { Args, Mas, SmartContract } from '@massalabs/massa-web3';
 import { getProvider, getScByteCode } from '../../utils';
-
+import { deployCoins, networkName } from '../../config';
+import { logOperation } from '../../utils/operationLogger';
 export async function deployMasOg(
   oracleAddress: string,
 ): Promise<string> {
@@ -14,7 +15,7 @@ export async function deployMasOg(
     byteCode,
     new Args().addString(oracleAddress),
     {
-      coins: Mas.fromString('1'),
+      coins: deployCoins[networkName].masOg,
       fee: Mas.fromString('0.1'),
     },
   );
@@ -27,6 +28,9 @@ export async function deployMasOg(
 
   for (const event of events) {
     console.log('Event message:', event.data);
+    if (event.context.origin_operation_id) {
+      logOperation('MasOg Deployment', event.context.origin_operation_id);
+    }
   }
   return contract.address;
 }

@@ -13,7 +13,7 @@ import { AdminActions } from "../components/proposals/details/AdminActions";
 import { ProposalStatus } from "../components/proposals/details/ProposalStatus";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { useMemo } from "react";
-import { DISCUSSION_PERIOD, MIN_VOTE_MASOG_AMOUNT, VOTING_PERIOD } from "@/config";
+import { DISCUSSION_PERIOD, MIN_VOTE_MASOG_AMOUNT, VOTING_PERIOD, networkName } from "@/config";
 
 const BackButton = () => (
   <Link
@@ -36,9 +36,20 @@ const ConnectWalletPrompt = () => (
   </div>
 );
 
+const NetworkSwitchPrompt = () => (
+  <div className="bg-primary/10 dark:bg-darkPrimary/10 border-2 border-primary/30 dark:border-darkPrimary/30 rounded-lg p-6 text-center">
+    <p className="text-primary dark:text-darkPrimary font-medium text-lg mb-2">
+      Switch Network to Vote
+    </p>
+    <p className="text-f-tertiary dark:text-darkMuted">
+      Please switch to {networkName} to participate in this proposal's voting process
+    </p>
+  </div>
+);
+
 export default function ProposalDetails() {
   const { id } = useParams<{ id: string }>();
-  const { connectedAccount } = useAccountStore();
+  const { connectedAccount, network } = useAccountStore();
   const { proposals, userMasogBalance, userVotes, loading } = useGovernanceData();
   const { openVoteModal } = useUIStore();
 
@@ -86,11 +97,15 @@ export default function ProposalDetails() {
           <ProposalStatus proposal={proposal} />
           {votingStatus.canShowVoting && (
             connectedAccount ? (
-              <VoteAction
-                hasVoted={votingStatus.hasVoted}
-                canVote={votingStatus.canVote}
-                onVote={() => openVoteModal(proposal.id)}
-              />
+              network?.name === networkName ? (
+                <VoteAction
+                  hasVoted={votingStatus.hasVoted}
+                  canVote={votingStatus.canVote}
+                  onVote={() => openVoteModal(proposal.id)}
+                />
+              ) : (
+                <NetworkSwitchPrompt />
+              )
             ) : (
               <ConnectWalletPrompt />
             )
@@ -107,9 +122,9 @@ export default function ProposalDetails() {
               />
             </div>
           )}
-          {connectedAccount && (
-            <AdminActions proposalId={proposal.id} />
-          )}
+
+          <AdminActions proposalId={proposal.id} />
+
         </div>
       </div>
 

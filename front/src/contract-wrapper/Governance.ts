@@ -18,7 +18,7 @@ import { getContracts } from "../config";
 import { I32_t } from "@massalabs/massa-web3/dist/esm/basicElements/serializers/number/i32";
 import { MasOg } from "./MasOg";
 import { VoteDetails } from "@/types/governance";
-
+import { ManageAutoRefresh } from "../serializable/ManageAutoRefresh";
 
 const UPDATE_PROPOSAL_TAG = strToBytes("UPDATE_PROPOSAL_TAG");
 const UPDATE_VOTE_TAG = strToBytes("UPDATE_VOTE_TAG");
@@ -229,19 +229,34 @@ export class Governance extends SmartContract {
   }
 
   /**
+   * Refreshes proposal statuses
+   */
+  async refresh(options?: ReadSCOptions): Promise<Operation> {
+    return this.call("refresh", new Args(), options);
+  }
+
+  /**
    * Manages the auto refresh
    * @param enable - Whether to enable or disable the auto refresh
    * @param maxGas - The maximum gas for the auto refresh
    * @param maxFee - The maximum fee for the auto refresh
    */
   async manageAutoRefresh(
-    enable: boolean,
-    maxGas: bigint,
-    maxFee: bigint,
+    manageAutoRefresh: ManageAutoRefresh,
     options?: ReadSCOptions,
   ): Promise<Operation> {
-    return await this.call('manageAutoRefresh', new Args().addBool(enable).addU64(maxGas).addU64(maxFee),
+    return await this.call('manageAutoRefresh', new Args().addSerializable(manageAutoRefresh),
       options,
     );
+  }
+
+  /**
+   * Receives coins
+   */
+  async receiveCoins(coins: bigint, options?: ReadSCOptions): Promise<Operation> {
+    return await this.call('receiveCoins', new Args(), {
+      ...options,
+      coins
+    });
   }
 }

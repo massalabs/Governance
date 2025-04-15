@@ -3,6 +3,9 @@ import {
   Provider,
   PublicProvider,
   MRC20,
+  Args,
+  Operation,
+  ReadSCOptions,
 } from "@massalabs/massa-web3";
 import { getContracts } from "../config";
 
@@ -13,5 +16,15 @@ export class MasOg extends MRC20 {
 
   static async initPublic(publicProvider: PublicProvider): Promise<MasOg> {
     return new MasOg(publicProvider, getContracts().masOg);
+  }
+
+  /**
+ * Receives coins
+ */
+  async receiveCoins(coins: bigint, options?: ReadSCOptions): Promise<Operation> {
+    return await this.call('receiveCoins', new Args(), {
+      ...options,
+      coins
+    });
   }
 }

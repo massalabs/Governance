@@ -6,21 +6,23 @@ import { OutputEvents } from "@massalabs/massa-web3/dist/esm/generated/client-ty
 interface AdminData {
     governanceBalance: string;
     masOgBalance: string;
+    oracleBalance: string;
     events: OutputEvents;
     timestamp: number;
 }
 
 const fetchAdminData = async (): Promise<AdminData> => {
-    const { governancePublic, masOgPublic } = useContractStore.getState();
+    const { governancePublic, masOgPublic, oraclePublic } = useContractStore.getState();
 
-    if (!governancePublic || !masOgPublic) {
+    if (!governancePublic || !masOgPublic || !oraclePublic) {
         throw new Error("Contracts not available");
     }
 
     // Fetch balances
-    const [govBalance, masOgBal] = await Promise.all([
+    const [govBalance, masOgBal, oracleBal] = await Promise.all([
         governancePublic.provider.balanceOf([governancePublic.address]),
         masOgPublic.provider.balanceOf([masOgPublic.address]),
+        oraclePublic.provider.balanceOf([oraclePublic.address]),
     ]);
 
     // Fetch events (last 5)
@@ -31,6 +33,7 @@ const fetchAdminData = async (): Promise<AdminData> => {
     return {
         governanceBalance: Mas.toString(govBalance[0].balance),
         masOgBalance: Mas.toString(masOgBal[0].balance),
+        oracleBalance: Mas.toString(oracleBal[0].balance),
         events: govEvents.slice(-5).map((event: any) => ({
             ...event,
             isNew: false

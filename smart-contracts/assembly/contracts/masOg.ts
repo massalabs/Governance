@@ -44,7 +44,6 @@ export function constructor(bin: StaticArray<u8>): void {
 
   assertIsSmartContract(oracleAddr);
   Storage.set(ORACLE_KEY, oracleAddr);
-  transferRemaining(Context.transferredCoins());
 }
 
 export function migrate(bin: StaticArray<u8>): void {
@@ -148,6 +147,13 @@ export function refresh(bin: StaticArray<u8>): void {
   Storage.set(LAST_UPDATED_CYCLE, u64ToBytes(lastCycle));
 
   transferRemaining(initialBalance);
+}
+
+/**
+ * Receives coins and generates an event
+ */
+export function receiveCoins(): void {
+  generateEvent('CoinsReceived: ' + Context.transferredCoins().toString());
 }
 
 export {

@@ -40,23 +40,6 @@ export function constructor(_: StaticArray<u8>): void {
   transferRemaining(Context.transferredCoins());
 }
 
-export function migrate(bin: StaticArray<u8>): void {
-  _onlyOwner();
-
-  const initialBalance = balance();
-
-  const keyValues = new Args(bin)
-    .nextSerializableObjectArray<KeyValue>()
-    .expect('Key values should be provided');
-
-  for (let i = 0; i < keyValues.length; i++) {
-    const keyValue = keyValues[i];
-    Storage.set(keyValue.key, keyValue.value);
-  }
-
-  transferRemaining(initialBalance);
-}
-
 export function setMasOgAddress(bin: StaticArray<u8>): void {
   _onlyOwner();
   const oracleAddr = new Args(bin)
@@ -123,6 +106,13 @@ export function deleteCycle(binaryArgs: StaticArray<u8>): void {
 
   transferRemaining(initialBalance);
   generateEvent(`Cycle ${cycle} deleted successfully`);
+}
+
+/**
+ * Receives coins and generates an event
+ */
+export function receiveCoins(): void {
+  generateEvent('CoinsReceived: ' + Context.transferredCoins().toString());
 }
 
 /**

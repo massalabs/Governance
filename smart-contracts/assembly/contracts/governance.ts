@@ -5,6 +5,7 @@ import {
   setBytecode,
   balance,
   assertIsSmartContract,
+  generateEvent,
 } from '@massalabs/massa-as-sdk';
 import { Args, boolToByte, u64ToBytes } from '@massalabs/as-types';
 import {
@@ -30,33 +31,32 @@ import {
   MAX_ASYNC_CALL_GAS_KEY,
   MAX_ASYNC_CALL_FEE_KEY,
   AUTO_REFRESH_STATUS_KEY,
-  ASC_START_PERIOD,
   ASC_END_PERIOD
 } from './governance-internals/auto-refresh';
 import { ALLOWED_ADDRESSES } from './governance-internals/config';
+import { ManageAutoRefresh } from './serializable/manage-auto-refresh';
 
 
 /**
- * Initializes the smart contract and sets the deployer as the owner.
+ * Sets the owner and the MASOG contract address
+ * @param binaryArgs - Serialized MASOG contract address.
  */
 export function constructor(bin: StaticArray<u8>): void {
   if (!Context.isDeployingContract()) return;
+
+  _setOwner(Context.caller().toString());
 
   const masOgAddr = new Args(bin)
     .nextString()
     .expect('Oracle contract should be provided');
 
-  _setOwner(Context.caller().toString());
+  assertIsSmartContract(masOgAddr);
+
 
   Storage.set(UPDATE_PROPOSAL_COUNTER_TAG, u64ToBytes(0));
   Storage.set(AUTO_REFRESH_STATUS_KEY, boolToByte(true));
-  Storage.set(ASC_START_PERIOD, u64ToBytes(0));
   Storage.set(ASC_END_PERIOD, u64ToBytes(0));
-
-  assertIsSmartContract(masOgAddr);
   Storage.set(MASOG_KEY, masOgAddr);
-
-  transferRemaining(Context.transferredCoins());
 }
 
 /**
@@ -70,6 +70,7 @@ export function setMasOgContract(bin: StaticArray<u8>): void {
     .expect('Masog contract should be provided');
 
   assertIsSmartContract(masogAddr);
+
   Storage.set(MASOG_KEY, masogAddr);
 }
 
@@ -79,16 +80,16 @@ export function setMasOgContract(bin: StaticArray<u8>): void {
  */
 export function submitUpdateProposal(binaryArgs: StaticArray<u8>): void {
   const initialBalance = balance();
+
   const args = new Args(binaryArgs);
   const proposal = args
     .nextSerializable<Proposal>()
     .expect('You need a proposal');
 
-
   _submitProposal(proposal);
 
-  // This is to check if the asc is still running, if not, we re run it
-  _ensureAutoRefresh();
+  _ensureAutoRefresh(); // This is to check if the asc is still running, if not, we re run it
+
   transferRemaining(initialBalance);
 }
 
@@ -124,6 +125,7 @@ export function refresh(_: StaticArray<u8>): void {
 
 /**
  * Function called by the ASC to run the auto refresh
+ * @remarks This function is called by the contract itself
  */
 export function runAutoRefresh(): void {
   assert(Context.caller() === Context.callee(), 'Caller must be the callee');
@@ -155,18 +157,26 @@ export function upgradeSC(bytecode: StaticArray<u8>): void {
 export function manageAutoRefresh(binaryArgs: StaticArray<u8>): void {
   onlyAllowedAddresses();
   const args = new Args(binaryArgs);
-  const stop = args.nextBool().expect('Boolean is required');
-  const maxGas = args.nextU64().expect('maxGas is required');
-  const maxFee = args.nextU64().expect('maxFee is required');
+  const manageAutoRefresh = args.nextSerializable<ManageAutoRefresh>().expect('Manage auto refresh is required');
 
-  Storage.set(AUTO_REFRESH_STATUS_KEY, boolToByte(stop));
-  if (maxGas > 0) Storage.set(MAX_ASYNC_CALL_GAS_KEY, u64ToBytes(maxGas));
-  if (maxFee > 0) Storage.set(MAX_ASYNC_CALL_FEE_KEY, u64ToBytes(maxFee));
+  Storage.set(AUTO_REFRESH_STATUS_KEY, boolToByte(manageAutoRefresh.stop));
+
+  if (manageAutoRefresh.maxGas > 0) {
+    Storage.set(MAX_ASYNC_CALL_GAS_KEY, u64ToBytes(manageAutoRefresh.maxGas))
+  }
+
+  if (manageAutoRefresh.maxFee > 0) {
+    Storage.set(MAX_ASYNC_CALL_FEE_KEY, u64ToBytes(manageAutoRefresh.maxFee))
+  }
 }
 
-/* -------------------------------------------------------------------------- */
-/*                         TEMP FUNCTIONS TO REMOVE                           */
-/* -------------------------------------------------------------------------- */
+
+/**
+ * Receives coins and generates an event
+ */
+export function receiveCoins(): void {
+  generateEvent('CoinsReceived: ' + Context.transferredCoins().toString());
+}
 
 /**
  * Deletes a proposal and all its associated data (admin-only).
@@ -181,7 +191,7 @@ export function deleteProposal(binaryArgs: StaticArray<u8>): void {
   const args = new Args(binaryArgs);
   const proposalId = args.nextU64().expect('Proposal ID is required');
 
-  // Only proposals that has been regected
+  // Only proposals that has been rejected can be deleted
   _deleteProposal(proposalId);
 
   transferRemaining(initialBalance);

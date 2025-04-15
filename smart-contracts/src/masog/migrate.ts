@@ -1,7 +1,8 @@
 import { Mas, OperationStatus, Web3Provider } from '@massalabs/massa-web3';
-import { calculateStorageCost, compareUint8Arrays, getProvider } from '../utils';
+import { calculateStorageCost, compareUint8Arrays } from '../utils';
 import { MasOg } from './wrapper/MasOg';
 import { KeyValue } from './serializable/KeyValue';
+import { logOperation } from '../utils/operationLogger';
 
 export async function migrateMasOg(
     providerBuildnet: Web3Provider,
@@ -24,6 +25,7 @@ export async function migrateMasOg(
     console.log('Estimated storage cost:', storageCost, 'MAS');
 
     const op = await masOgMainnet.migrate(keyValues, storageCost + Mas.fromString('10'));
+
     const status = await op.waitFinalExecution();
 
     if (status !== OperationStatus.Success && status !== OperationStatus.SpeculativeSuccess) {
@@ -37,23 +39,23 @@ export async function migrateMasOg(
     const keys2 = await providerMainnet.getStorageKeys(masOgMainnet.address);
     const values2 = await providerMainnet.readStorage(masOgMainnet.address, keys2);
 
-    // Compare adn log the length of the keys and values
-    console.log('Keys length:', keys.length);
-    console.log('Values length:', values.length);
-    console.log('Keys2 length:', keys2.length);
-    console.log('Values2 length:', values2.length);
 
-    if (keys.length !== keys2.length || values.length !== values2.length) {
-        throw new Error('Key or value length mismatch');
-    }
+    const keyMismatches: { key1: Uint8Array; key2: Uint8Array }[] = [];
+    const valueMismatches: { value1: Uint8Array; value2: Uint8Array }[] = [];
 
     for (let i = 0; i < keys.length; i++) {
         if (!compareUint8Arrays(keys[i], keys2[i])) {
-            console.log("key mismatch", keys[i], keys2[i]);
+            keyMismatches.push({ key1: keys[i], key2: keys2[i] });
         }
         if (!compareUint8Arrays(values[i], values2[i])) {
-            console.log("value mismatch", values[i], values2[i]);
+            valueMismatches.push({ value1: values[i], value2: values2[i] });
         }
+    }
+
+    // Throw error at the end if there are any mismatches
+    if (keys.length !== keys2.length || values.length !== values2.length ||
+        keyMismatches.length > 0 || valueMismatches.length > 0) {
+        throw new Error('Migration verification failed: Length mismatch or data mismatches found');
     }
 
     console.log('*** MasOg Storage migrated successfully *** \n\n');

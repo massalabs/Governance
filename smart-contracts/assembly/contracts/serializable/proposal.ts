@@ -16,6 +16,7 @@ export class Proposal implements Serializable {
     public positiveVoteVolume: u64 = 0,
     public negativeVoteVolume: u64 = 0,
     public blankVoteVolume: u64 = 0,
+    public endMasogTotalSupply: u64 = 0,
   ) { }
 
   /**
@@ -35,6 +36,7 @@ export class Proposal implements Serializable {
       .add(this.positiveVoteVolume)
       .add(this.negativeVoteVolume)
       .add(this.blankVoteVolume)
+      .add(this.endMasogTotalSupply)
       .serialize();
   }
 
@@ -96,6 +98,11 @@ export class Proposal implements Serializable {
     if (blankVoteVolume.isErr())
       return new Result(0, 'Error deserializing blankVoteVolume');
     this.blankVoteVolume = blankVoteVolume.unwrap();
+
+    const endMasogTotalSupply = args.next<u64>();
+    if (endMasogTotalSupply.isErr())
+      return new Result(0, 'Error deserializing endMasogTotalSupply');
+    this.endMasogTotalSupply = endMasogTotalSupply.unwrap();
 
     return new Result(args.offset);
   }
