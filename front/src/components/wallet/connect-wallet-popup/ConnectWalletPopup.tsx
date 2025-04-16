@@ -17,19 +17,19 @@ export function ConnectWalletPopup(props: ConnectWalletPopupProps) {
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300">
       <PopupModal
-        customClass="w-1/3 min-w-[470px] max-w-[700px] transform transition-all duration-300 ease-in-out"
+        customClass="w-[95%] sm:w-[85%] md:w-[70%] lg:w-1/2 xl:w-[45%] min-w-[300px] max-w-[900px] transform transition-all duration-300 ease-in-out"
         customClassNested="border-2 border-primary dark:border-darkAccent bg-secondary/95 dark:bg-darkCard/95 backdrop-blur-lg shadow-2xl"
         fullMode={true}
         onClose={() => setOpen(false)}
       >
         <PopupModalHeader>
           <div className="text-f-primary dark:text-darkText flex flex-col mb-6">
-            <label className="mas-title mb-2 text-2xl font-bold">
+            <label className="mas-title mb-2 text-xl sm:text-2xl font-bold">
               {Intl.t("connect-wallet.title")}
             </label>
           </div>
         </PopupModalHeader>
-        <div className="pb-8">
+        <div className="pb-4 sm:pb-8">
           <PopupModalContent>
             <div className="col-span-2">
               <WalletCard>
@@ -48,7 +48,7 @@ export function ConnectWalletPopup(props: ConnectWalletPopupProps) {
 
 export function WalletCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-gradient-to-br from-secondary/40 to-secondary/30 dark:from-darkCard/40 dark:to-darkCard/30 p-8 rounded-2xl flex flex-col justify-center items-center backdrop-blur-sm border border-primary/5 dark:border-darkAccent/5 hover:border-primary/10 dark:hover:border-darkAccent/10 transition-all duration-300">
+    <div className="bg-gradient-to-br from-secondary/40 to-secondary/30 dark:from-darkCard/40 dark:to-darkCard/30 p-4 sm:p-8 rounded-2xl flex flex-col justify-center items-center backdrop-blur-sm border border-primary/5 dark:border-darkAccent/5 hover:border-primary/10 dark:hover:border-darkAccent/10 transition-all duration-300">
       <div className="flex flex-col w-full mas-body space-y-4">{children}</div>
     </div>
   );
