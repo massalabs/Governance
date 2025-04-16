@@ -134,6 +134,12 @@ async function runFeeder(): Promise<void> {
     const lastCycleMainnet = await mainnet.oracle.getLastCycle();
     const recordedCyclesMainnet = await mainnet.oracle.getRecordedCycles();
 
+    const ownerAddress = await mainnet.oracle.ownerAddress();
+    console.log('Contract address mainnet', { address: mainnet.oracle.address });
+    console.log('Owner address mainnet', { ownerAddress });
+    const ownerAddressBuildnet = await buildnet.oracle.ownerAddress();
+    console.log('Contract address buildnet', { address: buildnet.oracle.address });
+    console.log('Owner address buildnet', { ownerAddressBuildnet });
 
     const { currentCycle, remainingPeriods } = await getCycleInfo(
       mainnet.provider.client,
@@ -200,5 +206,5 @@ async function runFeeder(): Promise<void> {
 
 // runFeeder();
 // run every 10 seconds
-
+runFeeder()
 setInterval(runFeeder, 4 * 60 * 1000);

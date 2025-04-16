@@ -184,11 +184,14 @@ export class Oracle extends SmartContract {
   }
 
   async ownerAddress(): Promise<string> {
-    const result = await this.provider.readStorage(this.address, ['OWNER_KEY']);
+    const result = await this.provider.readSC({
+      func: 'ownerAddress',
+      target: this.address,
+    });
 
-    if (!result[0]) {
+    if (!result.value) {
       throw new Error('No owner address found');
     }
-    return bytesToStr(result[0]);
+    return bytesToStr(result.value);
   }
 }
