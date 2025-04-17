@@ -8,6 +8,7 @@ import {
   generateEvent,
   getKeys,
   setBytecode,
+  transferCoins,
   transferRemaining,
 } from '@massalabs/massa-as-sdk';
 import { Args, u64ToBytes } from '@massalabs/as-types';
@@ -21,7 +22,6 @@ import {
   ORACLE_LAST_RECORDED_CYCLE,
   rollKeyPrefix,
 } from './oracle-internals/keys';
-import { KeyValue } from './serializable/key-value';
 
 export const MASOG_KEY = 'MASOG_KEY';
 
@@ -116,6 +116,22 @@ export function receiveCoins(): void {
 }
 
 /**
+ * Allows the owner to withdraw funds from the contract balance.
+ * Only the contract owner can call this function.
+ * @param binaryArgs - Serialized amount to withdraw.
+ * @throws If the caller is not the owner, the amount is invalid, or the contract has insufficient balance.
+ */
+export function withdrawCoins(binaryArgs: StaticArray<u8>): void {
+  _onlyOwner();
+  const args = new Args(binaryArgs);
+  const amount = args.next<u64>().expect('Invalid amount');
+  assert(amount > 0, 'Invalid amount');
+  assert(balance() >= amount, 'Contract has insufficient balance');
+
+  transferCoins(Context.caller(), amount);
+}
+
+/**
  * Upgrade the smart contract bytecode
  */
 export function upgradeSC(bytecode: StaticArray<u8>): void {
@@ -129,3 +145,4 @@ export {
   setOwner,
   ownerAddress,
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership';
+

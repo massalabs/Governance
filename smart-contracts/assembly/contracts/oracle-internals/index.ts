@@ -15,7 +15,7 @@ import {
  */
 export function validateCycle(cycle: u64): void {
   const lastCycle = bytesToU64(Storage.get(ORACLE_LAST_RECORDED_CYCLE));
-  assert(cycle > lastCycle, 'Cycle cannot be lower than the last cycle');
+  assert(cycle > lastCycle, `Cycle ${cycle} cannot be lower than the last cycle ${lastCycle}`);
 }
 
 /**

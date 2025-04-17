@@ -14,8 +14,9 @@ import {
 } from '@massalabs/massa-web3';
 import { U64_t } from '@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64';
 import { RollEntry } from '../serializable/RollEntry';
-import { contracts, getContracts } from '../../config';
+import { getContracts } from '../../config';
 import { KeyValue } from '../../masog/serializable/KeyValue';
+import fs from 'fs';
 
 export const ROLLS_TAG = strToBytes('ROLLS');
 const RECORDED_CYCLES_TAG = strToBytes('RECORDED_CYCLES');
@@ -77,7 +78,7 @@ export class Oracle extends SmartContract {
     return U64.fromBytes(result[0]);
   }
 
-  async getNbRecordByCycle(cycle: U64_t, final = false): Promise<number> {
+  async getNbRecordByCycle(cycle: U64_t, final = false): Promise<bigint> {
     const filter = rollKeyPrefix(cycle);
 
     const keys = await this.provider.getStorageKeys(
@@ -86,7 +87,7 @@ export class Oracle extends SmartContract {
       final,
     );
 
-    return keys.length;
+    return BigInt(keys.length);
   }
 
   async getRolls(
@@ -131,6 +132,21 @@ export class Oracle extends SmartContract {
     );
   }
 
+  async getAllStorageKeysAndSaveToFile(): Promise<void> {
+    const result = await this.provider.getStorageKeys(
+      this.address,
+    );
+
+    console.log(result.length);
+    const keys = result.map((key) => {
+      return {
+        key: bytesToStr(key)
+      };
+    });
+
+    fs.writeFileSync('storage_keys.json', JSON.stringify(keys, null, 2));
+  }
+
   async getLastCycle(): Promise<U64_t> {
     const cycle = await this.provider.readStorage(this.address, [
       ORACLE_LAST_RECORDED_CYCLE,
@@ -144,7 +160,9 @@ export class Oracle extends SmartContract {
   }
 
   async upgradeSC(bytecode: Uint8Array): Promise<Operation> {
-    return this.call('upgradeSC', new Args().addUint8Array(bytecode));
+    return this.call('upgradeSC', bytecode, {
+      coins: Mas.fromString('1'),
+    });
   }
 
   async setMasOgAddress(

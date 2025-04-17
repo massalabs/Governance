@@ -13,13 +13,16 @@
         "lint:fix": "eslint . --fix",
         "fmt:check": "npm run prettier && npm run lint",
         "fmt": "npm run prettier:fix && npm run lint:fix",
-        "oracle:feed": "tsx src/oracle/feeder.ts",
+        "oracle:feed": "tsx src/oracle/feeder/index.ts",
         "oracle:feed-local": "tsx src/oracle/feeder-local.ts",
+        "oracle:upgrade-contract": "npm run build && tsx src/oracle/upgrade-contract.ts",
         "masog:upgrade-contract": "npm run build && tsx src/masog/upgrade-contract.ts",
+        "masog:withdraw-coins": "tsx src/masog/withdraw-coins.ts",
         "governance:e2e": "tsx src/governance/e2e-test.ts",
         "governance:upgrade-contract": "npm run build && tsx src/governance/upgrade-contract.ts",
         "deploy:all": "npm run build && tsx src/deploy/deploy-all.ts",
-        "migrate": "tsx src/deploy/migrate.ts"
+        "migrate": "tsx src/deploy/migrate.ts",
+        "oracle:get-cycles": "tsx src/oracle/get-cycles.ts"
     },
     "keywords": [],
     "author": "",
@@ -53,5 +56,8 @@
     "prettier": "@massalabs/prettier-config-as",
     "engines": {
         "node": ">=16"
+    },
+    "dependencies": {
+        "chalk": "^5.4.1"
     }
 }

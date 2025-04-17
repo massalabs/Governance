@@ -6,9 +6,11 @@ import {
   Operation,
   Args,
   Mas,
-  ArrayTypes,
+
+  bytesToStr,
+  U256,
 } from '@massalabs/massa-web3';
-import { contracts, getContracts } from '../../config';
+import { getContracts } from '../../config';
 import { KeyValue } from '../serializable/KeyValue';
 
 export class MasOg extends MRC20 {
@@ -26,6 +28,17 @@ export class MasOg extends MRC20 {
     });
   }
 
+  async getAllBalances(): Promise<{ address: string; balance: bigint }[]> {
+    const keys = await this.provider.getStorageKeys(this.address, "BALANCE");
+
+    const values = await this.provider.readStorage(this.address, keys);
+
+    return keys.map((key, index) => ({
+      address: bytesToStr(key).split("BALANCE")[1],
+      balance: U256.fromBytes(values[index]),
+    }));
+  }
+
   /**
    * Migrates the storage of the masOg contract.
    * @param keyValues - The key-value pairs to migrate.
@@ -37,5 +50,10 @@ export class MasOg extends MRC20 {
       coins,
       fee: Mas.fromString('1'),
     });
+  }
+
+  // withdraw coins
+  async withdrawCoins(amount: bigint): Promise<Operation> {
+    return this.call('withdrawCoins', new Args().addI64(amount));
   }
 }

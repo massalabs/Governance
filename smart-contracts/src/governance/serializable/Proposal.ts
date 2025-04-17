@@ -5,6 +5,7 @@ import {
   Serializable,
   strToBytes,
 } from '@massalabs/massa-web3';
+import { U256_t } from '@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u256';
 import { U64_t } from '@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64';
 
 export class Proposal implements Serializable<Proposal> {
@@ -17,10 +18,11 @@ export class Proposal implements Serializable<Proposal> {
     public status: Uint8Array = new Uint8Array(),
     public owner: Uint8Array = new Uint8Array(),
     public creationTimestamp: U64_t = 0n,
-    public positiveVoteVolume: U64_t = 0n,
-    public negativeVoteVolume: U64_t = 0n,
-    public blankVoteVolume: U64_t = 0n,
-  ) {}
+    public positiveVoteVolume: U256_t = 0n,
+    public negativeVoteVolume: U256_t = 0n,
+    public blankVoteVolume: U256_t = 0n,
+    public endMasogTotalSupply: U256_t = 0n,
+  ) { }
 
   static create(
     title: string,
@@ -54,9 +56,10 @@ export class Proposal implements Serializable<Proposal> {
       .addUint8Array(this.status)
       .addUint8Array(this.owner)
       .addU64(this.creationTimestamp)
-      .addU64(this.positiveVoteVolume)
-      .addU64(this.negativeVoteVolume)
-      .addU64(this.blankVoteVolume)
+      .addU256(this.positiveVoteVolume)
+      .addU256(this.negativeVoteVolume)
+      .addU256(this.blankVoteVolume)
+      .addU256(this.endMasogTotalSupply)
       .serialize();
   }
 
@@ -71,10 +74,10 @@ export class Proposal implements Serializable<Proposal> {
     this.status = args.nextUint8Array();
     this.owner = args.nextUint8Array();
     this.creationTimestamp = args.nextU64();
-    this.positiveVoteVolume = args.nextU64();
-    this.negativeVoteVolume = args.nextU64();
-    this.blankVoteVolume = args.nextU64();
-
+    this.positiveVoteVolume = args.nextU256();
+    this.negativeVoteVolume = args.nextU256();
+    this.blankVoteVolume = args.nextU256();
+    this.endMasogTotalSupply = args.nextU256();
     return { instance: this, offset: args.getOffset() };
   }
 }

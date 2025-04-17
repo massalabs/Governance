@@ -10,7 +10,7 @@ export async function deployOracle(provider: JsonRpcProvider): Promise<string> {
 
     const contract = await SmartContract.deploy(provider, byteCode, new Args(), {
         coins: deployCoins[networkName].oracle,
-        fee: Mas.fromString('0.1'),
+        fee: Mas.fromString('10'),
     });
 
     console.log('Oracle contract deployed at:', contract.address);

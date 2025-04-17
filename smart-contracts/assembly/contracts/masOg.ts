@@ -17,6 +17,7 @@ import {
   getKeysOf,
   setBytecode,
   Storage,
+  transferCoins,
   transferRemaining,
 } from '@massalabs/massa-as-sdk';
 import {
@@ -156,6 +157,23 @@ export function refresh(bin: StaticArray<u8>): void {
  */
 export function receiveCoins(): void {
   generateEvent('CoinsReceived: ' + Context.transferredCoins().toString());
+}
+
+/**
+ * Allows the owner to withdraw funds from the contract balance.
+ * Only the contract owner can call this function.
+ * @param binaryArgs - Serialized amount to withdraw.
+ * @throws If the caller is not the owner, the amount is invalid, or the contract has insufficient balance.
+ */
+export function withdrawCoins(binaryArgs: StaticArray<u8>): void {
+  _onlyOwner();
+
+  const args = new Args(binaryArgs);
+  const amount = args.next<u64>().expect('Invalid amount');
+  assert(amount > 0, 'Invalid amount');
+  assert(balance() >= amount, 'Contract has insufficient balance');
+
+  transferCoins(Context.caller(), amount);
 }
 
 export {
