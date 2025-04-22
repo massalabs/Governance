@@ -49,23 +49,6 @@ export function constructor(bin: StaticArray<u8>): void {
 
 }
 
-export function migrate(bin: StaticArray<u8>): void {
-  _onlyOwner();
-
-  const initialBalance = balance();
-
-  const keyValues = new Args(bin)
-    .nextSerializableObjectArray<KeyValue>()
-    .expect('Key values should be provided');
-
-  for (let i = 0; i < keyValues.length; i++) {
-    const keyValue = keyValues[i];
-    Storage.set(keyValue.key, keyValue.value);
-  }
-
-  transferRemaining(initialBalance);
-}
-
 export function upgradeSC(bytecode: StaticArray<u8>): void {
   _onlyOwner();
   const initialBalance = balance();

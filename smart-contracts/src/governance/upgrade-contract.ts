@@ -9,7 +9,7 @@ const governanceSystem = new Governance(provider, getContracts().governance);
 const bytecode = getScByteCode('build', 'governance.wasm');
 
 const op = await governanceSystem.upgradeSC(bytecode, {
-  coins: Mas.fromString('10'),
+  coins: Mas.fromString('1'),
 });
 
 const status = await op.waitFinalExecution();
