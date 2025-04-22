@@ -21,7 +21,6 @@
         "governance:e2e": "tsx src/governance/e2e-test.ts",
         "governance:upgrade-contract": "npm run build && tsx src/governance/upgrade-contract.ts",
         "deploy:all": "npm run build && tsx src/deploy/deploy-all.ts",
-        "migrate": "tsx src/deploy/migrate.ts",
         "oracle:get-cycles": "tsx src/oracle/get-cycles.ts"
     },
     "keywords": [],

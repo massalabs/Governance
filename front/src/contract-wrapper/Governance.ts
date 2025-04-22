@@ -11,17 +11,35 @@ import {
   U64,
   I32,
   bytesToStr,
+  byteToBool,
 } from "@massalabs/massa-web3";
 import { Proposal } from "../serializable/Proposal";
 import { Vote } from "../serializable/Vote";
-import { getContracts } from "../config";
+import { getContracts, ProposalStatus } from "../config";
 import { I32_t } from "@massalabs/massa-web3/dist/esm/basicElements/serializers/number/i32";
 import { MasOg } from "./MasOg";
 import { VoteDetails } from "@/types/governance";
 import { ManageAutoRefresh } from "../serializable/ManageAutoRefresh";
+import { U64_t } from "@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64";
 
 const UPDATE_PROPOSAL_TAG = strToBytes("UPDATE_PROPOSAL_TAG");
 const UPDATE_VOTE_TAG = strToBytes("UPDATE_VOTE_TAG");
+const UPDATE_PROPOSAL_ID_BY_STATUS_TAG = strToBytes('PROPOSAL_BY_STATUS_TAG');
+export const ASC_END_PERIOD = strToBytes('ASC_END_PERIOD');
+// ASC config
+export const MAX_ASYNC_CALL_GAS_KEY = strToBytes('MAX_ASYNC_CALL_GAS');
+export const MAX_ASYNC_CALL_FEE_KEY = strToBytes('MAX_ASYNC_CALL_FEE');
+export const AUTO_REFRESH_STATUS_KEY = strToBytes('auto_refresh');
+
+const DEFAULT_MAX_ASYNC_CALL_GAS = 10_000_000;
+const DEFAULT_MAX_ASYNC_CALL_FEE = 1_000_000;
+
+
+type ASCConfig = {
+  maxGas: U64_t;
+  maxFee: U64_t;
+  autoRefresh: boolean;
+}
 
 export class Governance extends SmartContract {
   static async init(provider: Provider | PublicProvider): Promise<Governance> {
@@ -82,6 +100,10 @@ export class Governance extends SmartContract {
 
     const values = await this.provider.readStorage(this.address, keys, final);
 
+    if (!values[0]) {
+      return [];
+    }
+
     return values
       .filter((value) => value !== null && value.length > 0)
       .map((value) => {
@@ -102,6 +124,7 @@ export class Governance extends SmartContract {
     ]);
 
     const result = await this.provider.readStorage(this.address, [key], final);
+
 
     if (!result[0]) {
       throw new Error("Proposal not found");
@@ -258,5 +281,46 @@ export class Governance extends SmartContract {
       ...options,
       coins
     });
+  }
+
+  async getAscEndPeriod(): Promise<U64_t> {
+    const result = await this.provider.readStorage(this.address, [ASC_END_PERIOD]);
+
+    if (!result[0]) {
+      throw new Error("ASC_END_PERIOD not found");
+    }
+
+    return U64.fromBytes(result[0]);
+  }
+
+  async getAscConfig(): Promise<ASCConfig> {
+    try {
+      const result = await this.provider.readStorage(this.address, [MAX_ASYNC_CALL_GAS_KEY, MAX_ASYNC_CALL_FEE_KEY, AUTO_REFRESH_STATUS_KEY]);
+
+      // Use default values for missing keys
+      const maxGas = result[0] ? U64.fromBytes(result[0]) : BigInt(DEFAULT_MAX_ASYNC_CALL_GAS);
+      const maxFee = result[1] ? U64.fromBytes(result[1]) : BigInt(DEFAULT_MAX_ASYNC_CALL_FEE);
+
+      // Auto-refresh should be present, but if not, throw an error
+      if (!result[2]) {
+        throw new Error("Unable to fetch AUTO_REFRESH_STATUS. This is required.");
+      }
+
+      // Parse the values
+      return {
+        maxGas,
+        maxFee,
+        autoRefresh: byteToBool(result[2]),
+      };
+    } catch (error) {
+      console.error("Error fetching ASC config:", error);
+      throw error; // Re-throw the error to be handled by the caller
+    }
+  }
+
+  async isProposalActive(): Promise<boolean> {
+    const result = await this.provider.getStorageKeys(this.address, UPDATE_PROPOSAL_ID_BY_STATUS_TAG);
+    const activeStatus = result.filter((status) => bytesToStr(status).includes(ProposalStatus.DISCUSSION) || bytesToStr(status).includes(ProposalStatus.VOTING));
+    return activeStatus.length > 0;
   }
 }

@@ -10,9 +10,9 @@ export const contracts = {
     governance: 'AS12gXJzJra1kHUXftuBLyPrcfEBTJHz6L2nV5aNMnLmLnyBeJxDC',
   },
   [NetworkName.Buildnet]: {
-    oracle: 'AS1SxFbBMQ76HX5R5m2C2DdeN27nwnhBvKaBp9aW9HEYmD3YBvpj',
+    oracle: 'AS1ZTXJRpnDA2uE27FrjcC8FWWrGcWAZLJFfzxUovyai1WHooAtG',
     masOg: 'AS1XFQaiw9wrHxizvrLKywKXxtyM9eHmmD2mKzvHXUqB2FCTNQpL',
-    governance: 'AS12ijbcmb45T7YtxpgzZKFsW62DXX1rTvTDK6aTLa58g6Qu1u5Tm',
+    governance: 'AS12PXh66grB66GQiLasV1nJcGPzTJhCYFaCGuwZQuEHBSePuxjpb',
   },
 };
 
@@ -26,7 +26,8 @@ export function getContracts() {
 export const ADMIN_ADDRESSES = [
   'AU12hdvxeNgEUmfpktdzRa9VNfNZizGnhkjRkjRXA2ue2DnRpJuPZ',
   'AU12uBCaT1baa7cFmdfG8yAzFpHpyhUyvxPxWzAEfaC94e9CLCmPK',
-  'AU12FUbb8snr7qTEzSdTVH8tbmEouHydQTUAKDXY9LDwkdYMNBVGF'
+  'AU12FUbb8snr7qTEzSdTVH8tbmEouHydQTUAKDXY9LDwkdYMNBVGF',
+  "AU16MSc4w3dGrhyLkStkk2pMtDT6rtkyVLqy7MVyuk68KiMavYdr"
 ];
 
 // Mainnet config

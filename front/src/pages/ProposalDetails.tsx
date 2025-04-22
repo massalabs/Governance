@@ -11,6 +11,7 @@ import { TechnicalDetailsSection } from "../components/proposals/details/Technic
 import { VoteAction } from "../components/proposals/details/VoteAction";
 import { AdminActions } from "../components/proposals/details/AdminActions";
 import { ProposalStatus } from "../components/proposals/details/ProposalStatus";
+import { ProposalStatus as ProposalStatusEnum } from "@/config";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { useMemo } from "react";
 import { DISCUSSION_PERIOD, MIN_VOTE_MASOG_AMOUNT, VOTING_PERIOD, networkName } from "@/config";
@@ -110,7 +111,7 @@ export default function ProposalDetails() {
               <ConnectWalletPrompt />
             )
           )}
-          {proposal.status !== "DISCUSSION" && (
+          {proposal.status !== ProposalStatusEnum.DISCUSSION && (
             <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
               <VoteProgress
                 proposal={{

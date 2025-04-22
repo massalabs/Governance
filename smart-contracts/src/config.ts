@@ -10,13 +10,9 @@ export const contracts = {
     governance: 'AS12gXJzJra1kHUXftuBLyPrcfEBTJHz6L2nV5aNMnLmLnyBeJxDC',
   },
   [NetworkName.Buildnet]: {
-    // BETA
-    // masOg: 'AS1RBDkKmg4DNxH4niuUZaec7rXe6qcbmZi8UeTFCBYp9zwxmBrF',
-    // oracle: 'AS1JyoLPg4Dr3RYGjjjS8JRnjpVjS4dHoboBA8vFCAZEFct1ELz5',
-    // governance: 'AS12k9LK17UVQGp96dPGhKiQ7xWmMihbN81DhagaCrcdgcRNHJQbE',
     oracle: 'AS1ZTXJRpnDA2uE27FrjcC8FWWrGcWAZLJFfzxUovyai1WHooAtG',
     masOg: 'AS1XFQaiw9wrHxizvrLKywKXxtyM9eHmmD2mKzvHXUqB2FCTNQpL',
-    governance: 'AS12ijbcmb45T7YtxpgzZKFsW62DXX1rTvTDK6aTLa58g6Qu1u5Tm',
+    governance: 'AS12PXh66grB66GQiLasV1nJcGPzTJhCYFaCGuwZQuEHBSePuxjpb',
   },
 };
 

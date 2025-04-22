@@ -189,17 +189,6 @@ export class Oracle extends SmartContract {
     return bytesToStr(result[0]);
   }
 
-  /**
-   * Migrates the storage of the oracle contract.
-   * @param keyValues - The key-value pairs to migrate.
-   * @param coins - The amount of coins to use for the migration in smallest unit.
-   * @returns The operation result.
-   */
-  async migrate(keyValues: KeyValue[], coins: bigint): Promise<Operation> {
-    return this.call('migrate', new Args().addSerializableObjectArray(keyValues), {
-      coins,
-    });
-  }
 
   async ownerAddress(): Promise<string> {
     const result = await this.provider.readSC({

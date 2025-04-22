@@ -35,7 +35,7 @@ export const getDisplayStatus = (
 
     if (proposal.status === ProposalStatus.VOTING && isVotingEnded) {
         return "Calculating Results";
-    } else if (proposal.status === "DISCUSSION" && isDiscussionEnded) {
+    } else if (proposal.status === ProposalStatus.DISCUSSION && isDiscussionEnded) {
         return "Starting Voting";
     } else {
         return getStatusConfig(proposal.status).label;

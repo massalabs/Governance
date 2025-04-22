@@ -1,6 +1,6 @@
 import { u256 } from 'as-bignum/assembly';
 import { mrc20Constructor } from '@massalabs/sc-standards/assembly/contracts/MRC20';
-import { _onlyOwner } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
+import { _onlyOwner, OWNER_KEY } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
 import {
   Args,
   bytesToString,
@@ -31,7 +31,6 @@ import {
   _increaseTotalSupply,
 } from '@massalabs/sc-standards/assembly/contracts/MRC20/mintable/mint-internal';
 import { _balance, _setBalance } from '@massalabs/sc-standards/assembly/contracts/MRC20/MRC20-internals';
-import { KeyValue } from './serializable/key-value';
 
 const LAST_UPDATED_CYCLE = stringToBytes('LAST_UPDATE');
 export const ORACLE_KEY = 'ORACLE_KEY';
@@ -77,7 +76,7 @@ export function refresh(bin: StaticArray<u8>): void {
     'Oracle contract should have ORACLE_LAST_RECORDED_CYCLE key',
   );
 
-  // const initialBalance = balance();
+  const initialBalance = balance();
 
   let lastCycle = bytesToU64(
     Storage.getOf(oracleAddr, ORACLE_LAST_RECORDED_CYCLE),
@@ -132,7 +131,8 @@ export function refresh(bin: StaticArray<u8>): void {
 
   Storage.set(LAST_UPDATED_CYCLE, u64ToBytes(lastCycle));
 
-  // transferRemaining(initialBalance); // Not working on mainnet between 2 sc
+  const owner = Storage.get(OWNER_KEY);
+  transferRemaining(initialBalance, 0, new Address(owner)); // Not working on mainnet between 2 sc
 }
 
 /**

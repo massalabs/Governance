@@ -26,5 +26,5 @@ export const TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE = u256.fromU64(50);
 export const START_REFETCH_PERIOD = 20;
 export const LIMIT_REFETCH_PERIOD = 40;
 
-export const MAX_ASYNC_CALL_GAS = 1_000_000_000;
-export const MAX_ASYNC_CALL_FEE = 1_000;
+export const MAX_ASYNC_CALL_GAS = 10_000_000;
+export const MAX_ASYNC_CALL_FEE = 1_000_000;
