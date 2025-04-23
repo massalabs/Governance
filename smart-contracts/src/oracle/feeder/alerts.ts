@@ -55,6 +55,12 @@ export class AlertsService {
       (alertData[0] as any).endsAt = new Date(Date.now() + EVENT_EXPIRATION_TIME).toISOString();
     }
 
+    const alerts = await this.getAlerts();
+    if (alerts.includes(alertData[0].labels.alertname)) {
+      console.log(`Alert ${alertData[0].labels.alertname} already exists`);
+      return;
+    }
+
     await this.postAlert(alertData);
   }
 
@@ -68,6 +74,15 @@ export class AlertsService {
       },
     ];
     await this.postAlert(alertData);
+  }
+
+  public async resolveAlerts(): Promise<void> {
+    const alerts = await this.getAlerts();
+    if (alerts.length === 0) return;
+
+    for (const alert of alerts) {
+      await this.closeAlert(alert);
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -87,7 +102,7 @@ export class AlertsService {
     }
   }
 
-  private async getAlerts(): Promise<string[]> {
+  public async getAlerts(): Promise<string[]> {
     if (this.webHookUrl) {
       try {
         const response = await axios.get(this.webHookUrl);

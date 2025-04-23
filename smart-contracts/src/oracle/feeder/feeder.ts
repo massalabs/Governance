@@ -18,6 +18,8 @@ import {
 import { AlertsService } from './alerts';
 import { Staker } from '@massalabs/massa-web3/dist/esm/generated/client-types';
 
+const GOVERNANCE_ORACLE_ALERT_NAME = 'governance-oracle';
+
 export class Feeder {
   private provider: JsonRpcProvider;
   private oracle: Oracle;
@@ -95,7 +97,6 @@ export class Feeder {
 
   public async feed(stakers: Staker[]): Promise<void> {
     logFeederStart(this.networkName);
-
     try {
       const [lastCycle, recordedCycles, cyclesInfo] = await Promise.all([
         this.oracle.getLastCycle(),
@@ -131,6 +132,10 @@ export class Feeder {
       const newRecordedCycles = await this.oracle.getRecordedCycles();
       await this.handleDeleteRolls(newRecordedCycles);
 
+      if (this.alerts) {
+        await this.alerts.resolveAlerts();
+      }
+
     } catch (error) {
       const errorMessage = (error as Error).message;
       if (ignoredErrors.some(err => errorMessage.includes(err))) {
@@ -138,7 +143,7 @@ export class Feeder {
       } else {
         logFeederError(this.networkName, error as Error);
         if (this.alerts) {
-          await this.alerts.triggerAlert('feeder-failed', errorMessage, 'critical');
+          await this.alerts.triggerAlert(GOVERNANCE_ORACLE_ALERT_NAME, errorMessage, 'critical');
         }
         throw error;
       }
