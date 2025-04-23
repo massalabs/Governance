@@ -7,7 +7,7 @@ import { networkName } from "@/config";
 
 export function useInitApp() {
     const { connectedAccount, network } = useAccountStore();
-    const { initializeAllContracts, initializePublicContracts } = useContractStore();
+    const { initializePrivateContracts, initializePublicContracts } = useContractStore();
 
     useBalanceRefresh();
     useAccountSync();
@@ -15,12 +15,12 @@ export function useInitApp() {
     useEffect(() => {
         if (connectedAccount) {
             // @ts-ignore - TODO: Update massa-web3 in ui-kit to use the new version
-            initializeAllContracts(connectedAccount)
+            initializePrivateContracts(connectedAccount)
         } else {
             initializePublicContracts()
         }
 
-    }, [connectedAccount, initializeAllContracts, initializePublicContracts]);
+    }, [connectedAccount, initializePrivateContracts, initializePublicContracts]);
 
     useEffect(() => {
         if (network) {
