@@ -12,7 +12,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.1",
-    "@massalabs/massa-web3": "^5.1.2-dev",
+    "@massalabs/massa-web3": "^5.2.1-dev",
     "@massalabs/react-ui-kit": "^1.0.3-dev",
     "@massalabs/wallet-provider": "^3.1.2-dev",
     "@tanstack/react-query": "^5.67.3",

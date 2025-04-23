@@ -6,12 +6,10 @@ import {
   Operation,
   Args,
   Mas,
-
   bytesToStr,
   U256,
 } from '@massalabs/massa-web3';
 import { getContracts } from '../../config';
-import { KeyValue } from '../serializable/KeyValue';
 
 export class MasOg extends MRC20 {
   static async init(provider: Provider | PublicProvider): Promise<MasOg> {
@@ -35,7 +33,7 @@ export class MasOg extends MRC20 {
 
     return keys.map((key, index) => ({
       address: bytesToStr(key).split("BALANCE")[1],
-      balance: U256.fromBytes(values[index]),
+      balance: U256.fromBytes(values[index] ?? new Uint8Array()),
     }));
   }
 

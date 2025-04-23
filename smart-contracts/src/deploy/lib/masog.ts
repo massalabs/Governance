@@ -1,5 +1,5 @@
 import { Args, JsonRpcProvider, Mas, SmartContract } from '@massalabs/massa-web3';
-import { getProvider, getScByteCode } from '../../utils';
+import { getScByteCode } from '../../utils';
 import { deployCoins, networkName } from '../../config';
 import { logOperation } from '../../utils/operationLogger';
 export async function deployMasOg(

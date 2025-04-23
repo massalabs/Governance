@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 import * as dotenv from 'dotenv';
-import { Account, Web3Provider } from '@massalabs/massa-web3';
+import { Account, JsonRpcProvider, Web3Provider } from '@massalabs/massa-web3';
 import { isMainnet } from './config';
 dotenv.config();
 
@@ -21,7 +21,7 @@ export function getRandomInt(min: number, max: number): number {
 export async function getProvider(
   envKey = 'PRIVATE_KEY_BUILDNET',
   forceMainnet = false,
-): Promise<Web3Provider> {
+): Promise<JsonRpcProvider> {
   const account = await Account.fromEnv(envKey);
   return isMainnet || forceMainnet
     ? Web3Provider.mainnet(account)

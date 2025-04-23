@@ -80,7 +80,7 @@ export function updateProposalStatus(proposal: Proposal, currentTimestamp: u64):
 
     for (let i = 0; i < allVotesKeys.length; i++) {
       const userAddr = StaticArray.fromArray(allVotesKeys[i].slice(voteKey(proposal.id, '').length));
-      const voteValue = bytesToI32(Storage.get(allVotesKeys[i]))
+      const voteValue = bytesToI32(Storage.get(allVotesKeys[i]));
 
       const balance = getMasogBalance(bytesToString(userAddr));
 
@@ -95,7 +95,10 @@ export function updateProposalStatus(proposal: Proposal, currentTimestamp: u64):
 
     const totalSupply = getMasogTotalSupply();
 
-    const status = u256.mul(proposal.positiveVoteVolume, u256.fromU64(100)) > u256.mul(totalSupply, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE) ? acceptedStatus : rejectedStatus;
+    const status = u256.mul(
+      proposal.positiveVoteVolume,
+      u256.fromU64(100)) > u256.mul(
+        totalSupply, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE) ? acceptedStatus : rejectedStatus;
 
     proposal.endMasogTotalSupply = totalSupply;
 

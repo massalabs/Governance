@@ -6,34 +6,33 @@ import { getStakers } from "./feeder/helpers";
 
 
 async function main() {
-    const accountMainnet = await Account.fromEnv('PRIVATE_KEY_MAINNET');
-    const providerMainnet = Web3Provider.mainnet(accountMainnet)
+  const accountMainnet = await Account.fromEnv('PRIVATE_KEY_MAINNET');
+  const providerMainnet = Web3Provider.mainnet(accountMainnet);
 
-    const provider = await getProvider('PRIVATE_KEY_BUILDNET');
-    const oracle = new Oracle(provider, contracts[NetworkName.Buildnet].oracle);
-    console.log('oracle', oracle.address);
+  const provider = await getProvider('PRIVATE_KEY_BUILDNET');
+  const oracle = new Oracle(provider, contracts[NetworkName.Buildnet].oracle);
+  console.log('oracle', oracle.address);
 
-    const cycles = await oracle.getRecordedCycles();
-    console.log(cycles);
+  const cycles = await oracle.getRecordedCycles();
+  console.log(cycles);
 
-    // log the last cycle
-    const lastCycle = await oracle.getLastCycle();
-    console.log(`Last cycle: ${lastCycle}`);
+  // log the last cycle
+  const lastCycle = await oracle.getLastCycle();
+  console.log(`Last cycle: ${lastCycle}`);
 
-    // await oracle.getAllStorageKeysAndSaveToFile();
+  // await oracle.getAllStorageKeysAndSaveToFile();
 
-    // const events = await provider.getEvents({
-    //     smartContractAddress: contracts[NetworkName.Buildnet].oracle,
-    // });
+  // const events = await provider.getEvents({
+  //     smartContractAddress: contracts[NetworkName.Buildnet].oracle,
+  // });
 
-    // console.log(events.map((event) => event.data).filter((data) => !data.includes("Cycle cannot be lower than the last") && !data.includes("Cycle does not exist")));
 
-    const nbRecord = await oracle.getNbRecordByCycle(lastCycle);
-    console.log(`Number of records: ${nbRecord}`);
+  const nbRecord = await oracle.getNbRecordByCycle(lastCycle);
+  console.log(`Number of records: ${nbRecord}`);
 
-    const stakers = await getStakers(providerMainnet);
-    // log nb stakers
-    console.log(`Number of stakers: ${stakers.length}`);
+  const stakers = await getStakers(providerMainnet);
+  // log nb stakers
+  console.log(`Number of stakers: ${stakers.length}`);
 
 }
 

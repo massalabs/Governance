@@ -12,7 +12,7 @@ const masOgAddress = await deployMasOg(oracleAddress, provider);
 const governanceAddress = await deployGovernance(masOgAddress, provider);
 
 await new Oracle(provider, oracleAddress).setMasOgAddress(
-    masOgAddress,
+  masOgAddress,
 );
 
 console.log('--------- End of deployment ---------');

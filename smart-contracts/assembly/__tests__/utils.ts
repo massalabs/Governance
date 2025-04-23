@@ -1,4 +1,4 @@
-import { Args, stringToBytes, u256ToBytes, u64ToBytes } from '@massalabs/as-types';
+import { Args, stringToBytes, u256ToBytes } from '@massalabs/as-types';
 import { RollEntry } from '../contracts/serializable/roll-entry';
 import { mockScCall } from '@massalabs/massa-as-sdk';
 import { Proposal } from '../contracts/serializable/proposal';

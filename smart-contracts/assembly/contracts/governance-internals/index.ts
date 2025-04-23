@@ -96,7 +96,9 @@ export function _vote(vote: Vote): void {
   const balance = getMasogBalance(Context.caller().toString());
   assertSufficientMasogBalance(balance, MIN_VOTE_MASOG_AMOUNT);
 
-  assert(vote.value === 1 || vote.value === 0 || vote.value === -1, 'Invalid vote value. Use 1 (yes), 0 (blank), or -1 (no)');
+  assert(vote.value === 1 || vote.value === 0 || vote.value === -1,
+    'Invalid vote value. Use 1 (yes), 0 (blank), or -1 (no)'
+  );
 
   vote.save();
 }

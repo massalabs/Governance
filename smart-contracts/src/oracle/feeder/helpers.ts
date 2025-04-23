@@ -67,7 +67,7 @@ export async function deleteRolls(
   recordedRolls: bigint,
   batchSize: bigint,
   cycle: bigint,
-  coins: string = '0.1',
+  coins = '0.1',
 ): Promise<void> {
   // Input validation
   if (recordedRolls <= 0n) {
@@ -100,6 +100,7 @@ export async function deleteRolls(
 
     // Check operation status
     if (status !== OperationStatus.Success && status !== OperationStatus.SpeculativeSuccess) {
+      // eslint-disable-next-line max-len
       throw new Error(`Failed to delete batch for cycle ${cycle} (batch ${batchIndex}, size ${currentBatchSize}): ${OperationStatus[status]}`);
     }
 
@@ -140,8 +141,8 @@ export type CycleInfo = {
  * @param client - PublicAPI client instance
  * @returns Cycle information
  */
-export async function getCycleInfo(provider: Web3Provider): Promise<CycleInfo> {
-  const currentPeriod = BigInt(await provider.client.fetchPeriod());
+export async function getCycleInfo(client: PublicAPI): Promise<CycleInfo> {
+  const currentPeriod = BigInt(await client.fetchPeriod());
   const currentCycle = currentPeriod / PERIODS_PER_CYCLE;
   const nextCycleStart = (currentCycle + 1n) * PERIODS_PER_CYCLE;
   const remainingPeriods = nextCycleStart - currentPeriod;

@@ -14,6 +14,7 @@ export function useInitApp() {
 
     useEffect(() => {
         if (connectedAccount) {
+            // @ts-ignore - TODO: Update massa-web3 in ui-kit to use the new version
             initializeAllContracts(connectedAccount)
         } else {
             initializePublicContracts()

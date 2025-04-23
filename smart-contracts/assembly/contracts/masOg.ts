@@ -30,7 +30,6 @@ import {
   _increaseBalance,
   _increaseTotalSupply,
 } from '@massalabs/sc-standards/assembly/contracts/MRC20/mintable/mint-internal';
-import { _balance, _setBalance } from '@massalabs/sc-standards/assembly/contracts/MRC20/MRC20-internals';
 
 const LAST_UPDATED_CYCLE = stringToBytes('LAST_UPDATE');
 export const ORACLE_KEY = 'ORACLE_KEY';

@@ -2,8 +2,8 @@ import { u256 } from "as-bignum/assembly";
 
 // Admin
 export const ALLOWED_ADDRESSES = [
-    'AU12hdvxeNgEUmfpktdzRa9VNfNZizGnhkjRkjRXA2ue2DnRpJuPZ',
-    'AU12uBCaT1baa7cFmdfG8yAzFpHpyhUyvxPxWzAEfaC94e9CLCmPK',
+  'AU12hdvxeNgEUmfpktdzRa9VNfNZizGnhkjRkjRXA2ue2DnRpJuPZ',
+  'AU12uBCaT1baa7cFmdfG8yAzFpHpyhUyvxPxWzAEfaC94e9CLCmPK',
 ];
 
 // Governance config

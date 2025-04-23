@@ -15,7 +15,6 @@ import {
 import { U64_t } from '@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64';
 import { RollEntry } from '../serializable/RollEntry';
 import { getContracts } from '../../config';
-import { KeyValue } from '../../masog/serializable/KeyValue';
 import fs from 'fs';
 
 export const ROLLS_TAG = strToBytes('ROLLS');
@@ -117,7 +116,7 @@ export class Oracle extends SmartContract {
 
     return values.map((value, i) => ({
       address: bytesToStr(keys[i].slice(filter.length)),
-      rolls: U64.fromBytes(value!),
+      rolls: U64.fromBytes(value ?? new Uint8Array()),
     }));
   }
 

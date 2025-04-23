@@ -163,11 +163,11 @@ export function manageAutoRefresh(binaryArgs: StaticArray<u8>): void {
   Storage.set(AUTO_REFRESH_STATUS_KEY, boolToByte(manageAutoRefresh.stop));
 
   if (manageAutoRefresh.maxGas > 0) {
-    Storage.set(MAX_ASYNC_CALL_GAS_KEY, u64ToBytes(manageAutoRefresh.maxGas))
+    Storage.set(MAX_ASYNC_CALL_GAS_KEY, u64ToBytes(manageAutoRefresh.maxGas));
   }
 
   if (manageAutoRefresh.maxFee > 0) {
-    Storage.set(MAX_ASYNC_CALL_FEE_KEY, u64ToBytes(manageAutoRefresh.maxFee))
+    Storage.set(MAX_ASYNC_CALL_FEE_KEY, u64ToBytes(manageAutoRefresh.maxFee));
   }
 }
 
@@ -201,7 +201,7 @@ export function withdrawCoins(binaryArgs: StaticArray<u8>): void {
  * @param binaryArgs - Serialized proposal ID (u64).
  */
 export function deleteProposal(binaryArgs: StaticArray<u8>): void {
-  onlyAllowedAddresses()
+  onlyAllowedAddresses();
 
   const initialBalance = balance();
 
@@ -216,7 +216,9 @@ export function deleteProposal(binaryArgs: StaticArray<u8>): void {
 
 
 function onlyAllowedAddresses(): void {
-  assert(ALLOWED_ADDRESSES.includes(Context.caller().toString()) || _isOwner(Context.caller().toString()), 'Address is not allowed');
+  assert(ALLOWED_ADDRESSES.includes(Context.caller().toString()) || _isOwner(Context.caller().toString()),
+    'Address is not allowed'
+  );
 }
 
 /* -------------------------------------------------------------------------- */

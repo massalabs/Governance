@@ -1,4 +1,4 @@
-import { Args, bytesToU256, bytesToU64 } from '@massalabs/as-types';
+import { Args, bytesToU256 } from '@massalabs/as-types';
 import {
   Address,
   call,

@@ -22,6 +22,7 @@ import { VoteDetails } from "@/types/governance";
 import { ManageAutoRefresh } from "../serializable/ManageAutoRefresh";
 import { U64_t } from "@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64";
 
+const UPDATE_PROPOSAL_COUNTER_TAG = strToBytes("UPDATE_PROPOSAL_COUNTER");
 const UPDATE_PROPOSAL_TAG = strToBytes("UPDATE_PROPOSAL_TAG");
 const UPDATE_VOTE_TAG = strToBytes("UPDATE_VOTE_TAG");
 const UPDATE_PROPOSAL_ID_BY_STATUS_TAG = strToBytes('PROPOSAL_BY_STATUS_TAG');
@@ -237,6 +238,14 @@ export class Governance extends SmartContract {
       .filter((value) => value !== null);
   }
 
+  async getCounter(): Promise<U64_t> {
+    const result = await this.provider.readStorage(this.address, [UPDATE_PROPOSAL_COUNTER_TAG]);
+    if (!result[0]) {
+      throw new Error("Counter not found");
+    }
+    return U64.fromBytes(result[0]);
+  }
+
   /**
    * Get the number of total votes
    * @param proposalId - The ID of the proposal
@@ -322,5 +331,16 @@ export class Governance extends SmartContract {
     const result = await this.provider.getStorageKeys(this.address, UPDATE_PROPOSAL_ID_BY_STATUS_TAG);
     const activeStatus = result.filter((status) => bytesToStr(status).includes(ProposalStatus.DISCUSSION) || bytesToStr(status).includes(ProposalStatus.VOTING));
     return activeStatus.length > 0;
+  }
+
+  /**
+  * Upgrades the contract bytecode (admin only)
+  * @param bytecode - New contract bytecode
+  */
+  async upgradeSC(
+    bytecode: Uint8Array,
+    options?: ReadSCOptions,
+  ): Promise<Operation> {
+    return await this.call('upgradeSC', bytecode, options);
   }
 }
