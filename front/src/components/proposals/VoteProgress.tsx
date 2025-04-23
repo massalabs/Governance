@@ -138,7 +138,7 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
     });
 
     return { positive, negative, blank };
-  }, [proposalVotes]);
+  }, [proposalVotes, totalSupply]);
 
   // Use proposal's vote volumes when voting has ended, otherwise use calculated volumes
   const isVotingEnded = proposal.status === ProposalStatus.ACCEPTED || proposal.status === ProposalStatus.REJECTED;

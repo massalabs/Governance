@@ -1,4 +1,5 @@
-import { socialLinks, SocialLink } from "./SocialLink"
+import { SocialLink } from "./SocialLink"
+import { socialLinks } from "./socialLinksData"
 
 export const Footer = () => {
     return (

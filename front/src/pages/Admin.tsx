@@ -14,8 +14,8 @@ const AdminPage = () => {
     const [masOgAmount, setMasOgAmount] = useState<string>("");
     const [oracleAmount, setOracleAmount] = useState<string>("");
     const [autoRefreshEnabled, setAutoRefreshEnabled] = useState<boolean>(true);
-    const [maxGas, setMaxGas] = useState<string>("1000000");
-    const [maxFee, setMaxFee] = useState<string>("1000000");
+    const [maxGas, setMaxGas] = useState<string>("0");
+    const [maxFee, setMaxFee] = useState<string>("0");
     const [highlightedEventId, setHighlightedEventId] = useState<string | null>(null);
     const prevEventsRef = useRef<any[]>([]);
 
@@ -24,6 +24,14 @@ const AdminPage = () => {
     const sendCoinsMutation = useSendCoinsMutation();
     const manageAutoRefreshMutation = useManageAutoRefreshMutation();
     const refreshMutation = useRefreshMutation();
+
+    useEffect(() => {
+        if (adminData?.asc) {
+            setMaxGas(adminData.asc.maxGas);
+            setMaxFee(adminData.asc.maxFee);
+            setAutoRefreshEnabled(adminData.asc.autoRefresh);
+        }
+    }, [adminData?.asc]);
 
     useEffect(() => {
         if (adminData?.events && adminData.events.length > 0) {
@@ -39,7 +47,7 @@ const AdminPage = () => {
             }
         }
         prevEventsRef.current = adminData?.events || [];
-    }, [adminData?.timestamp]);
+    }, [adminData?.events, adminData?.timestamp]);
 
     const handleSendCoins = (contractType: 'governance' | 'masOg' | 'oracle') => {
         const amount = contractType === 'governance' ? governanceAmount :

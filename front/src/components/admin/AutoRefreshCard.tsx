@@ -2,8 +2,8 @@ import React from 'react';
 
 interface AutoRefreshCardProps {
     enabled: boolean;
-    maxGas: string;
-    maxFee: string;
+    maxGas?: string;
+    maxFee?: string;
     onToggle: (value: boolean) => void;
     onMaxGasChange: (value: string) => void;
     onMaxFeeChange: (value: string) => void;
@@ -26,8 +26,8 @@ interface AutoRefreshCardProps {
 
 const AutoRefreshCard: React.FC<AutoRefreshCardProps> = ({
     enabled,
-    maxGas,
-    maxFee,
+    maxGas = '0',
+    maxFee = '0',
     onToggle,
     onMaxGasChange,
     onMaxFeeChange,

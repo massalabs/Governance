@@ -22,10 +22,10 @@ export function PixelButton({
   type = "button",
 }: PixelButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [pixels, setPixels] = useState<boolean[]>([]);
   const [isHovered, setIsHovered] = useState(false);
-  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [filledPercentage, setFilledPercentage] = useState(0);
 
   // Calculate number of columns and rows based on button dimensions
@@ -74,8 +74,8 @@ export function PixelButton({
   };
 
   useEffect(() => {
-    if (intervalId) {
-      clearInterval(intervalId);
+    if (intervalIdRef.current) {
+      clearInterval(intervalIdRef.current);
     }
 
     if (!disabled && totalPixels > 0) {
@@ -88,7 +88,7 @@ export function PixelButton({
               .filter((i) => i !== -1);
 
             if (emptyPixels.length === 0) {
-              clearInterval(interval);
+              clearInterval(intervalIdRef.current!);
               return prev;
             }
 
@@ -127,7 +127,7 @@ export function PixelButton({
               .filter((i) => i !== -1);
 
             if (filledPixels.length === 0) {
-              clearInterval(interval);
+              clearInterval(intervalIdRef.current!);
               return prev;
             }
 
@@ -163,12 +163,12 @@ export function PixelButton({
         });
       }, 20);
 
-      setIntervalId(interval);
+      intervalIdRef.current = interval;
     }
 
     return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
+      if (intervalIdRef.current) {
+        clearInterval(intervalIdRef.current);
       }
     };
   }, [isHovered, totalPixels, disabled]);

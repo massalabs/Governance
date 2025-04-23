@@ -27,7 +27,7 @@ export function ParameterChangeForm({
   // Initialize validation errors array when component mounts
   useEffect(() => {
     setValidationErrors(new Array(changes.length).fill(""));
-  }, []);
+  }, [changes.length]);
 
   const handleParameterChange = (index: number, newParameter: string) => {
     const newChanges = [...changes];

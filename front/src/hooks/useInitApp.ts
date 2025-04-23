@@ -20,7 +20,7 @@ export function useInitApp() {
             initializePublicContracts()
         }
 
-    }, [connectedAccount]);
+    }, [connectedAccount, initializeAllContracts, initializePublicContracts]);
 
     useEffect(() => {
         if (network) {
