@@ -21,10 +21,7 @@ jobs:
           cache-dependency-path: front/package-lock.json
 
       - name: Install
-        run: |
-          npm ci
-          # Explicitly install the missing Linux-specific Rollup package
-          npm install @rollup/rollup-linux-x64-gnu
+        run: npm ci
         working-directory: front
 
       - name: Build

@@ -22,10 +22,7 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: |
-          npm ci || npm install
-          # Explicitly install the missing Linux-specific Rollup package
-          npm install @rollup/rollup-linux-x64-gnu
+        run: npm ci
 
       - name: Run lint
         run: npm run lint
