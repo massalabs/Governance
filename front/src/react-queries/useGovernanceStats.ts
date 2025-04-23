@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import { calculateStats } from "../../utils/governance";
-import { useMasogTotalSupply } from "./useMasogData";
-import { useUserBalance } from "./useUserBalance";
-import { useTotalVotes } from "./useTotalVotes";
-import { FormattedProposal } from "../../types/governance";
+import { calculateStats } from "@/utils/governance";
+import { useMasogTotalSupply } from "@/react-queries/useMasogData";
+import { useUserBalance } from "@/react-queries/useUserBalance";
+import { useTotalVotes } from "@/react-queries/useTotalVotes";
+import { FormattedProposal } from "@/types/governance";
 
 export function useGovernanceStats(proposals: FormattedProposal[]) {
     const { data: totalSupply } = useMasogTotalSupply();

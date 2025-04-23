@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { useContractStore } from "../../store/useContractStore";
+
 import { Mas } from "@massalabs/massa-web3";
 import { OutputEvents } from "@massalabs/massa-web3/dist/esm/generated/client-types";
+import { useContractStore } from "@/store/useContractStore";
 
 interface AscConfig {
     maxGas: string;

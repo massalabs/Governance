@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useContractStore } from "../../store/useContractStore";
-import { governanceKeys } from "./governanceKeys";
+import { useContractStore } from "@/store/useContractStore";
+import { governanceKeys } from "@/react-queries/governanceKeys";
 
 export function useTotalVotes() {
     const { governancePublic } = useContractStore();

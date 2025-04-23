@@ -1,8 +1,8 @@
 import { toast, useAccountStore } from "@massalabs/react-ui-kit";
-import { useBalanceRefresh } from "./queries/useBalanceRefresh";
+import { useBalanceRefresh } from "../react-queries/useBalanceRefresh";
 import { useEffect } from "react";
 import { useContractStore } from "@/store/useContractStore";
-import { useGovernanceData } from "./queries/useGovernanceData";
+import { useGovernanceData } from "../react-queries/useGovernanceData";
 import useAccountSync from "./useAccountSync";
 import { networkName } from "@/config";
 

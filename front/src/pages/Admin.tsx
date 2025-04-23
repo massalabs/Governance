@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { ADMIN_ADDRESSES } from "../config";
-import { useAdminData } from "../hooks/queries/useAdminData";
-import { useSendCoinsMutation } from "../hooks/queries/useSendCoinsMutation";
-import { useManageAutoRefreshMutation } from "../hooks/queries/useManageAutoRefreshMutation";
-import { useRefreshMutation } from "../hooks/queries/useRefreshMutation";
 import ContractTable from "../components/admin/ContractTable";
 import EventsTable from "../components/admin/EventsTable";
 import AutoRefreshCard from "../components/admin/AutoRefreshCard";
+import { useAdminData } from "@/react-queries/useAdminData";
+import { useManageAutoRefreshMutation } from "@/react-queries/useManageAutoRefreshMutation";
+import { useRefreshMutation } from "@/react-queries/useRefreshMutation";
+import { useSendCoinsMutation } from "@/react-queries/useSendCoinsMutation";
 
 const AdminPage = () => {
     const [governanceAmount, setGovernanceAmount] = useState<string>("");

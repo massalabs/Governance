@@ -1,6 +1,6 @@
 import { FormattedProposal } from "../../types/governance";
-import { useMasogTotalSupply } from "../../hooks/queries/useMasogData";
-import { useSingleProposalVotes } from "../../hooks/queries/useProposalVotes";
+import { useMasogTotalSupply } from "@/react-queries/useMasogData";
+import { useSingleProposalVotes } from "@/react-queries/useProposalVotes";
 import { useMemo } from "react";
 import { ProposalStatus, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE } from "../../config";
 import Big from 'big.js';

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateProposalParams } from "../../types/governance";
-import { Proposal } from "../../serializable/Proposal";
+import { CreateProposalParams } from "@/types/governance";
+import { Proposal } from "@/serializable/Proposal";
 import {
   useAccountStore,
   useWriteSmartContract,

@@ -1,12 +1,12 @@
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { VoteProgress } from "../components/proposals/VoteProgress";
-import { useGovernanceData } from "../hooks/queries/useGovernanceData";
-import { useUIStore } from "../store/useUIStore";
+import { VoteProgress } from "@/components/proposals/VoteProgress";
+import { useGovernanceData } from "@/react-queries/useGovernanceData";
+import { useUIStore } from "@/store/useUIStore";
 import { Loading } from "@/components/ui/Loading";
-import VoteModal from "../components/proposals/VoteModal";
-import { ProposalHeader } from "../components/proposals/details/ProposalHeader";
-import { BasicInfoSection } from "../components/proposals/details/BasicInfoSection";
+import VoteModal from "@/components/proposals/VoteModal";
+import { ProposalHeader } from "@/components/proposals/details/ProposalHeader";
+import { BasicInfoSection } from "@/components/proposals/details/BasicInfoSection";
 import { TechnicalDetailsSection } from "../components/proposals/details/TechnicalDetailsSection";
 import { VoteAction } from "../components/proposals/details/VoteAction";
 import { AdminActions } from "../components/proposals/details/AdminActions";

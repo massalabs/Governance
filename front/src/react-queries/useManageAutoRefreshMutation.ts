@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useContractStore } from "../../store/useContractStore";
+import { useContractStore } from "@/store/useContractStore";
 import { OperationStatus } from "@massalabs/massa-web3";
 import { toast } from "@massalabs/react-ui-kit";
-import { ManageAutoRefresh } from "../../serializable/ManageAutoRefresh";
+import { ManageAutoRefresh } from "@/serializable/ManageAutoRefresh";
 interface AutoRefreshParams {
     enabled: boolean;
     maxGas: string;

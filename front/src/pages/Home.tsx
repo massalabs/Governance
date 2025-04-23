@@ -1,9 +1,9 @@
-import { useGovernanceData } from "../hooks/queries/useGovernanceData";
-import { WelcomeSection } from "../components/home/WelcomeSection";
-import { StatsSection } from "../components/home/StatsSection";
-import { VotingPowerSection } from "../components/home/VotingPowerSection";
-import { RecentProposalsSection } from "../components/home/RecentProposalsSection";
-import { ActionLinks } from "../components/home/ActionLinks"
+import { useGovernanceData } from "@/react-queries/useGovernanceData";
+import { WelcomeSection } from "@/components/home/WelcomeSection";
+import { StatsSection } from "@/components/home/StatsSection";
+import { VotingPowerSection } from "@/components/home/VotingPowerSection";
+import { RecentProposalsSection } from "@/components/home/RecentProposalsSection";
+import { ActionLinks } from "@/components/home/ActionLinks"
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { networkName } from "@/config";
 

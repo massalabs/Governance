@@ -1,11 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { governanceKeys } from "./governanceKeys";
 import { useUserVotes } from "./useUserVotes";
-import { GovernanceData } from "../../types/governance";
+
 import { useCallback } from "react";
 import { useProposals } from "./useProposals";
 import { useUserBalance } from "./useUserBalance";
 import { useGovernanceStats } from "./useGovernanceStats";
+import { GovernanceData } from "@/types/governance";
 
 export function useGovernanceData(): GovernanceData {
   const queryClient = useQueryClient();

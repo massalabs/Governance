@@ -4,14 +4,14 @@ import {
   hasEnoughMasog,
   hasEnoughMas,
   type ValidationErrors,
-} from "../hooks/queries/useCreateProposalMutation";
-import { MasogBalanceAlert } from "../components/create-proposal/MasogBalanceAlert";
-import { BasicInformationSection } from "../components/create-proposal/BasicInformationSection";
-import { TechnicalDetailsSection } from "../components/create-proposal/TechnicalDetailsSection";
-import { SubmitSection } from "../components/create-proposal/SubmitSection";
+} from "@/react-queries/useCreateProposalMutation";
+import { MasogBalanceAlert } from "@/components/create-proposal/MasogBalanceAlert";
+import { BasicInformationSection } from "@/components/create-proposal/BasicInformationSection";
+import { TechnicalDetailsSection } from "@/components/create-proposal/TechnicalDetailsSection";
+import { SubmitSection } from "@/components/create-proposal/SubmitSection";
 import { useState } from "react";
 import { CreateProposalParams } from "../types/governance";
-import { useGovernanceData } from "../hooks/queries/useGovernanceData";
+import { useGovernanceData } from "@/react-queries/useGovernanceData";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { Divider } from "@/components/ui/Divider";
 import { HeaderSection } from "@/components/create-proposal/HeaderSection";

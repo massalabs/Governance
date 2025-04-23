@@ -1,4 +1,4 @@
-import { useMasogTotalSupply } from "../../hooks/queries/useMasogData";
+import { useMasogTotalSupply } from "@/react-queries/useMasogData";
 import { BalanceDisplay } from "./BalanceDisplay";
 import { NotConnectedCard } from "./NotConnectedCard";
 import { ZeroBalanceCard } from "./ZeroBalanceCard";

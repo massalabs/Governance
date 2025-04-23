@@ -1,7 +1,7 @@
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { useUIStore } from "../../store/useUIStore";
-import { useGovernanceData } from "../../hooks/queries/useGovernanceData";
+import { useUIStore } from "@/store/useUIStore";
+import { useGovernanceData } from "@/react-queries/useGovernanceData";
 import {
   HandThumbUpIcon,
   HandThumbDownIcon,
@@ -9,7 +9,7 @@ import {
   XMarkIcon,
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
-import { useVoteMutation } from "@/hooks/queries/useVoteMutation";
+import { useVoteMutation } from "@/react-queries/useVoteMutation";
 
 type VoteType = "POSITIVE" | "NEGATIVE" | "BLANK";
 

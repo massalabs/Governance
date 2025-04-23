@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useContractStore } from "../../store/useContractStore";
+import { useContractStore } from "@/store/useContractStore";
 
 // Query keys
 export const masogKeys = {

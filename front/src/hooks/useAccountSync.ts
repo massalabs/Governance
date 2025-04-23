@@ -3,7 +3,7 @@ import { useAccountStore } from "@massalabs/react-ui-kit";
 import { useLocalStorage } from "@massalabs/react-ui-kit/src/lib/util/hooks/useLocalStorage";
 import { getWallets } from "@massalabs/wallet-provider";
 import { useQueryClient } from "@tanstack/react-query";
-import { governanceKeys } from "./queries/governanceKeys";
+import { governanceKeys } from "../react-queries/governanceKeys";
 
 type SavedAccount = {
   address: string;

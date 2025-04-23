@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useContractStore } from "../../store/useContractStore";
+import { useContractStore } from "@/store/useContractStore";
 import { Mas, OperationStatus } from "@massalabs/massa-web3";
 import { toast } from "@massalabs/react-ui-kit";
 
