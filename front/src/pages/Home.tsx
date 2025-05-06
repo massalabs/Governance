@@ -22,7 +22,7 @@ export default function Home() {
           isConnected={!!connectedAccount}
         />
       )}
-      <RecentProposalsSection loading={loading} proposals={proposals} />
+      <RecentProposalsSection proposals={proposals} />
       <ActionLinks />
     </div>
   );

@@ -28,7 +28,7 @@ export default function Layout() {
         <Nav />
       </header>
 
-      <main className="flex-1 container mx-auto px-4 py-8 mb-16 min-h-[calc(100vh-400px)]">
+      <main className="flex-1 container mx-auto px-4 sm:px-8 md:px-12 lg:px-20 py-8 mb-16 min-h-[calc(100vh-400px)]">
         <Outlet />
       </main>
 
