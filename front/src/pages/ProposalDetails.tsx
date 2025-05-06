@@ -15,6 +15,7 @@ import { ProposalStatus as ProposalStatusEnum } from "@/config";
 import { useAccountStore } from "@massalabs/react-ui-kit";
 import { useMemo } from "react";
 import { DISCUSSION_PERIOD, MIN_VOTE_MASOG_AMOUNT, VOTING_PERIOD, networkName } from "@/config";
+import { useVotingStore } from "@/react-queries/useVotingStore";
 
 const BackButton = () => (
   <Link
@@ -51,21 +52,22 @@ const NetworkSwitchPrompt = () => (
 export default function ProposalDetails() {
   const { id } = useParams<{ id: string }>();
   const { connectedAccount, network } = useAccountStore();
-  const { proposals, userMasogBalance, userVotes, loading } = useGovernanceData();
+  const { proposals, userMasogBalance, loading: loadingProposals } = useGovernanceData();
   const { openVoteModal } = useUIStore();
 
   const proposal = useMemo(() => proposals.find((p) => p.id.toString() === id), [proposals, id]);
+  const { hasUserVoted, loadingVoteProgress } = useVotingStore(proposal ? [proposal] : []);
 
   const votingStatus = useMemo(() => {
     if (!proposal) return { canShowVoting: false, hasVoted: false, canVote: false, isVotingEnded: false };
     const isVoting = proposal.status === "VOTING";
-    const hasVoted = !!userVotes[proposal.id.toString()];
+    const hasVoted = hasUserVoted(proposal.id);
     const canVote = (userMasogBalance ?? 0n) >= MIN_VOTE_MASOG_AMOUNT;
     const isVotingEnded = new Date().getTime() > Number(proposal.creationTimestamp) + Number(DISCUSSION_PERIOD) + Number(VOTING_PERIOD);
     return { canShowVoting: isVoting && !isVotingEnded, hasVoted, canVote, isVotingEnded };
-  }, [proposal, userMasogBalance, userVotes]);
+  }, [proposal, userMasogBalance, hasUserVoted]);
 
-  if (loading) {
+  if (loadingProposals) {
     return <Loading text="Loading proposal details..." />;
   }
 
@@ -113,19 +115,27 @@ export default function ProposalDetails() {
           )}
           {proposal.status !== ProposalStatusEnum.DISCUSSION && (
             <div className="bg-secondary/20 dark:bg-darkCard/20 border border-border/50 dark:border-darkAccent/50 rounded-lg p-6">
-              <VoteProgress
-                proposal={{
-                  ...proposal,
-                  positiveVoteVolume: proposal.positiveVoteVolume,
-                  negativeVoteVolume: proposal.negativeVoteVolume,
-                  blankVoteVolume: proposal.blankVoteVolume,
-                }}
-              />
+              {loadingVoteProgress ? (
+                <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                  <Loading text="Loading voting data..." />
+                  <p className="text-sm text-f-tertiary dark:text-darkMuted text-center">
+                    Please wait while we fetch the latest voting results...
+                  </p>
+                </div>
+              ) : (
+                <VoteProgress
+                  proposal={{
+                    ...proposal,
+                    positiveVoteVolume: proposal.positiveVoteVolume,
+                    negativeVoteVolume: proposal.negativeVoteVolume,
+                    blankVoteVolume: proposal.blankVoteVolume,
+                  }}
+                />
+              )}
             </div>
           )}
 
           <AdminActions proposalId={proposal.id} />
-
         </div>
       </div>
 

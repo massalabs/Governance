@@ -9,7 +9,7 @@ import {
   XMarkIcon,
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
-import { useVoteMutation } from "@/react-queries/useVoteMutation";
+import { useVotingStore } from "@/react-queries/useVotingStore";
 
 type VoteType = "POSITIVE" | "NEGATIVE" | "BLANK";
 
@@ -211,9 +211,8 @@ const NotEnoughMasog = () => {
 export default function VoteModal() {
   const { isVoteModalOpen, selectedProposalId, closeVoteModal } = useUIStore();
   const { proposals, userMasogBalance } = useGovernanceData();
+  const { submitVote, isSubmitting } = useVotingStore(proposals);
   const [selectedVote, setSelectedVote] = useState<VoteType | null>(null);
-
-  const voteMutation = useVoteMutation();
 
   const proposal = proposals.find((p) => p.id === selectedProposalId);
   const hasEnoughMasog = userMasogBalance && userMasogBalance >= 1n;
@@ -228,7 +227,7 @@ export default function VoteModal() {
     }[selectedVote];
 
     try {
-      await voteMutation.mutateAsync({
+      await submitVote({
         proposalId: proposal.id,
         voteValue,
       });
@@ -284,7 +283,7 @@ export default function VoteModal() {
 
                     <VoteButton
                       selectedVote={selectedVote}
-                      isPending={voteMutation.isPending}
+                      isPending={isSubmitting}
                       onVote={handleVote}
                       onCancel={closeVoteModal}
                     />

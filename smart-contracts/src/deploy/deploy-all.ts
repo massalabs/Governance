@@ -1,5 +1,5 @@
 import { isMainnet } from "../config";
-import { Oracle } from "../oracle/wrappers/Oracle";
+import { Oracle } from "../oracle/wrapper/Oracle";
 import { getProvider } from "../utils";
 import { deployGovernance } from "./lib/governance";
 import { deployMasOg } from "./lib/masog";

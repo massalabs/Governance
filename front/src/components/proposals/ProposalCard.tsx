@@ -7,6 +7,7 @@ import {
 import { truncateAddress } from "../../utils/address";
 import { FormattedProposal } from "../../types/governance";
 import { getStatusConfig, getDisplayStatus } from "../../utils/proposalStatus";
+import { useVotingStore } from "@/react-queries/useVotingStore";
 
 interface ProposalCardProps {
   proposal: FormattedProposal;
@@ -15,9 +16,18 @@ interface ProposalCardProps {
 export function ProposalCard({ proposal }: ProposalCardProps) {
   const statusConfig = getStatusConfig(proposal.status);
   const displayStatus = getDisplayStatus(proposal);
+  const { getVoteProgressData } = useVotingStore([proposal]);
+
+  const handleMouseEnter = () => {
+    // Preload voting data only for this specific proposal
+    getVoteProgressData(proposal);
+  };
 
   return (
-    <div className="bg-secondary dark:bg-darkCard border border-border dark:border-darkBorder p-8 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group">
+    <div
+      className="bg-secondary dark:bg-darkCard border border-border dark:border-darkBorder p-8 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group"
+      onMouseEnter={handleMouseEnter}
+    >
       <Link to={`/proposals/${proposal.id}`} className="block space-y-5">
         {/* Header with title and status */}
         <div className="flex justify-between items-start gap-3">

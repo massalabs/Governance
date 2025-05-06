@@ -3,13 +3,21 @@ export const governanceKeys = {
   proposals: () => [...governanceKeys.all, "proposals"],
   stats: () => [...governanceKeys.all, "stats"],
   userBalance: () => [...governanceKeys.all, "userBalance"],
-  userVotes: () => [...governanceKeys.all, "userVotes"],
+  userVotes: (proposalIds?: string[]) => [
+    ...governanceKeys.all,
+    "userVotes",
+    ...(proposalIds || []),
+  ],
   proposalVotes: (proposalId: bigint) => [
     ...governanceKeys.all,
     "proposalVotes",
     proposalId.toString(),
   ],
-  allProposalVotes: () => [...governanceKeys.all, "allProposalVotes"],
+  allProposalVotes: (proposalIds?: string[]) => [
+    ...governanceKeys.all,
+    "allProposalVotes",
+    ...(proposalIds || []),
+  ],
   adminData: () => [...governanceKeys.all, "adminData"],
   balance: () => [...governanceKeys.all, "balance"],
   totalVotes: () => [...governanceKeys.all, "totalVotes"],

@@ -1,12 +1,11 @@
 import { FormattedProposal } from "../../types/governance";
-import { useMasogTotalSupply } from "@/react-queries/useMasogData";
-import { useSingleProposalVotes } from "@/react-queries/useProposalVotes";
+import { useVotingStore } from "@/react-queries/useVotingStore";
 import { useMemo } from "react";
-import { ProposalStatus, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE } from "../../config";
-import Big from 'big.js';
+import { ProposalStatus } from "../../config";
 
 interface VoteProgressProps {
   proposal: FormattedProposal;
+  isLoading?: boolean;
 }
 
 interface VoteBarProps {
@@ -18,6 +17,7 @@ interface VoteBarProps {
     border: string;
     background: string;
   };
+  isLoading?: boolean;
 }
 
 const VOTE_COLORS = {
@@ -38,8 +38,7 @@ const VOTE_COLORS = {
   },
 } as const;
 
-function VoteBar({ label, percentage, votes, color }: VoteBarProps) {
-
+function VoteBar({ label, percentage, votes, color, isLoading }: VoteBarProps) {
   const formatPercentage = (value: number) => {
     if (value === 0) return "0";
     if (value < 0.001) return "<0.001";
@@ -51,7 +50,11 @@ function VoteBar({ label, percentage, votes, color }: VoteBarProps) {
       <div className="flex justify-between text-sm mb-2">
         <span className={`${color.text} font-medium`}>{label}</span>
         <span className="text-f-primary dark:text-darkText">
-          {formatPercentage(percentage)}%
+          {isLoading ? (
+            <div className="h-4 w-16 bg-secondary/20 dark:bg-darkCard/20 animate-pulse rounded" />
+          ) : (
+            formatPercentage(percentage)
+          )}%
         </span>
       </div>
       <div
@@ -67,7 +70,11 @@ function VoteBar({ label, percentage, votes, color }: VoteBarProps) {
           }}
         />
         {/* MASOG amount text */}
-        {votes > 0n && (
+        {isLoading ? (
+          <div className="h-full flex items-center px-4">
+            <div className="h-4 w-24 bg-secondary/20 dark:bg-darkCard/20 animate-pulse rounded" />
+          </div>
+        ) : votes > 0n && (
           <div className="h-full flex items-center px-4">
             <span
               className={`text-sm font-medium ${color.text} whitespace-nowrap`}
@@ -84,9 +91,11 @@ function VoteBar({ label, percentage, votes, color }: VoteBarProps) {
 function AcceptanceThreshold({
   thresholdPercentage,
   currentProgress,
+  isLoading,
 }: {
   thresholdPercentage: number;
   currentProgress: number;
+  isLoading?: boolean;
 }) {
   const formatProgress = (value: number) => {
     if (isNaN(value) || value === 0) return "0.0000";
@@ -107,86 +116,33 @@ function AcceptanceThreshold({
           Required: {thresholdPercentage.toFixed(1)}% of masog total supply
         </div>
         <div className="text-xs text-emerald-400 pl-2">
-          Current: {currentProgress > 0 ? formatProgress(currentProgress) : "0"}
-          % of masog total supply
+          {isLoading ? (
+            <div className="h-3 w-24 bg-secondary/20 dark:bg-darkCard/20 animate-pulse rounded" />
+          ) : (
+            `Current: ${currentProgress > 0 ? formatProgress(currentProgress) : "0"}% of masog total supply`
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-export function VoteProgress({ proposal }: VoteProgressProps) {
-  const { data: totalSupply } = useMasogTotalSupply();
-  const { data: proposalVotes = [] } = useSingleProposalVotes(proposal.id);
+export function VoteProgress({ proposal, isLoading }: VoteProgressProps) {
+  const { getVoteProgressData } = useVotingStore([proposal]);
 
-  // Calculate vote volumes from individual votes
-  const calculatedVoteVolumes = useMemo(() => {
-    if (!totalSupply) return { positive: 0n, negative: 0n, blank: 0n };
-
-    let positive = 0n;
-    let negative = 0n;
-    let blank = 0n;
-
-    proposalVotes.forEach(vote => {
-      if (vote.value === 1n) {
-        positive += vote.balance;
-      } else if (vote.value === -1n) {
-        negative += vote.balance;
-      } else {
-        blank += vote.balance;
-      }
-    });
-
-    return { positive, negative, blank };
-  }, [proposalVotes, totalSupply]);
-
-  // Use proposal's vote volumes when voting has ended, otherwise use calculated volumes
-  const isVotingEnded = proposal.status === ProposalStatus.ACCEPTED || proposal.status === ProposalStatus.REJECTED;
-  const positiveVoteVolume = isVotingEnded ? proposal.positiveVoteVolume : calculatedVoteVolumes.positive;
-  const negativeVoteVolume = isVotingEnded ? proposal.negativeVoteVolume : calculatedVoteVolumes.negative;
-  const blankVoteVolume = isVotingEnded ? proposal.blankVoteVolume : calculatedVoteVolumes.blank;
-
-  // Calculate total votes
-  const totalVotes =
-    positiveVoteVolume +
-    negativeVoteVolume +
-    blankVoteVolume;
-
-  // Use endMasogTotalSupply for ended proposals, otherwise use current total supply
-  const effectiveTotalSupply = isVotingEnded ? proposal.endMasogTotalSupply : totalSupply;
-
-  // Calculate abstain votes (total supply - total votes)
-  const abstainVotes = effectiveTotalSupply ? effectiveTotalSupply - totalVotes : 0n;
-
-  // Calculate percentages relative to total supply with proper decimal handling
-  const calculateSupplyPercentage = (votes: bigint) => {
-    if (!effectiveTotalSupply) return 0;
-
-    // Convert BigInt to string to avoid precision loss
-    const votesStr = votes.toString();
-    const totalSupplyStr = effectiveTotalSupply.toString();
-
-    // Use big.js for precise decimal arithmetic
-    const votesBig = new Big(votesStr);
-    const totalSupplyBig = new Big(totalSupplyStr);
-
-    // Calculate percentage with high precision
-    return votesBig.div(totalSupplyBig).times(100).toNumber();
-  };
-
-  const yesPercentage = calculateSupplyPercentage(positiveVoteVolume);
-  const noPercentage = calculateSupplyPercentage(negativeVoteVolume);
-  const blankPercentage = calculateSupplyPercentage(blankVoteVolume);
-  const abstainPercentage = calculateSupplyPercentage(abstainVotes);
-
-  // Calculate threshold percentage based on total supply
-  const thresholdPercentage = TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE;
-
-  // Calculate current progress towards threshold
-  const currentProgress =
-    Number(effectiveTotalSupply) > 0
-      ? (Number(positiveVoteVolume) / Number(effectiveTotalSupply)) * 100
-      : 0;
+  const {
+    positiveVoteVolume,
+    negativeVoteVolume,
+    blankVoteVolume,
+    abstainVotes,
+    effectiveTotalSupply,
+    yesPercentage,
+    noPercentage,
+    blankPercentage,
+    abstainPercentage,
+    currentProgress,
+    thresholdPercentage,
+  } = useMemo(() => getVoteProgressData(proposal), [proposal, getVoteProgressData]);
 
   return (
     <div className="space-y-6">
@@ -198,7 +154,11 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
       </div>
 
       <div className="text-sm text-f-tertiary dark:text-darkMuted">
-        Total supply: {Number(effectiveTotalSupply).toLocaleString()} MASOG
+        {isLoading ? (
+          <div className="h-4 w-48 bg-secondary/20 dark:bg-darkCard/20 animate-pulse rounded" />
+        ) : (
+          `Total supply: ${Number(effectiveTotalSupply).toLocaleString()} MASOG`
+        )}
       </div>
 
       {/* Estimation notice - only shown during voting status */}
@@ -215,24 +175,28 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
           percentage={yesPercentage}
           votes={positiveVoteVolume}
           color={VOTE_COLORS.yes}
+          isLoading={isLoading}
         />
         <VoteBar
           label="No"
           percentage={noPercentage}
           votes={negativeVoteVolume}
           color={VOTE_COLORS.no}
+          isLoading={isLoading}
         />
         <VoteBar
           label="Blank"
           percentage={blankPercentage}
           votes={blankVoteVolume}
           color={VOTE_COLORS.abstain}
+          isLoading={isLoading}
         />
         <VoteBar
           label="Abstain"
           percentage={abstainPercentage}
           votes={abstainVotes}
           color={VOTE_COLORS.abstain}
+          isLoading={isLoading}
         />
       </div>
 
@@ -240,6 +204,7 @@ export function VoteProgress({ proposal }: VoteProgressProps) {
       <AcceptanceThreshold
         thresholdPercentage={thresholdPercentage}
         currentProgress={currentProgress}
+        isLoading={isLoading}
       />
     </div>
   );
