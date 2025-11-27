@@ -8,10 +8,10 @@ jobs:
   deweb:
     runs-on: ubuntu-latest
     strategy:
-        matrix:
-          # TODO: add buildnet
-          network: [mainnet]
-        fail-fast: false
+      matrix:
+        # TODO: add buildnet
+        network: [mainnet]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v4
@@ -30,13 +30,13 @@ jobs:
 
       - name: Deploy to Massa DeWeb (${{ matrix.network }})
         id: deploy
-        uses: massalabs/deweb-gh-action@v0.0.7
+        uses: massalabs/deweb-gh-action@v0.1.0
         with:
           config_file: ./front/deweb_cli_config.${{ matrix.network }}.json
           source_folder: ./front/dist
         env:
-            # TODO: add buildnet key
-            MASSA_DEWEB_SECRET_KEY: ${{ secrets.MASSA_DEWEB_MAINNET_PKEY }}
+          # TODO: add buildnet key
+          MASSA_DEWEB_SECRET_KEY: ${{ secrets.MASSA_DEWEB_MAINNET_PKEY }}
 
       - name: Get deployed website address
         run: |
