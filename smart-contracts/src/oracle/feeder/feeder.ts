@@ -1,24 +1,23 @@
 /* eslint-disable max-len */
 /* eslint-disable camelcase */
-import { JsonRpcProvider, NetworkName } from "@massalabs/massa-web3";
-import { U64_t } from "@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64";
-import { Oracle } from "../wrapper/Oracle";
-import { RollEntry } from "../serializable/RollEntry";
-import { feedRolls, deleteRolls, getCycleInfo, getCyclesToDelete } from "./helpers";
+
+import { JsonRpcProvider, NetworkName } from '@massalabs/massa-web3';
+import { U64_t } from '@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64';
+import { Oracle } from '../wrapper/Oracle';
+import { RollEntry } from '../serializable/RollEntry';
 import {
-  log,
-  logContarctCycleInfo,
-  logFeederEnd,
-  logFeederError,
-  logFeederStart,
-  logNetworkCycleInfo,
-  logNoNewCycle,
-  logSimpleError,
-} from './log';
+  feedRolls,
+  deleteRolls,
+  getCycleInfo,
+  getCyclesToDelete,
+} from './helpers';
+import { log } from './log'; // ← New unified logger
 import { AlertsService } from './alerts';
 import { Staker } from '@massalabs/massa-web3/dist/esm/generated/client-types';
 
 const GOVERNANCE_ORACLE_ALERT_NAME = 'governance-oracle';
+
+const ignoredErrors = ['Cycle cannot be lower than the last cycle'];
 
 export class Feeder {
   private provider: JsonRpcProvider;
@@ -30,7 +29,7 @@ export class Feeder {
     provider: JsonRpcProvider,
     oracle: Oracle,
     networkName: NetworkName,
-    alerts?: AlertsService
+    alerts?: AlertsService,
   ) {
     this.provider = provider;
     this.oracle = oracle;
@@ -42,26 +41,26 @@ export class Feeder {
   }
 
   private async handleDeleteRolls(recordedCycles: bigint[]): Promise<void> {
-
     const cyclesToDelete = getCyclesToDelete(recordedCycles);
 
     if (cyclesToDelete.length === 0) {
-      console.log(`No cycles to delete on ${this.networkName}`);
+      log.info(`No old cycles to delete on ${this.networkName}`);
       return;
     }
 
     for (const cycle of cyclesToDelete) {
       try {
         const recordCount = await this.oracle.getNbRecordByCycle(cycle, true);
-        console.log(`Deleting rolls from ${this.networkName} cycle`, {
-          cycle,
-          recordCount,
-        });
 
+        log.deletingCycle(this.networkName, cycle, recordCount);
         await deleteRolls(this.oracle, recordCount, 4000n, cycle);
-        console.log(`Successfully deleted rolls from ${this.networkName}`, { cycle });
+        log.deletedCycle(this.networkName, cycle);
       } catch (error) {
-        throw new Error(`Failed to delete rolls for cycle ${cycle}: ${(error as Error).message}`);
+        throw new Error(
+          `Failed to delete rolls for cycle ${cycle} on ${this.networkName}: ${
+            (error as Error).message
+          }`,
+        );
       }
     }
   }
@@ -77,80 +76,93 @@ export class Feeder {
   }): Promise<void> {
     if (lastCycle > currentCycle) {
       throw new Error(
-        `Oracle on ${this.networkName} has recorded cycles in the future (lastCycle: ${lastCycle}, currentCycle: ${currentCycle}). This indicates a synchronization issue.`,
+        `Oracle on ${this.networkName} has recorded cycles in the future ` +
+          `(lastCycle: ${lastCycle}, currentCycle: ${currentCycle}). This indicates a synchronization issue.`,
       );
     }
 
-    log.info(`Feeding rolls for cycle ${currentCycle} on ${this.networkName}`);
-
+    log.feedingCycle(this.networkName, currentCycle);
     await feedRolls(this.oracle, rollEntries, currentCycle, 5000);
 
-    const recordedCount = await this.oracle.getNbRecordByCycle(currentCycle, true);
-    console.log(`Rolls recorded on ${this.networkName}`, { count: recordedCount });
+    const recordedCount = await this.oracle.getNbRecordByCycle(
+      currentCycle,
+      true,
+    );
+    log.rollsRecorded(this.networkName, rollEntries.length, recordedCount);
 
     if (recordedCount !== BigInt(rollEntries.length)) {
       throw new Error(
-        `Recorded rolls on ${this.networkName} (${recordedCount}) do not match generated rolls (${rollEntries.length})`,
+        `Recorded rolls mismatch on ${this.networkName}: ` +
+          `expected ${rollEntries.length}, got ${recordedCount}`,
       );
     }
   }
 
   public async feed(stakers: Staker[]): Promise<void> {
-    logFeederStart(this.networkName);
+    log.startFeeder(this.networkName);
+
     try {
-      const [lastCycle, recordedCycles, cyclesInfo] = await Promise.all([
+      const [lastCycle, recordedCycles, cycleInfo] = await Promise.all([
         this.oracle.getLastCycle(),
         this.oracle.getRecordedCycles(),
         getCycleInfo(this.provider.client),
       ]);
 
-      logContarctCycleInfo(this.networkName, lastCycle, recordedCycles);
-      logNetworkCycleInfo(this.networkName, cyclesInfo);
+      log.contractCycleInfo(this.networkName, lastCycle, recordedCycles);
+      log.networkCycleInfo(this.networkName, cycleInfo);
 
-      // Early exit if no new cycle to process
-      if (lastCycle >= cyclesInfo.currentCycle) {
-        logNoNewCycle(this.networkName, cyclesInfo);
+      // Early exit: nothing to do
+      if (lastCycle >= cycleInfo.currentCycle) {
+        log.noNewCycle(this.networkName, cycleInfo);
         return;
       }
 
-
-      // log nb stakers and nb rollEntries
-
+      // Generate roll entries
       const rollEntries = stakers.map((staker) =>
         RollEntry.create(staker[0], BigInt(staker[1])),
       );
 
-      console.log(`Number of stakers: ${stakers.length}`);
-      console.log(`Number of rollEntries: ${rollEntries.length}`);
+      log.stakerCount(stakers.length);
+      log.info(
+        `Generated ${rollEntries.length} roll entries for cycle ${cycleInfo.currentCycle}`,
+      );
 
+      // Feed new cycle
       await this.handleFeedRolls({
         rollEntries,
-        currentCycle: cyclesInfo.currentCycle,
+        currentCycle: cycleInfo.currentCycle,
         lastCycle,
       });
 
+      // Clean up old cycles
       const newRecordedCycles = await this.oracle.getRecordedCycles();
       await this.handleDeleteRolls(newRecordedCycles);
 
+      // Resolve any pending alerts (success case)
       if (this.alerts) {
         await this.alerts.resolveAlerts();
       }
-
     } catch (error) {
-      const errorMessage = (error as Error).message;
-      if (ignoredErrors.some(err => errorMessage.includes(err))) {
-        logSimpleError(`Cycle cannot be lower than the last cycle on ${this.networkName}`);
-      } else {
-        logFeederError(this.networkName, error as Error);
-        if (this.alerts) {
-          await this.alerts.triggerAlert(GOVERNANCE_ORACLE_ALERT_NAME, errorMessage, 'critical');
-        }
-        throw error;
+      const msg = (error as Error)?.message || String(error);
+
+      // Gracefully skip already-processed cycles
+      if (ignoredErrors.some((e) => msg.includes(e))) {
+        log.warn(`Skipped (already processed): ${msg}`);
+        return;
       }
+
+      // Real error → log + alert
+      log.error(`Feeder failed on ${this.networkName}: ${msg}`);
+      if (this.alerts) {
+        await this.alerts.triggerAlert(
+          GOVERNANCE_ORACLE_ALERT_NAME,
+          msg,
+          'critical',
+        );
+      }
+      throw error; // re-throw so caller knows it failed
     } finally {
-      logFeederEnd(this.networkName);
+      log.endFeeder(this.networkName);
     }
   }
 }
-
-const ignoredErrors = ['Cycle cannot be lower than the last cycle'];

@@ -1,82 +1,145 @@
 /* eslint-disable camelcase */
-import { NetworkName } from "@massalabs/massa-web3";
-import chalk from "chalk";
-import { CycleInfo } from "./helpers";
-import { U64_t } from "@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64";
+import chalk from 'chalk';
+import { NetworkName } from '@massalabs/massa-web3';
+import { CycleInfo } from './helpers';
+import { U64_t } from '@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64';
 
-// Check if output is being piped
+// Detect if output is piped (Docker, CI, etc.)
 const isPiped = !process.stdout.isTTY;
 
-export const log = {
-  info: (message: string) => console.log(isPiped ? `ℹ ${message}` : chalk.blue('ℹ') + ' ' + message),
-  success: (message: string) => console.log(isPiped ? `✓ ${message}` : chalk.green('✓') + ' ' + message),
-  error: (message: string) => console.error(isPiped ? `✗ ${message}` : chalk.red('✗') + ' ' + message),
-  warning: (message: string) => console.log(isPiped ? `⚠ ${message}` : chalk.yellow('⚠') + ' ' + message),
-  divider: () => console.log(isPiped ? '-'.repeat(80) : chalk.gray('─'.repeat(80))),
+// Icons (fallback to plain text when piped)
+const ICON = {
+  INFO: isPiped ? 'ℹ' : chalk.blue('ℹ'),
+  SUCCESS: isPiped ? '✓' : chalk.green('✓'),
+  ERROR: isPiped ? '✗' : chalk.red('✗'),
+  WARN: isPiped ? '⚠' : chalk.yellow('⚠'),
+  DIVIDER: isPiped ? '─'.repeat(80) : chalk.gray('─'.repeat(80)),
 };
 
-// Helper function for colored output
-export const color = {
-  cyan: (text: string) => isPiped ? text : chalk.cyan(text),
-  yellow: (text: string) => isPiped ? text : chalk.yellow(text),
-  red: (text: string) => isPiped ? text : chalk.red(text),
-  gray: (text: string) => isPiped ? text : chalk.gray(text),
+// Simple timestamp prefix (optional, very useful in logs)
+const timestamp = () => {
+  const now = new Date();
+  return isPiped
+    ? now.toISOString()
+    : chalk.dim(now.toISOString().split('T')[1].replace('Z', ''));
 };
 
-export function logWithDivider(
+// Generic log functions
+const info = (msg: string) =>
+  console.log(`${timestamp()} ${ICON.INFO}  ${msg}`);
+const success = (msg: string) =>
+  console.log(`${timestamp()} ${ICON.SUCCESS}  ${msg}`);
+const error = (msg: string) =>
+  console.error(`${timestamp()} ${ICON.ERROR}  ${msg}`);
+const warn = (msg: string) =>
+  console.log(`${timestamp()} ${ICON.WARN}  ${msg}`);
+const divider = () => console.log(ICON.DIVIDER);
+
+// Fancy boxed message
+const box = (
   message: string,
   type: 'info' | 'success' | 'error' | 'warning' = 'info',
-  error?: Error
-) {
-  log.divider();
-  log[type](message);
-  if (error) {
-    log.error(`error: ${color.red(error.message)}`);
-  }
-  log.divider();
-}
+) => {
+  const colorMap = {
+    info: chalk.cyan,
+    success: chalk.green,
+    error: chalk.red,
+    warning: chalk.yellow,
+  };
+  const color = isPiped ? (t: string) => t : colorMap[type];
 
+  console.log(ICON.DIVIDER);
+  console.log(
+    `${timestamp()} ${type === 'error' ? ICON.ERROR : ICON.SUCCESS}  ${color(
+      '>>> ' + message + ' <<<',
+    )}`,
+  );
+  console.log(ICON.DIVIDER);
+};
 
-export function logContarctCycleInfo(networkName: NetworkName, lastCycle: U64_t, recordedCycles: U64_t[]) {
-  const cycleInfo = [
-    `${color.cyan(`${networkName} Oracle Contract Info:`)}`,
-    `  lastCycle in oracle: ${color.yellow(lastCycle.toString())}`,
-    `  recordedCycles in oracle: ${color.yellow(recordedCycles.toString())}`,
-  ].join('\n');
-  log.info(cycleInfo);
-}
+// Specific structured logs
+export const log = {
+  info,
+  success,
+  error,
+  warn,
+  divider,
+  box,
 
-export function logNetworkCycleInfo(networkName: NetworkName, info: CycleInfo) {
-  const cycleInfo = [
-    `${color.cyan(`${networkName} Network Info:`)}`,
-    `  currentCycle on network: ${color.yellow(info.currentCycle.toString())}`,
-    `  currentPeriod on network: ${color.yellow(info.currentPeriod.toString())}`,
-    `  remainingPeriods on network: ${color.yellow(info.remainingPeriods.toString())}`,
-    `  remainingTimeInMinutes on network: ${color.yellow(info.remainingTimeInMinutes.toString())} min`,
-  ].join('\n');
-  log.info(cycleInfo);
-}
-export function logFeederStart(networkName: NetworkName) {
-  logWithDivider(`Starting feeder for ${networkName}...`, 'info');
-}
+  // Startup / shutdown
+  startFeeder: (network: NetworkName) =>
+    box(`Starting feeder for ${chalk.bold(network)}`, 'info'),
 
-export function logFeederEnd(networkName: NetworkName) {
-  logWithDivider(`Feeder finished successfully for ${networkName}`, 'success');
-}
+  endFeeder: (network: NetworkName) =>
+    box(`Feeder finished successfully – ${chalk.bold(network)}`, 'success'),
 
-export function logNoNewCycle(networkName: NetworkName, info: CycleInfo) {
-  const message = [
-    `No new cycle to process on ${networkName}`,
-    `Remaining periods: ${info.remainingPeriods}`,
-    `Time left: ${info.remainingTimeInMinutes} minutes`,
-  ].join(' ');
-  log.warning(message);
-}
+  noNewCycle: (network: NetworkName, info: CycleInfo) => {
+    warn(
+      `No new cycle on ${chalk.bold(network)} | ` +
+        `Remaining: ${info.remainingPeriods} periods (${info.remainingTimeInMinutes} min)`,
+    );
+  },
 
-export function logFeederError(networkName: NetworkName, error: Error) {
-  logWithDivider(`Feeder failed for ${networkName}`, 'error', error);
-}
+  contractCycleInfo: (
+    network: NetworkName,
+    lastCycle: U64_t,
+    recordedCycles: U64_t[],
+  ) => {
+    info(
+      `${chalk.cyan(`${network} Oracle Contract`)}\n` +
+        `   • Last recorded cycle : ${chalk.yellow(lastCycle.toString())}\n` +
+        `   • All recorded cycles : ${chalk.yellow(
+          recordedCycles.join(', ') || 'none',
+        )}`,
+    );
+  },
 
-export function logSimpleError(message: string) {
-  log.error(message);
-}
+  networkCycleInfo: (network: NetworkName, info: CycleInfo) => {
+    log.info(
+      `${chalk.cyan(`${network} Network`)}\n` +
+        `   • Current cycle       : ${chalk.yellow(
+          info.currentCycle.toString(),
+        )}\n` +
+        `   • Current period      : ${chalk.yellow(
+          info.currentPeriod.toString(),
+        )}\n` +
+        `   • Periods remaining   : ${chalk.yellow(
+          info.remainingPeriods.toString(),
+        )}\n` +
+        `   • Time left           : ${chalk.yellow(
+          info.remainingTimeInMinutes.toString(),
+        )} min`,
+    );
+  },
+
+  feedingCycle: (network: NetworkName, cycle: U64_t) =>
+    info(
+      `Feeding rolls for cycle ${chalk.bold(cycle.toString())} on ${chalk.bold(
+        network,
+      )}`,
+    ),
+
+  rollsRecorded: (network: NetworkName, expected: number, recorded: bigint) =>
+    recorded === BigInt(expected)
+      ? success(`Rolls recorded on ${network} – ${recorded}/${expected}`)
+      : error(`Mismatch on ${network}: expected ${expected}, got ${recorded}`),
+
+  deletingCycle: (network: NetworkName, cycle: bigint, count: bigint) =>
+    info(`Deleting ${count} records from ${network} – cycle ${cycle}`),
+
+  deletedCycle: (network: NetworkName, cycle: bigint) =>
+    success(`Deleted cycle ${cycle} from ${network}`),
+
+  stakerCount: (count: number) =>
+    info(
+      `Loaded ${chalk.bold(
+        count.toString(),
+      )} stakers → generating roll entries`,
+    ),
+
+  balanceLow: (balance: bigint) =>
+    error(`Balance low: ${balance.toString()} MAS (threshold: 1000)`),
+
+  oracleAddress: (network: NetworkName, address: string) =>
+    info(`${network} Oracle → ${chalk.magenta(address)}`),
+};

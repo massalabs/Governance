@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { log, logWithDivider } from './log';
+import { log } from './log';
 import { Account, NetworkName, Web3Provider } from '@massalabs/massa-web3';
 import { contracts } from '../../config';
 import { Oracle } from '../wrapper/Oracle';
@@ -12,27 +12,28 @@ dotenv.config();
 
 const alertsService = new AlertsService();
 
-/**
- * Main feeder execution logic
- */
 async function main() {
-  log.info('*#----- Starting feeder -----#*');
+  log.box('Starting Massa Governance Oracle Feeder', 'info');
+
+  // === Accounts & Providers ===
   const accountMainnet = await Account.fromEnv('PRIVATE_KEY_MAINNET');
   const providerMainnet = Web3Provider.mainnet(accountMainnet);
 
   const accountBuildnet = await Account.fromEnv('PRIVATE_KEY_BUILDNET');
   const providerBuildnet = Web3Provider.buildnet(accountBuildnet);
 
-  // TODO - Alerte Balance if lower than 1000
+  // === Balance check ===
   const balanceMainnet = await providerMainnet.balance();
   if (balanceMainnet < 1000n) {
+    log.balanceLow(balanceMainnet);
     await alertsService.triggerAlert(
       'balance-low',
-      'Balance of technical address is lower than 1000',
+      `Balance of technical address is ${balanceMainnet} (< 1000)`,
       'critical',
     );
   }
 
+  // === Initialize feeders ===
   const mainnetFeeder = new Feeder(
     providerMainnet,
     new Oracle(providerMainnet, contracts[NetworkName.Mainnet].oracle),
@@ -47,23 +48,34 @@ async function main() {
     undefined,
   );
 
-  // log contracts addresses
-  log.info(
-    `Mainnet Oracle Contract Address: ${contracts[NetworkName.Mainnet].oracle}`,
-  );
-  log.info(
-    `Buildnet Oracle Contract Address: ${
-      contracts[NetworkName.Buildnet].oracle
-    }`,
-  );
-
   const stakers = await getStakers(providerMainnet);
+  log.stakerCount(stakers.length);
 
-  // TODO: If mainnet feeder fails, buildnet is not executed
-  await mainnetFeeder.feed(stakers);
-  // await buildnetFeeder.feed(stakers);
+  // === Run feeders ===
+  try {
+    log.oracleAddress(
+      NetworkName.Mainnet,
+      contracts[NetworkName.Mainnet].oracle,
+    );
+    await mainnetFeeder.feed(stakers);
+  } catch (err) {
+    log.error(`Mainnet feeder failed: ${(err as Error).message}`);
+  }
 
-  logWithDivider('All feeders finished successfully', 'success');
+  try {
+    log.oracleAddress(
+      NetworkName.Buildnet,
+      contracts[NetworkName.Buildnet].oracle,
+    );
+    await buildnetFeeder.feed(stakers);
+  } catch (err) {
+    log.error(`Buildnet feeder failed: ${(err as Error).message}`);
+  }
+
+  log.box('All feeders completed', 'success');
 }
 
-main();
+main().catch((err) => {
+  log.error('Fatal error: ' + err.message);
+  process.exit(1);
+});
