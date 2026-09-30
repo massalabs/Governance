@@ -1,5 +1,9 @@
 import { u64ToBytes, bytesToU64, boolToByte } from '@massalabs/as-types';
-import { getKeys, Storage } from '@massalabs/massa-as-sdk';
+import {
+  getKeysPage,
+  MAX_DATASTORE_KEYS_PAGE,
+  Storage,
+} from '@massalabs/massa-as-sdk';
 import { RollEntry } from '../serializable/roll-entry';
 import {
   deletingCycleKey,
@@ -63,17 +67,45 @@ export function _deleteCycle(cycle: u64, nbToDelete: u32): void {
     Storage.set(deletingKey, boolToByte(true));
   }
 
-  const rollKeys = getKeys(rollKeyPrefix(cycle));
-
-  if (nbToDelete > u32(rollKeys.length)) {
-    nbToDelete = rollKeys.length;
+  // From MIP-0002, one datastore-key call returns at most MAX_DATASTORE_KEYS_PAGE keys: delete the
+  // batch one page at a time. Deleted keys leave the datastore, so each page starts from the beginning.
+  const prefix = rollKeyPrefix(cycle);
+  let remaining = nbToDelete;
+  let exhausted = false;
+  while (remaining > 0 && !exhausted) {
+    const count =
+      remaining < u32(MAX_DATASTORE_KEYS_PAGE)
+        ? i32(remaining)
+        : MAX_DATASTORE_KEYS_PAGE;
+    const rollKeys = getKeysPage(prefix, [], count);
+    for (let i = 0; i < rollKeys.length; i++) {
+      Storage.del(rollKeys[i]);
+    }
+    remaining -= u32(rollKeys.length);
+    // A short page means no roll entry is left.
+    exhausted = rollKeys.length < count;
   }
 
-  for (let i = u32(0); i < nbToDelete; i++) {
-    Storage.del(rollKeys[i]);
-  }
-
-  if (rollKeys.length === nbToDelete) {
+  if (exhausted || getKeysPage(prefix, [], 1).length === 0) {
     Storage.del(deletingKey);
   }
+}
+
+/**
+ * Counts the roll entries of a cycle, one page of keys at a time.
+ * @param cycle - The cycle to count the roll entries of.
+ * @returns The number of stakers recorded for the cycle.
+ */
+export function _countRollEntries(cycle: u64): i32 {
+  const prefix = rollKeyPrefix(cycle);
+  let count = 0;
+  let keys = getKeysPage(prefix);
+  while (keys.length > 0) {
+    count += keys.length;
+    if (keys.length < MAX_DATASTORE_KEYS_PAGE) {
+      break;
+    }
+    keys = getKeysPage(prefix, keys[keys.length - 1]);
+  }
+  return count;
 }

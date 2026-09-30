@@ -8,7 +8,7 @@ import {
   Storage,
   Context,
   currentPeriod,
-  getKeys,
+  getKeysPage,
   asyncCall,
   Slot,
   generateEvent,
@@ -44,10 +44,17 @@ export function _autoRefreshCall(): void {
   const validityEndPeriod = currentPeriodStart + LIMIT_REFETCH_PERIOD;
   const validityEndThread = Context.currentThread();
 
-  // If no proposals in discussion or voting, we can stop the ASC
-  const votingStatusProposalsKeys = getKeys(statusKeyPrefix(votingStatus));
-  const discussionStatusProposalsKeys = getKeys(
+  // If no proposals in discussion or voting, we can stop the ASC.
+  // Only whether one exists matters: read a single key of each status.
+  const votingStatusProposalsKeys = getKeysPage(
+    statusKeyPrefix(votingStatus),
+    [],
+    1,
+  );
+  const discussionStatusProposalsKeys = getKeysPage(
     statusKeyPrefix(discussionStatus),
+    [],
+    1,
   );
 
   // If no proposals to refresh, we can stop the ASC

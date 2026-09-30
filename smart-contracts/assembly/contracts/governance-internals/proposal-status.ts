@@ -1,5 +1,10 @@
 import { bytesToI32, bytesToString } from '@massalabs/as-types';
-import { generateEvent, Storage } from '@massalabs/massa-as-sdk';
+import {
+  generateEvent,
+  getKeysPage,
+  MAX_DATASTORE_KEYS_PAGE,
+  Storage,
+} from '@massalabs/massa-as-sdk';
 
 import { Proposal } from '../serializable/proposal';
 import { getMasogTotalSupply, getMasogBalance } from './helpers';
@@ -102,29 +107,41 @@ export function updateProposalStatus(
     currentStatus === bytesToString(votingStatus) &&
     hasVotingPeriodEnded(proposal, currentTimestamp)
   ) {
-    const allVotesKeys = Storage.getKeys(voteKey(proposal.id, ''));
-
-    for (let i = 0; i < allVotesKeys.length; i++) {
-      const userAddr = StaticArray.fromArray(
-        allVotesKeys[i].slice(voteKey(proposal.id, '').length),
-      );
-      const voteValue = bytesToI32(Storage.get(allVotesKeys[i]));
-
-      const balance = getMasogBalance(bytesToString(userAddr));
-
-      if (voteValue === 1) {
-        proposal.positiveVoteVolume = u256.add(
-          proposal.positiveVoteVolume,
-          balance,
+    // From MIP-0002, one datastore-key call returns at most MAX_DATASTORE_KEYS_PAGE keys: count the
+    // votes one page at a time.
+    const votesPrefix = voteKey(proposal.id, '');
+    let votesKeys = getKeysPage(votesPrefix);
+    while (votesKeys.length > 0) {
+      for (let i = 0; i < votesKeys.length; i++) {
+        const userAddr = StaticArray.fromArray(
+          votesKeys[i].slice(votesPrefix.length),
         );
-      } else if (voteValue === 0) {
-        proposal.blankVoteVolume = u256.add(proposal.blankVoteVolume, balance);
-      } else if (voteValue === -1) {
-        proposal.negativeVoteVolume = u256.add(
-          proposal.negativeVoteVolume,
-          balance,
-        );
+        const voteValue = bytesToI32(Storage.get(votesKeys[i]));
+
+        const balance = getMasogBalance(bytesToString(userAddr));
+
+        if (voteValue === 1) {
+          proposal.positiveVoteVolume = u256.add(
+            proposal.positiveVoteVolume,
+            balance,
+          );
+        } else if (voteValue === 0) {
+          proposal.blankVoteVolume = u256.add(
+            proposal.blankVoteVolume,
+            balance,
+          );
+        } else if (voteValue === -1) {
+          proposal.negativeVoteVolume = u256.add(
+            proposal.negativeVoteVolume,
+            balance,
+          );
+        }
       }
+      if (votesKeys.length < MAX_DATASTORE_KEYS_PAGE) {
+        break;
+      }
+      // Exclusive cursor: the next page starts after the last vote read.
+      votesKeys = getKeysPage(votesPrefix, votesKeys[votesKeys.length - 1]);
     }
 
     const totalSupply = getMasogTotalSupply();
