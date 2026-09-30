@@ -1,5 +1,10 @@
 import { bytesToU64, u64ToBytes, stringToBytes } from '@massalabs/as-types';
-import { Storage, Context, getKeys } from '@massalabs/massa-as-sdk';
+import {
+  Storage,
+  Context,
+  getKeysPage,
+  MAX_DATASTORE_KEYS_PAGE,
+} from '@massalabs/massa-as-sdk';
 import { Proposal } from '../serializable/proposal';
 import {
   discussionStatus,
@@ -58,25 +63,39 @@ export function _refresh(): void {
   const currentTimestamp = Context.timestamp();
 
   // Process discussion proposals
-  const discussionProposalsKeys = getKeys(statusKeyPrefix(discussionStatus));
-  for (let i = 0; i < discussionProposalsKeys.length; i++) {
-    const id = StaticArray.fromArray(
-      discussionProposalsKeys[i].slice(
-        statusKeyPrefix(discussionStatus).length,
-      ),
-    );
-    const proposal = Proposal.getById(bytesToU64(id));
-    updateProposalStatus(proposal, currentTimestamp);
-  }
+  _refreshProposalsWithStatus(discussionStatus, currentTimestamp);
 
   // Process voting proposals
-  const votingProposalsKeys = getKeys(statusKeyPrefix(votingStatus));
-  for (let i = 0; i < votingProposalsKeys.length; i++) {
-    const id = StaticArray.fromArray(
-      votingProposalsKeys[i].slice(statusKeyPrefix(votingStatus).length),
+  _refreshProposalsWithStatus(votingStatus, currentTimestamp);
+}
+
+/**
+ * Updates the status of every proposal with the given status.
+ * From MIP-0002, one datastore-key call returns at most MAX_DATASTORE_KEYS_PAGE keys: the proposals
+ * are read one page at a time. A proposal leaving the status removes its key, which does not move the
+ * cursor: the next page starts after the last key read, whether it still exists or not.
+ * @param status - The status of the proposals to update.
+ * @param currentTimestamp - The current timestamp.
+ */
+function _refreshProposalsWithStatus(
+  status: StaticArray<u8>,
+  currentTimestamp: u64,
+): void {
+  const prefix = statusKeyPrefix(status);
+  let proposalsKeys = getKeysPage(prefix);
+  while (proposalsKeys.length > 0) {
+    for (let i = 0; i < proposalsKeys.length; i++) {
+      const id = StaticArray.fromArray(proposalsKeys[i].slice(prefix.length));
+      const proposal = Proposal.getById(bytesToU64(id));
+      updateProposalStatus(proposal, currentTimestamp);
+    }
+    if (proposalsKeys.length < MAX_DATASTORE_KEYS_PAGE) {
+      break;
+    }
+    proposalsKeys = getKeysPage(
+      prefix,
+      proposalsKeys[proposalsKeys.length - 1],
     );
-    const proposal = Proposal.getById(bytesToU64(id));
-    updateProposalStatus(proposal, currentTimestamp);
   }
 }
 

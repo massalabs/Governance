@@ -1,6 +1,10 @@
 import { Serializable, Result } from '@massalabs/as-types';
 import { Args } from '@massalabs/as-types/assembly/argument';
-import { getKeys, Storage } from '@massalabs/massa-as-sdk';
+import {
+  getKeysPage,
+  MAX_DATASTORE_KEYS_PAGE,
+  Storage,
+} from '@massalabs/massa-as-sdk';
 import { proposalKey, statusKey, voteKey } from '../governance-internals/keys';
 import { u256 } from 'as-bignum/assembly';
 export class Proposal implements Serializable {
@@ -162,10 +166,18 @@ export class Proposal implements Serializable {
     // Delete the status index
     Storage.del(statusKey(this.status, this.id));
 
-    // Delete all votes
-    const voteKeys = getKeys(voteKey(this.id, ''));
-    for (let i = 0; i < voteKeys.length; i++) {
-      Storage.del(voteKeys[i]);
+    // Delete all votes, one page of keys at a time. Deleted keys leave the datastore, so each page
+    // starts from the beginning.
+    const votesPrefix = voteKey(this.id, '');
+    let voteKeys = getKeysPage(votesPrefix);
+    while (voteKeys.length > 0) {
+      for (let i = 0; i < voteKeys.length; i++) {
+        Storage.del(voteKeys[i]);
+      }
+      if (voteKeys.length < MAX_DATASTORE_KEYS_PAGE) {
+        break;
+      }
+      voteKeys = getKeysPage(votesPrefix);
     }
   }
 
