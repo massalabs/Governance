@@ -22,7 +22,7 @@ export class Proposal implements Serializable<Proposal> {
     public negativeVoteVolume: U256_t = 0n,
     public blankVoteVolume: U256_t = 0n,
     public endMasogTotalSupply: U256_t = 0n,
-  ) { }
+  ) {}
 
   static create(
     title: string,

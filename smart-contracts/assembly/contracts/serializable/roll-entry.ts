@@ -10,7 +10,7 @@ export class RollEntry implements Serializable {
   constructor(
     public address: StaticArray<u8> = [],
     public rolls: StaticArray<u8> = [],
-  ) { }
+  ) {}
 
   /**
    * Creates a new RollEntry object.

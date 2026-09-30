@@ -1,11 +1,21 @@
-import { bytesToI32, bytesToString } from "@massalabs/as-types";
-import { generateEvent, Storage } from "@massalabs/massa-as-sdk";
+import { bytesToI32, bytesToString } from '@massalabs/as-types';
+import { generateEvent, Storage } from '@massalabs/massa-as-sdk';
 
-import { Proposal } from "../serializable/proposal";
-import { getMasogTotalSupply, getMasogBalance } from "./helpers";
-import { discussionStatus, votingStatus, voteKey, acceptedStatus, rejectedStatus } from "./keys";
-import { DISCUSSION_PERIOD, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE, VOTING_PERIOD } from "./config";
-import { u256 } from "as-bignum/assembly";
+import { Proposal } from '../serializable/proposal';
+import { getMasogTotalSupply, getMasogBalance } from './helpers';
+import {
+  discussionStatus,
+  votingStatus,
+  voteKey,
+  acceptedStatus,
+  rejectedStatus,
+} from './keys';
+import {
+  DISCUSSION_PERIOD,
+  TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE,
+  VOTING_PERIOD,
+} from './config';
+import { u256 } from 'as-bignum/assembly';
 
 /**
  * Calculates the timestamp when voting period begins for a proposal.
@@ -31,7 +41,10 @@ export function getVotingEndTimestamp(proposal: Proposal): u64 {
  * @param currentTimestamp - Current blockchain timestamp
  * @returns Boolean indicating if voting period is active
  */
-export function isInVotingPeriod(proposal: Proposal, currentTimestamp: u64): bool {
+export function isInVotingPeriod(
+  proposal: Proposal,
+  currentTimestamp: u64,
+): bool {
   const votingStart = getVotingStartTimestamp(proposal);
   const votingEnd = getVotingEndTimestamp(proposal);
   return currentTimestamp >= votingStart && currentTimestamp <= votingEnd;
@@ -43,7 +56,10 @@ export function isInVotingPeriod(proposal: Proposal, currentTimestamp: u64): boo
  * @param currentTimestamp - Current blockchain timestamp
  * @returns Boolean indicating if voting period has ended
  */
-export function hasVotingPeriodEnded(proposal: Proposal, currentTimestamp: u64): bool {
+export function hasVotingPeriodEnded(
+  proposal: Proposal,
+  currentTimestamp: u64,
+): bool {
   return currentTimestamp > getVotingEndTimestamp(proposal);
 }
 
@@ -53,56 +69,77 @@ export function hasVotingPeriodEnded(proposal: Proposal, currentTimestamp: u64):
  * @param proposal - The proposal to update
  * @param currentTimestamp - Current blockchain timestamp
  */
-export function updateProposalStatus(proposal: Proposal, currentTimestamp: u64): void {
-
+export function updateProposalStatus(
+  proposal: Proposal,
+  currentTimestamp: u64,
+): void {
   const elapsedTime = currentTimestamp - proposal.creationTimestamp;
 
   // Still in discussion period
   if (elapsedTime < DISCUSSION_PERIOD) {
-    generateEvent(`Checking proposal status of: ${proposal.id} - still in discussion period`);
+    generateEvent(
+      `Checking proposal status of: ${proposal.id} - still in discussion period`,
+    );
 
     return;
   }
 
   // Transition to voting
   const currentStatus = bytesToString(proposal.status);
-  if (currentStatus === bytesToString(discussionStatus) &&
-    isInVotingPeriod(proposal, currentTimestamp)) {
+  if (
+    currentStatus === bytesToString(discussionStatus) &&
+    isInVotingPeriod(proposal, currentTimestamp)
+  ) {
     proposal.setStatus(votingStatus).save();
-    generateEvent(`Checking proposal status of: ${proposal.id} - transitioned to voting status`);
+    generateEvent(
+      `Checking proposal status of: ${proposal.id} - transitioned to voting status`,
+    );
     return;
   }
 
   // Process voting results
-  if (currentStatus === bytesToString(votingStatus) &&
-    hasVotingPeriodEnded(proposal, currentTimestamp)) {
+  if (
+    currentStatus === bytesToString(votingStatus) &&
+    hasVotingPeriodEnded(proposal, currentTimestamp)
+  ) {
     const allVotesKeys = Storage.getKeys(voteKey(proposal.id, ''));
 
     for (let i = 0; i < allVotesKeys.length; i++) {
-      const userAddr = StaticArray.fromArray(allVotesKeys[i].slice(voteKey(proposal.id, '').length));
+      const userAddr = StaticArray.fromArray(
+        allVotesKeys[i].slice(voteKey(proposal.id, '').length),
+      );
       const voteValue = bytesToI32(Storage.get(allVotesKeys[i]));
 
       const balance = getMasogBalance(bytesToString(userAddr));
 
       if (voteValue === 1) {
-        proposal.positiveVoteVolume = u256.add(proposal.positiveVoteVolume, balance);
+        proposal.positiveVoteVolume = u256.add(
+          proposal.positiveVoteVolume,
+          balance,
+        );
       } else if (voteValue === 0) {
         proposal.blankVoteVolume = u256.add(proposal.blankVoteVolume, balance);
       } else if (voteValue === -1) {
-        proposal.negativeVoteVolume = u256.add(proposal.negativeVoteVolume, balance);
+        proposal.negativeVoteVolume = u256.add(
+          proposal.negativeVoteVolume,
+          balance,
+        );
       }
     }
 
     const totalSupply = getMasogTotalSupply();
 
-    const status = u256.mul(
-      proposal.positiveVoteVolume,
-      u256.fromU64(100)) > u256.mul(
-        totalSupply, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE) ? acceptedStatus : rejectedStatus;
+    const status =
+      u256.mul(proposal.positiveVoteVolume, u256.fromU64(100)) >
+      u256.mul(totalSupply, TOTAL_SUPPLY_PERCENTAGE_FOR_ACCEPTANCE)
+        ? acceptedStatus
+        : rejectedStatus;
 
     proposal.endMasogTotalSupply = totalSupply;
 
-    generateEvent(`Checking proposal status of: ${proposal.id} - ${bytesToString(status)}`);
+    generateEvent(
+      `Checking proposal status of: ${proposal.id} - ${bytesToString(status)}`,
+    );
 
     proposal.setStatus(status).save();
   }

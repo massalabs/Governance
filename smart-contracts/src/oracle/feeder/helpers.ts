@@ -6,14 +6,17 @@ import {
   Web3Provider,
 } from '@massalabs/massa-web3';
 import { U64_t } from '@massalabs/massa-web3/dist/esm/basicElements/serializers/number/u64';
-import {
-  Staker,
-} from '@massalabs/massa-web3/dist/esm/generated/client-types';
+import { Staker } from '@massalabs/massa-web3/dist/esm/generated/client-types';
 import { RollEntry } from '../serializable/RollEntry';
 import { Oracle } from '../wrapper/Oracle';
-import { AVERAGE_ROLL_STORAGE_COST, MAX_CYCLES, MAX_MINT_STORAGE_COST, PERIODS_PER_CYCLE, PERIOD_TIME } from './const';
+import {
+  AVERAGE_ROLL_STORAGE_COST,
+  MAX_CYCLES,
+  MAX_MINT_STORAGE_COST,
+  PERIODS_PER_CYCLE,
+  PERIOD_TIME,
+} from './const';
 import { log } from './log';
-
 
 /**
  * Feeds rolls data to oracle in batches
@@ -35,16 +38,23 @@ export async function feedRolls(
     const opFeed = await oracle.feedCycle(batch, cycle, isLastBatch, {
       coins: Mas.fromNanoMas(
         Mas.fromString('100') + // Will be refounded if 100 MAS are too much
-        (AVERAGE_ROLL_STORAGE_COST + MAX_MINT_STORAGE_COST) *
-        BigInt(batchSize),
+          (AVERAGE_ROLL_STORAGE_COST + MAX_MINT_STORAGE_COST) *
+            BigInt(batchSize),
       ),
       fee: Mas.fromString('0.1'),
     });
 
     const status = await opFeed.waitFinalExecution();
-    if (status !== OperationStatus.Success && status !== OperationStatus.SpeculativeSuccess) {
+    if (
+      status !== OperationStatus.Success &&
+      status !== OperationStatus.SpeculativeSuccess
+    ) {
       // TODO - if error, should we reset changes?
-      throw new Error(`Failed to feed batch ${i / batchSize + 1} status: ${OperationStatus[status]}`);
+      throw new Error(
+        `Failed to feed batch ${i / batchSize + 1} status: ${
+          OperationStatus[status]
+        }`,
+      );
     }
 
     console.log(`Batch ${i / batchSize + 1} fed successfully`);
@@ -84,27 +94,37 @@ export async function deleteRolls(
 
   // Process each batch
   for (let batchIndex = 0n; batchIndex < batchCount; batchIndex++) {
-    const currentBatchSize = batchIndex === batchCount - 1n
-      ? recordedRolls - batchIndex * batchSize
-      : batchSize;
+    const currentBatchSize =
+      batchIndex === batchCount - 1n
+        ? recordedRolls - batchIndex * batchSize
+        : batchSize;
 
     console.log('Deleting batch', { cycle, batchIndex, currentBatchSize });
 
     // Execute deletion
     const opDeleteBatch = await oracle.deleteCycle(cycle, currentBatchSize, {
-      coins: Mas.fromString(coins)
+      coins: Mas.fromString(coins),
     });
 
     // Wait for speculative execution
     const status = await opDeleteBatch.waitSpeculativeExecution();
 
     // Check operation status
-    if (status !== OperationStatus.Success && status !== OperationStatus.SpeculativeSuccess) {
-      // eslint-disable-next-line max-len
-      throw new Error(`Failed to delete batch for cycle ${cycle} (batch ${batchIndex}, size ${currentBatchSize}): ${OperationStatus[status]}`);
+    if (
+      status !== OperationStatus.Success &&
+      status !== OperationStatus.SpeculativeSuccess
+    ) {
+      throw new Error(
+        // eslint-disable-next-line max-len
+        `Failed to delete batch for cycle ${cycle} (batch ${batchIndex}, size ${currentBatchSize}): ${OperationStatus[status]}`,
+      );
     }
 
-    console.log('Batch deleted successfully', { cycle, batchIndex, currentBatchSize });
+    console.log('Batch deleted successfully', {
+      cycle,
+      batchIndex,
+      currentBatchSize,
+    });
   }
 
   console.log('Roll deletion completed', { cycle, recordedRolls });
@@ -126,7 +146,6 @@ export async function getStakers(provider: Web3Provider): Promise<Staker[]> {
 
   return stakers;
 }
-
 
 export type CycleInfo = {
   currentPeriod: bigint;

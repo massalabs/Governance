@@ -4,7 +4,7 @@ import { Context, Storage } from '@massalabs/massa-as-sdk';
 import { voteKey } from '../governance-internals/keys';
 
 export class Vote implements Serializable {
-  constructor(public proposalId: u64 = 0, public value: i32 = 0) { }
+  constructor(public proposalId: u64 = 0, public value: i32 = 0) {}
 
   /**
    * Serializes the Vote object into a byte array.

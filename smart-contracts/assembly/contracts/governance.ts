@@ -14,9 +14,7 @@ import {
   _onlyOwner,
   _setOwner,
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
-import {
-  UPDATE_PROPOSAL_COUNTER_TAG,
-} from './governance-internals/keys';
+import { UPDATE_PROPOSAL_COUNTER_TAG } from './governance-internals/keys';
 import { MASOG_KEY } from './rolls-oracle';
 import { Proposal } from './serializable/proposal';
 import { Vote } from './serializable/vote';
@@ -32,11 +30,10 @@ import {
   MAX_ASYNC_CALL_GAS_KEY,
   MAX_ASYNC_CALL_FEE_KEY,
   AUTO_REFRESH_STATUS_KEY,
-  ASC_END_PERIOD
+  ASC_END_PERIOD,
 } from './governance-internals/auto-refresh';
 import { ALLOWED_ADDRESSES } from './governance-internals/config';
 import { ManageAutoRefresh } from './serializable/manage-auto-refresh';
-
 
 /**
  * Sets the owner and the MASOG contract address
@@ -52,7 +49,6 @@ export function constructor(bin: StaticArray<u8>): void {
     .expect('Oracle contract should be provided');
 
   assertIsSmartContract(masOgAddr);
-
 
   Storage.set(UPDATE_PROPOSAL_COUNTER_TAG, u64ToBytes(0));
   Storage.set(AUTO_REFRESH_STATUS_KEY, boolToByte(true));
@@ -134,8 +130,6 @@ export function runAutoRefresh(): void {
   _autoRefreshCall();
 }
 
-
-
 /**
  * Upgrade the smart contract bytecode
  */
@@ -148,7 +142,6 @@ export function upgradeSC(bytecode: StaticArray<u8>): void {
   transferRemaining(initialBalance);
 }
 
-
 /**
  * Allow the owner ot allow or stop the auto refresh
  * @param binaryArgs - Serialized arguments: stop (bool).
@@ -158,7 +151,9 @@ export function upgradeSC(bytecode: StaticArray<u8>): void {
 export function manageAutoRefresh(binaryArgs: StaticArray<u8>): void {
   onlyAllowedAddresses();
   const args = new Args(binaryArgs);
-  const manageAutoRefresh = args.nextSerializable<ManageAutoRefresh>().expect('Manage auto refresh is required');
+  const manageAutoRefresh = args
+    .nextSerializable<ManageAutoRefresh>()
+    .expect('Manage auto refresh is required');
 
   Storage.set(AUTO_REFRESH_STATUS_KEY, boolToByte(manageAutoRefresh.stop));
 
@@ -170,7 +165,6 @@ export function manageAutoRefresh(binaryArgs: StaticArray<u8>): void {
     Storage.set(MAX_ASYNC_CALL_FEE_KEY, u64ToBytes(manageAutoRefresh.maxFee));
   }
 }
-
 
 /**
  * Receives coins and generates an event
@@ -214,10 +208,11 @@ export function deleteProposal(binaryArgs: StaticArray<u8>): void {
   transferRemaining(initialBalance);
 }
 
-
 function onlyAllowedAddresses(): void {
-  assert(ALLOWED_ADDRESSES.includes(Context.caller().toString()) || _isOwner(Context.caller().toString()),
-    'Address is not allowed'
+  assert(
+    ALLOWED_ADDRESSES.includes(Context.caller().toString()) ||
+      _isOwner(Context.caller().toString()),
+    'Address is not allowed',
   );
 }
 

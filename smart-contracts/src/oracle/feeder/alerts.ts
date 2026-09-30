@@ -35,7 +35,6 @@ export class AlertsService {
       return;
     }
 
-
     const alertData = [
       {
         status: 'firing',
@@ -52,7 +51,9 @@ export class AlertsService {
     ];
     if (isOneTimeEvent) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (alertData[0] as any).endsAt = new Date(Date.now() + EVENT_EXPIRATION_TIME).toISOString();
+      (alertData[0] as any).endsAt = new Date(
+        Date.now() + EVENT_EXPIRATION_TIME,
+      ).toISOString();
     }
 
     const alerts = await this.getAlerts();
@@ -106,11 +107,17 @@ export class AlertsService {
     if (this.webHookUrl) {
       try {
         const response = await axios.get(this.webHookUrl);
-        return response.data.data
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .filter((item: any) => item.labels.instance === alertInstance && item.status.state === 'active')
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((item: any) => item.labels.alertname);
+        return (
+          response.data.data
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .filter(
+              (item: any) =>
+                item.labels.instance === alertInstance &&
+                item.status.state === 'active',
+            )
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .map((item: any) => item.labels.alertname)
+        );
       } catch (e) {
         console.warn('Error getting alerts:', e);
         return [];
@@ -118,4 +125,4 @@ export class AlertsService {
     }
     return [];
   }
-} 
+}

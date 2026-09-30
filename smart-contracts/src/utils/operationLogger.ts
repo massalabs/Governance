@@ -13,4 +13,4 @@ export function logOperation(operationType: string, operationId: string): void {
   } catch (error) {
     console.error('Failed to log operation:', error);
   }
-} 
+}

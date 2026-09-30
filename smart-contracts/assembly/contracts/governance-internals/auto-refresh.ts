@@ -1,7 +1,25 @@
-import { u64ToBytes, bytesToU64, stringToBytes, byteToBool } from "@massalabs/as-types";
-import { Storage, Context, currentPeriod, getKeys, asyncCall, Slot, generateEvent } from "@massalabs/massa-as-sdk";
-import { statusKeyPrefix, votingStatus, discussionStatus } from "./keys";
-import { START_REFETCH_PERIOD, LIMIT_REFETCH_PERIOD, MAX_ASYNC_CALL_GAS, MAX_ASYNC_CALL_FEE } from "./config";
+import {
+  u64ToBytes,
+  bytesToU64,
+  stringToBytes,
+  byteToBool,
+} from '@massalabs/as-types';
+import {
+  Storage,
+  Context,
+  currentPeriod,
+  getKeys,
+  asyncCall,
+  Slot,
+  generateEvent,
+} from '@massalabs/massa-as-sdk';
+import { statusKeyPrefix, votingStatus, discussionStatus } from './keys';
+import {
+  START_REFETCH_PERIOD,
+  LIMIT_REFETCH_PERIOD,
+  MAX_ASYNC_CALL_GAS,
+  MAX_ASYNC_CALL_FEE,
+} from './config';
 // Auto refresh constants
 
 export const AUTO_REFRESH_STATUS_KEY = stringToBytes('auto_refresh');
@@ -16,7 +34,7 @@ export const MAX_ASYNC_CALL_FEE_KEY = stringToBytes('MAX_ASYNC_CALL_FEE');
  */
 export function _autoRefreshCall(): void {
   if (!byteToBool(Storage.get(AUTO_REFRESH_STATUS_KEY))) {
-    generateEvent("ASC is not allowed");
+    generateEvent('ASC is not allowed');
     return;
   }
 
@@ -44,10 +62,12 @@ export function _autoRefreshCall(): void {
     return;
   }
 
-  const maxGas = Storage.has(MAX_ASYNC_CALL_GAS_KEY) ?
-    bytesToU64(Storage.get(MAX_ASYNC_CALL_GAS_KEY)) : MAX_ASYNC_CALL_GAS;
-  const maxFee = Storage.has(MAX_ASYNC_CALL_FEE_KEY) ?
-    bytesToU64(Storage.get(MAX_ASYNC_CALL_FEE_KEY)) : MAX_ASYNC_CALL_FEE;
+  const maxGas = Storage.has(MAX_ASYNC_CALL_GAS_KEY)
+    ? bytesToU64(Storage.get(MAX_ASYNC_CALL_GAS_KEY))
+    : MAX_ASYNC_CALL_GAS;
+  const maxFee = Storage.has(MAX_ASYNC_CALL_FEE_KEY)
+    ? bytesToU64(Storage.get(MAX_ASYNC_CALL_FEE_KEY))
+    : MAX_ASYNC_CALL_FEE;
 
   asyncCall(
     Context.callee(), // target
@@ -60,7 +80,9 @@ export function _autoRefreshCall(): void {
 
   Storage.set(ASC_END_PERIOD, u64ToBytes(validityEndPeriod));
 
-  generateEvent(`New ASC started, validity period: ${validityStartPeriod} to ${validityEndPeriod}`);
+  generateEvent(
+    `New ASC started, validity period: ${validityStartPeriod} to ${validityEndPeriod}`,
+  );
 }
 
 /**
@@ -76,7 +98,8 @@ export function _ensureAutoRefresh(): void {
     // Expired ASC: refresh and restart
     _autoRefreshCall();
   } else {
-    generateEvent(`No need to add new ASC, current period is ${currentPeriod}, and ASC limit period is: ${lastEnd}`);
+    generateEvent(
+      `No need to add new ASC, current period is ${currentPeriod}, and ASC limit period is: ${lastEnd}`,
+    );
   }
 }
-

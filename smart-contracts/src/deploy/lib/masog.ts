@@ -1,4 +1,9 @@
-import { Args, JsonRpcProvider, Mas, SmartContract } from '@massalabs/massa-web3';
+import {
+  Args,
+  JsonRpcProvider,
+  Mas,
+  SmartContract,
+} from '@massalabs/massa-web3';
 import { getScByteCode } from '../../utils';
 import { deployCoins, networkName } from '../../config';
 import { logOperation } from '../../utils/operationLogger';

@@ -1,4 +1,4 @@
-import { u256 } from "as-bignum/assembly";
+import { u256 } from 'as-bignum/assembly';
 
 // Admin
 export const ALLOWED_ADDRESSES = [

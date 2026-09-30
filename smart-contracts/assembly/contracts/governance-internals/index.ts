@@ -1,13 +1,5 @@
-import {
-  bytesToU64,
-  u64ToBytes,
-  stringToBytes,
-} from '@massalabs/as-types';
-import {
-  Storage,
-  Context,
-  getKeys,
-} from '@massalabs/massa-as-sdk';
+import { bytesToU64, u64ToBytes, stringToBytes } from '@massalabs/as-types';
+import { Storage, Context, getKeys } from '@massalabs/massa-as-sdk';
 import { Proposal } from '../serializable/proposal';
 import {
   discussionStatus,
@@ -23,7 +15,11 @@ import {
   validateAndBurnMas,
 } from './helpers';
 import { isInVotingPeriod, updateProposalStatus } from './proposal-status';
-import { MIN_PROPOSAL_MASOG_AMOUNT, MIN_PROPOSAL_MAS_AMOUNT, MIN_VOTE_MASOG_AMOUNT } from './config';
+import {
+  MIN_PROPOSAL_MASOG_AMOUNT,
+  MIN_PROPOSAL_MAS_AMOUNT,
+  MIN_VOTE_MASOG_AMOUNT,
+} from './config';
 import { u256 } from 'as-bignum/assembly';
 /**
 /**
@@ -65,7 +61,9 @@ export function _refresh(): void {
   const discussionProposalsKeys = getKeys(statusKeyPrefix(discussionStatus));
   for (let i = 0; i < discussionProposalsKeys.length; i++) {
     const id = StaticArray.fromArray(
-      discussionProposalsKeys[i].slice(statusKeyPrefix(discussionStatus).length)
+      discussionProposalsKeys[i].slice(
+        statusKeyPrefix(discussionStatus).length,
+      ),
     );
     const proposal = Proposal.getById(bytesToU64(id));
     updateProposalStatus(proposal, currentTimestamp);
@@ -75,7 +73,7 @@ export function _refresh(): void {
   const votingProposalsKeys = getKeys(statusKeyPrefix(votingStatus));
   for (let i = 0; i < votingProposalsKeys.length; i++) {
     const id = StaticArray.fromArray(
-      votingProposalsKeys[i].slice(statusKeyPrefix(votingStatus).length)
+      votingProposalsKeys[i].slice(statusKeyPrefix(votingStatus).length),
     );
     const proposal = Proposal.getById(bytesToU64(id));
     updateProposalStatus(proposal, currentTimestamp);
@@ -91,13 +89,17 @@ export function _vote(vote: Vote): void {
   const proposal = Proposal.getById(vote.proposalId);
   const currentTimestamp = Context.timestamp();
 
-  assert(isInVotingPeriod(proposal, currentTimestamp), 'Voting is not allowed at this time');
+  assert(
+    isInVotingPeriod(proposal, currentTimestamp),
+    'Voting is not allowed at this time',
+  );
 
   const balance = getMasogBalance(Context.caller().toString());
   assertSufficientMasogBalance(balance, MIN_VOTE_MASOG_AMOUNT);
 
-  assert(vote.value === 1 || vote.value === 0 || vote.value === -1,
-    'Invalid vote value. Use 1 (yes), 0 (blank), or -1 (no)'
+  assert(
+    vote.value === 1 || vote.value === 0 || vote.value === -1,
+    'Invalid vote value. Use 1 (yes), 0 (blank), or -1 (no)',
   );
 
   vote.save();
@@ -109,7 +111,9 @@ export function _vote(vote: Vote): void {
  */
 export function _deleteProposal(proposalId: u64): void {
   const proposal = Proposal.getById(proposalId);
-  assert(proposal.status.toString() === rejectedStatus.toString(), 'Proposal is not rejected');
+  assert(
+    proposal.status.toString() === rejectedStatus.toString(),
+    'Proposal is not rejected',
+  );
   proposal.delete();
 }
-

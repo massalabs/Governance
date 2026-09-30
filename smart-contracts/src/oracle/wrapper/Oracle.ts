@@ -132,14 +132,12 @@ export class Oracle extends SmartContract {
   }
 
   async getAllStorageKeysAndSaveToFile(): Promise<void> {
-    const result = await this.provider.getStorageKeys(
-      this.address,
-    );
+    const result = await this.provider.getStorageKeys(this.address);
 
     console.log(result.length);
     const keys = result.map((key) => {
       return {
-        key: bytesToStr(key)
+        key: bytesToStr(key),
       };
     });
 
@@ -164,12 +162,14 @@ export class Oracle extends SmartContract {
     });
   }
 
-  async setMasOgAddress(
-    masOgContract = getContracts().masOg,
-  ): Promise<void> {
-    const op = await this.call('setMasOgAddress', new Args().addString(masOgContract), {
-      coins: Mas.fromString('1'),
-    });
+  async setMasOgAddress(masOgContract = getContracts().masOg): Promise<void> {
+    const op = await this.call(
+      'setMasOgAddress',
+      new Args().addString(masOgContract),
+      {
+        coins: Mas.fromString('1'),
+      },
+    );
 
     const status = await op.waitFinalExecution();
 
@@ -187,7 +187,6 @@ export class Oracle extends SmartContract {
 
     return bytesToStr(result[0]);
   }
-
 
   async ownerAddress(): Promise<string> {
     const result = await this.provider.readSC({

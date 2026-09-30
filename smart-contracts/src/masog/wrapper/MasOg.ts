@@ -27,12 +27,12 @@ export class MasOg extends MRC20 {
   }
 
   async getAllBalances(): Promise<{ address: string; balance: bigint }[]> {
-    const keys = await this.provider.getStorageKeys(this.address, "BALANCE");
+    const keys = await this.provider.getStorageKeys(this.address, 'BALANCE');
 
     const values = await this.provider.readStorage(this.address, keys);
 
     return keys.map((key, index) => ({
-      address: bytesToStr(key).split("BALANCE")[1],
+      address: bytesToStr(key).split('BALANCE')[1],
       balance: U256.fromBytes(values[index] ?? new Uint8Array()),
     }));
   }
