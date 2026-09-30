@@ -1,15 +1,11 @@
 /* eslint-disable camelcase */
-import {
-  Args,
-  DeserializedResult,
-  Serializable,
-} from '@massalabs/massa-web3';
+import { Args, DeserializedResult, Serializable } from '@massalabs/massa-web3';
 
 export class KeyValue implements Serializable<KeyValue> {
   constructor(
     public key: Uint8Array = new Uint8Array(),
     public value: Uint8Array = new Uint8Array(),
-  ) { }
+  ) {}
 
   serialize(): Uint8Array {
     return new Args()

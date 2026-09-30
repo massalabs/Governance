@@ -17,7 +17,7 @@ export class Proposal implements Serializable {
     public negativeVoteVolume: u256 = u256.Zero,
     public blankVoteVolume: u256 = u256.Zero,
     public endMasogTotalSupply: u256 = u256.Zero,
-  ) { }
+  ) {}
 
   /**
    * Serializes the Proposal object into a byte array.
@@ -111,16 +111,16 @@ export class Proposal implements Serializable {
    * Asserts that the proposal data is valid.
    */
   assertIsValid(): void {
-
     assert(
       this.title.length > 0 &&
-      this.title.length <= 100 &&
-      this.summary.length > 0 &&
-      this.summary.length <= 500 &&
-      this.forumPostLink.length > 0 &&
-      this.forumPostLink.length <= 200 &&
-      this.parameterChange.length >= 0 &&
-      this.parameterChange.length <= 500, "Invalid proposal data"
+        this.title.length <= 100 &&
+        this.summary.length > 0 &&
+        this.summary.length <= 500 &&
+        this.forumPostLink.length > 0 &&
+        this.forumPostLink.length <= 200 &&
+        this.parameterChange.length >= 0 &&
+        this.parameterChange.length <= 500,
+      'Invalid proposal data',
     );
   }
 

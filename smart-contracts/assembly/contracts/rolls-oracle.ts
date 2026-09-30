@@ -145,4 +145,3 @@ export {
   setOwner,
   ownerAddress,
 } from '@massalabs/sc-standards/assembly/contracts/utils/ownership';
-

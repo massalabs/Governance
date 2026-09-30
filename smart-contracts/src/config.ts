@@ -1,7 +1,9 @@
 import { Mas, NetworkName } from '@massalabs/massa-web3';
 
 export const isMainnet = false;
-export const networkName = isMainnet ? NetworkName.Mainnet : NetworkName.Buildnet;
+export const networkName = isMainnet
+  ? NetworkName.Mainnet
+  : NetworkName.Buildnet;
 
 export const contracts = {
   [NetworkName.Mainnet]: {
@@ -21,7 +23,6 @@ export function getContracts() {
     ? contracts[NetworkName.Mainnet]
     : contracts[NetworkName.Buildnet];
 }
-
 
 export const deployCoins = {
   [NetworkName.Mainnet]: {

@@ -32,7 +32,10 @@ export function getMasogBalance(address: string): u256 {
  * @param  balance - The current balance of the caller.
  * @param  amount - The required amount of MASOG.
  */
-export function assertSufficientMasogBalance(balance: u256, amount: u256): void {
+export function assertSufficientMasogBalance(
+  balance: u256,
+  amount: u256,
+): void {
   assert(
     u256.ge(balance, amount),
     `Insufficient MASOG balance to make a proposal (need ${amount})`,

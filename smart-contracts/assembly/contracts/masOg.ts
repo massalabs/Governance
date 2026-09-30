@@ -1,6 +1,9 @@
 import { u256 } from 'as-bignum/assembly';
 import { mrc20Constructor } from '@massalabs/sc-standards/assembly/contracts/MRC20';
-import { _onlyOwner, OWNER_KEY } from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
+import {
+  _onlyOwner,
+  OWNER_KEY,
+} from '@massalabs/sc-standards/assembly/contracts/utils/ownership-internal';
 import {
   Args,
   bytesToString,
@@ -44,7 +47,6 @@ export function constructor(bin: StaticArray<u8>): void {
   assertIsSmartContract(oracleAddr);
   Storage.set(ORACLE_KEY, oracleAddr);
   Storage.set(LAST_UPDATED_CYCLE, u64ToBytes(0));
-
 }
 
 export function upgradeSC(bytecode: StaticArray<u8>): void {

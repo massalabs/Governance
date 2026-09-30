@@ -54,7 +54,7 @@ import {
   MIN_PROPOSAL_MAS_AMOUNT,
   MIN_VOTE_MASOG_AMOUNT,
   DISCUSSION_PERIOD,
-  VOTING_PERIOD
+  VOTING_PERIOD,
 } from '../contracts/governance-internals/config';
 import { ASC_END_PERIOD } from '../contracts/governance-internals/auto-refresh';
 import { u256 } from 'as-bignum/assembly';
@@ -67,8 +67,6 @@ const nonOwner = 'AU1wN8rn4SkwYSTDF3dHFY4U28KtsqKL1NnEjDZhHnHEy6cEQm52';
 let governanceContractAddress = '';
 let masOgAddress = '';
 let oracleAddress = '';
-
-
 
 describe('Initialization', () => {
   beforeEach(() => {
@@ -514,8 +512,12 @@ describe('Refresh', () => {
     const baseTime = u64(1000000);
     const totalSupply = u256.fromU64(1000_000_000_000);
     setupProposal(1, discussionStatus, baseTime);
-    setupProposal(2, votingStatus, baseTime - DISCUSSION_PERIOD - VOTING_PERIOD,
-      u256.fromU64(5_00_000_000_001)); // Already past voting
+    setupProposal(
+      2,
+      votingStatus,
+      baseTime - DISCUSSION_PERIOD - VOTING_PERIOD,
+      u256.fromU64(5_00_000_000_001),
+    ); // Already past voting
     mockMasogTotalSupply(totalSupply);
     mockTimestamp(baseTime + DISCUSSION_PERIOD + 1); // 5:00.001
     refresh([]);

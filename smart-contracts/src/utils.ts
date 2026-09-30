@@ -28,7 +28,6 @@ export async function getProvider(
     : Web3Provider.buildnet(account);
 }
 
-
 export function compareUint8Arrays(a: Uint8Array, b: Uint8Array): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {
