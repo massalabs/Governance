@@ -17,7 +17,8 @@ import {
   balance,
   Context,
   generateEvent,
-  getKeysOf,
+  getKeysOfPage,
+  MAX_DATASTORE_KEYS_PAGE,
   setBytecode,
   Storage,
   transferCoins,
@@ -110,21 +111,34 @@ export function refresh(bin: StaticArray<u8>): void {
     }
 
     const starkersPrefix = rollKeyPrefix(cycle);
-    const stakersData = getKeysOf(oracleAddrStr, starkersPrefix);
-    for (let i = 0; i < stakersData.length; i++) {
-      const stakerAddrBytes = StaticArray.fromArray(
-        stakersData[i].slice(starkersPrefix.length),
-      );
-      const rolls = bytesToU64(
-        Storage.getOf(oracleAddr, rollKeyBytes(cycle, stakerAddrBytes)),
-      );
+    // From MIP-0002, one datastore-key call returns at most MAX_DATASTORE_KEYS_PAGE keys: go through
+    // the stakers of the cycle one page at a time.
+    let stakersData = getKeysOfPage(oracleAddrStr, starkersPrefix);
+    while (stakersData.length > 0) {
+      for (let i = 0; i < stakersData.length; i++) {
+        const stakerAddrBytes = StaticArray.fromArray(
+          stakersData[i].slice(starkersPrefix.length),
+        );
+        const rolls = bytesToU64(
+          Storage.getOf(oracleAddr, rollKeyBytes(cycle, stakerAddrBytes)),
+        );
 
-      // Mint
-      _increaseBalance(
-        new Address(bytesToString(stakerAddrBytes)),
-        u256.fromU64(rolls),
+        // Mint
+        _increaseBalance(
+          new Address(bytesToString(stakerAddrBytes)),
+          u256.fromU64(rolls),
+        );
+        totalMinted += rolls;
+      }
+      if (stakersData.length < MAX_DATASTORE_KEYS_PAGE) {
+        break;
+      }
+      // Exclusive cursor: the next page starts after the last key read.
+      stakersData = getKeysOfPage(
+        oracleAddrStr,
+        starkersPrefix,
+        stakersData[stakersData.length - 1],
       );
-      totalMinted += rolls;
     }
   }
 
