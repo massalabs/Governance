@@ -1,6 +1,7 @@
 import { Mas, NetworkName } from '@massalabs/massa-web3';
 
-export const isMainnet = false;
+// Run a script against mainnet with `MAINNET=true npm run <script>`.
+export const isMainnet = process.env.MAINNET === 'true';
 export const networkName = isMainnet
   ? NetworkName.Mainnet
   : NetworkName.Buildnet;
