@@ -19,7 +19,7 @@ export function getRandomInt(min: number, max: number): number {
 }
 
 export async function getProvider(
-  envKey = 'PRIVATE_KEY_BUILDNET',
+  envKey = isMainnet ? 'PRIVATE_KEY_MAINNET' : 'PRIVATE_KEY_BUILDNET',
   forceMainnet = false,
 ): Promise<JsonRpcProvider> {
   const account = await Account.fromEnv(envKey);
